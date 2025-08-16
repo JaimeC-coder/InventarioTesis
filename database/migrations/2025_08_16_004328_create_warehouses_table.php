@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('warehouses', function (Blueprint $table) {
-           $table->id();
-           $table->string('name');
-           $table->string('location');
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('warehouses', function (Blueprint $blueprint): void {
+           $blueprint->id();
+           $blueprint->string('name');
+           $blueprint->string('location');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

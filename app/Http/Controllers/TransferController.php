@@ -10,7 +10,7 @@ class TransferController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): void
     {
         //
     }
@@ -18,7 +18,7 @@ class TransferController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -26,7 +26,7 @@ class TransferController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -34,7 +34,7 @@ class TransferController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Transfer $transfer)
+    public function show(Transfer $transfer): void
     {
         //
     }
@@ -42,7 +42,7 @@ class TransferController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Transfer $transfer)
+    public function edit(Transfer $transfer): void
     {
         //
     }
@@ -50,7 +50,7 @@ class TransferController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Transfer $transfer)
+    public function update(Request $request, Transfer $transfer): void
     {
         //
     }
@@ -58,7 +58,7 @@ class TransferController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Transfer $transfer)
+    public function destroy(Transfer $transfer): void
     {
         //
     }

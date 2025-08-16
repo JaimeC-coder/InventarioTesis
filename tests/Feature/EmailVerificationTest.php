@@ -22,9 +22,9 @@ class EmailVerificationTest extends TestCase
 
         $user = User::factory()->withPersonalTeam()->unverified()->create();
 
-        $response = $this->actingAs($user)->get('/email/verify');
+        $testResponse = $this->actingAs($user)->get('/email/verify');
 
-        $response->assertStatus(200);
+        $testResponse->assertStatus(200);
     }
 
     public function test_email_can_be_verified(): void
@@ -43,12 +43,12 @@ class EmailVerificationTest extends TestCase
             ['id' => $user->id, 'hash' => sha1($user->email)]
         );
 
-        $response = $this->actingAs($user)->get($verificationUrl);
+        $testResponse = $this->actingAs($user)->get($verificationUrl);
 
         Event::assertDispatched(Verified::class);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+        $testResponse->assertRedirect(route('dashboard', absolute: false).'?verified=1');
     }
 
     public function test_email_can_not_verified_with_invalid_hash(): void

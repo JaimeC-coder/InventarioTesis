@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('suppliers', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
-            $table->string('document_number')->unique();
-            $table->string('name');
-            $table->string('address');
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('suppliers', function (Blueprint $blueprint): void {
+            $blueprint->id();
+            $blueprint->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
+            $blueprint->string('document_number')->unique();
+            $blueprint->string('name');
+            $blueprint->string('address');
+            $blueprint->string('email')->unique();
+            $blueprint->string('phone')->unique();
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

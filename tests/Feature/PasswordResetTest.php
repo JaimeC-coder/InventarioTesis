@@ -19,9 +19,9 @@ class PasswordResetTest extends TestCase
             $this->markTestSkipped('Password updates are not enabled.');
         }
 
-        $response = $this->get('/forgot-password');
+        $testResponse = $this->get('/forgot-password');
 
-        $response->assertStatus(200);
+        $testResponse->assertStatus(200);
     }
 
     public function test_reset_password_link_can_be_requested(): void
@@ -55,10 +55,10 @@ class PasswordResetTest extends TestCase
             'email' => $user->email,
         ]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function (object $notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+        Notification::assertSentTo($user, ResetPassword::class, function (object $notification): true {
+            $testResponse = $this->get('/reset-password/'.$notification->token);
 
-            $response->assertStatus(200);
+            $testResponse->assertStatus(200);
 
             return true;
         });
@@ -78,15 +78,15 @@ class PasswordResetTest extends TestCase
             'email' => $user->email,
         ]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user) {
-            $response = $this->post('/reset-password', [
+        Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user): true {
+            $testResponse = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $user->email,
                 'password' => 'password',
                 'password_confirmation' => 'password',
             ]);
 
-            $response->assertSessionHasNoErrors();
+            $testResponse->assertSessionHasNoErrors();
 
             return true;
         });

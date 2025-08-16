@@ -36,16 +36,16 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::PHP_82,
         SetList::CODE_QUALITY,
         SetList::CODING_STYLE,
+        SetList::DEAD_CODE,
+        SetList::NAMING,
         SetList::TYPE_DECLARATION,
     ]);
 
-    // Reglas específicas convenientes
-    $rectorConfig->rules([
-        RemoveUnusedImportsRector::class,            // borra use no usados
-        ImportFullyQualifiedNamesRector::class,      // organiza imports
-        InlineConstructorDefaultToPropertyRector::class, // promociona props en el ctor (PHP 8)
-        TypedPropertyFromAssignsRector::class,       // infiere tipos en propiedades
-        SimplifyIfReturnBoolRector::class,           // simplifica ifs que devuelven bool
+    // Opcional: ignora vendor/ y storage/ , tests/
+    $rectorConfig->skip([
+        __DIR__ . '/vendor/*',
+        __DIR__ . '/storage/*',
+        __DIR__ . '/tests/*',
     ]);
 
     // (Opcional) Si instalas rector/rector-laravel, puedes activar sets de Laravel:

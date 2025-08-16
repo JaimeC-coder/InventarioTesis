@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('movements', function (Blueprint $table) {
-           $table->id();
+        Schema::create('movements', function (Blueprint $blueprint): void {
+           $blueprint->id();
            //type,serie,correlativo,date,total,observaciones, reason_id
-           $table->string('type');
-           $table->string('serie');
-           $table->integer('correlativo');
-           $table->timestamp('date');
-           $table->decimal('total', 10, 2);
-           $table->string('observaciones')->nullable();
-           $table->foreignId('reason_id')->constrained('reasons')->onDelete('cascade');
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+           $blueprint->string('type');
+           $blueprint->string('serie');
+           $blueprint->integer('correlativo');
+           $blueprint->timestamp('date');
+           $blueprint->decimal('total', 10, 2);
+           $blueprint->string('observaciones')->nullable();
+           $blueprint->foreignId('reason_id')->constrained('reasons')->onDelete('cascade');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

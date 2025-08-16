@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('productables', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->integer('quantity');
-            $table->decimal('price', 10, 2);
-            $table->decimal('subtotal', 10, 2);
-            $table->morphs('productable');
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('productables', function (Blueprint $blueprint): void {
+            $blueprint->id();
+            $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $blueprint->integer('quantity');
+            $blueprint->decimal('price', 10, 2);
+            $blueprint->decimal('subtotal', 10, 2);
+            $blueprint->morphs('productable');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

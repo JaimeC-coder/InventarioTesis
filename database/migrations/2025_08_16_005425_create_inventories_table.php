@@ -11,24 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventories', function (Blueprint $table) {
-            $table->id();
-            $table->string('type');
-            $table->integer('quantity_in');
-            $table->integer('quantity_out');
-            $table->decimal('cost_in', 10, 2)->default(0);
-            $table->decimal('cost_out', 10, 2)->default(0);
-            $table->decimal('total_in', 10, 2)->default(0);
-            $table->decimal('total_out', 10, 2)->default(0);
-            $table->integer('quantity_balance')->default(0);
-            $table->decimal('cost_balance', 10, 2)->default(0);
-            $table->decimal('total_balance', 10, 2)->default(0);
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $table->morphs('inventoryable');
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('inventories', function (Blueprint $blueprint): void {
+            $blueprint->id();
+            $blueprint->string('type');
+            $blueprint->integer('quantity_in');
+            $blueprint->integer('quantity_out');
+            $blueprint->decimal('cost_in', 10, 2)->default(0);
+            $blueprint->decimal('cost_out', 10, 2)->default(0);
+            $blueprint->decimal('total_in', 10, 2)->default(0);
+            $blueprint->decimal('total_out', 10, 2)->default(0);
+            $blueprint->integer('quantity_balance')->default(0);
+            $blueprint->decimal('cost_balance', 10, 2)->default(0);
+            $blueprint->decimal('total_balance', 10, 2)->default(0);
+            $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
+            $blueprint->morphs('inventoryable');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

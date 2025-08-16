@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transfers', function (Blueprint $table) {
-           $table->id();
-           $table->string('serie');
-           $table->integer('correlativo');
-           $table->timestamp('date');
-           $table->decimal('total',10,2)->default('0');
-           $table->string('observaciones')->nullable();
+        Schema::create('transfers', function (Blueprint $blueprint): void {
+           $blueprint->id();
+           $blueprint->string('serie');
+           $blueprint->integer('correlativo');
+           $blueprint->timestamp('date');
+           $blueprint->decimal('total',10,2)->default('0');
+           $blueprint->string('observaciones')->nullable();
 
-           $table->foreignId('origin_warehouse_id')->constrained('warehouses')->onDelete('cascade');
-           $table->foreignId('destination_warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+           $blueprint->foreignId('origin_warehouse_id')->constrained('warehouses')->onDelete('cascade');
+           $blueprint->foreignId('destination_warehouse_id')->constrained('warehouses')->onDelete('cascade');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

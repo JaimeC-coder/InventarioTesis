@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales', function (Blueprint $table) {
-            $table->id();
-            $table->string('voucher_type');
-            $table->string('serie');
-            $table->integer('correlativo');
-            $table->timestamp('date');
-            $table->foreignId('quote_id')->constrained('quotes')->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
-            $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $table->decimal('total', 10, 2);
-            $table->string('observation')->nullable();
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('sales', function (Blueprint $blueprint): void {
+            $blueprint->id();
+            $blueprint->string('voucher_type');
+            $blueprint->string('serie');
+            $blueprint->integer('correlativo');
+            $blueprint->timestamp('date');
+            $blueprint->foreignId('quote_id')->constrained('quotes')->onDelete('cascade');
+            $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
+            $blueprint->decimal('total', 10, 2);
+            $blueprint->string('observation')->nullable();
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('purchases', function (Blueprint $table) {
-           $table->id();
+        Schema::create('purchases', function (Blueprint $blueprint): void {
+           $blueprint->id();
 
-           $table->string('voucher_type');
-           $table->string('serie');
-           $table->integer('correlativo');
-           $table->timestamp('date');
-           $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
-           $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-           $table->decimal('total', 10, 2);
-           $table->string('observation')->nullable();
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+           $blueprint->string('voucher_type');
+           $blueprint->string('serie');
+           $blueprint->integer('correlativo');
+           $blueprint->timestamp('date');
+           $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+           $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
+           $blueprint->decimal('total', 10, 2);
+           $blueprint->string('observation')->nullable();
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

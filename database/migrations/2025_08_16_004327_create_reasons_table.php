@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reasons', function (Blueprint $table) {
-           $table->id();
-              $table->string('name');
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('reasons', function (Blueprint $blueprint): void {
+           $blueprint->id();
+              $blueprint->string('name');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('sku')->unique();
-            $table->string('barcode')->unique();
-            $table->string('description')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->uuid('uuid')->unique();
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('products', function (Blueprint $blueprint): void {
+            $blueprint->id();
+            $blueprint->string('name');
+            $blueprint->string('sku')->unique();
+            $blueprint->string('barcode')->unique();
+            $blueprint->string('description')->nullable();
+            $blueprint->decimal('price', 10, 2);
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

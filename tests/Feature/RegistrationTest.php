@@ -17,9 +17,9 @@ class RegistrationTest extends TestCase
             $this->markTestSkipped('Registration support is not enabled.');
         }
 
-        $response = $this->get('/register');
+        $testResponse = $this->get('/register');
 
-        $response->assertStatus(200);
+        $testResponse->assertStatus(200);
     }
 
     public function test_registration_screen_cannot_be_rendered_if_support_is_disabled(): void
@@ -28,9 +28,9 @@ class RegistrationTest extends TestCase
             $this->markTestSkipped('Registration support is enabled.');
         }
 
-        $response = $this->get('/register');
+        $testResponse = $this->get('/register');
 
-        $response->assertStatus(404);
+        $testResponse->assertStatus(404);
     }
 
     public function test_new_users_can_register(): void
@@ -39,7 +39,7 @@ class RegistrationTest extends TestCase
             $this->markTestSkipped('Registration support is not enabled.');
         }
 
-        $response = $this->post('/register', [
+        $testResponse = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -48,6 +48,6 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $testResponse->assertRedirect(route('dashboard', absolute: false));
     }
 }

@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table) {
-           $table->id();
-           $table->string('path');
-           $table->string('size');
-           $table->morphs('imageable');
-           $table->string('alt_text')->nullable();
+        Schema::create('images', function (Blueprint $blueprint): void {
+           $blueprint->id();
+           $blueprint->string('path');
+           $blueprint->string('size');
+           $blueprint->morphs('imageable');
+           $blueprint->string('alt_text')->nullable();
 
-            $table->uuid('uuid')->unique();
-            $table->timestamps();
-            $table->softDeletes();
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
         });
     }
 

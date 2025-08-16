@@ -10,7 +10,7 @@ class SaleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): void
     {
         //
     }
@@ -18,7 +18,7 @@ class SaleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -26,7 +26,7 @@ class SaleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -34,7 +34,7 @@ class SaleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Sale $sale)
+    public function show(Sale $sale): void
     {
         //
     }
@@ -42,7 +42,7 @@ class SaleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Sale $sale)
+    public function edit(Sale $sale): void
     {
         //
     }
@@ -50,7 +50,7 @@ class SaleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Sale $sale)
+    public function update(Request $request, Sale $sale): void
     {
         //
     }
@@ -58,7 +58,7 @@ class SaleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Sale $sale)
+    public function destroy(Sale $sale): void
     {
         //
     }
