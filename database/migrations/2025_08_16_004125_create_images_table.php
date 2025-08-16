@@ -4,19 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('images', function (Blueprint $blueprint): void {
-           $blueprint->id();
-           $blueprint->string('path');
-           $blueprint->string('size');
-           $blueprint->morphs('imageable');
-           $blueprint->string('alt_text')->nullable();
+            $blueprint->id();
+            $blueprint->string('path');
+            $blueprint->string('size');
+            $blueprint->morphs('imageable');
+            $blueprint->string('alt_text')->nullable();
 
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();

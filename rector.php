@@ -2,14 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Rector\Rules\RemoveBlankLinesInMethodsRector;
 use Rector\Config\RectorConfig;
-
 // Reglas puntuales
-use Rector\DeadCode\Rector\Use_\RemoveUnusedImportsRector;
-use Rector\CodingStyle\Rector\Namespace_\ImportFullyQualifiedNamesRector;
-use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
-use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
-use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
 
 // Sets generales
 use Rector\Set\ValueObject\SetList;
@@ -47,6 +42,8 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/storage/*',
         __DIR__ . '/tests/*',
     ]);
+
+    $rectorConfig->rule(RemoveBlankLinesInMethodsRector::class);
 
     // (Opcional) Si instalas rector/rector-laravel, puedes activar sets de Laravel:
     // use RectorLaravel\Set\LaravelSetList;

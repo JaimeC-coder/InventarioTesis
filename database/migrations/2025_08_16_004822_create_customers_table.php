@@ -4,22 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $blueprint): void {
-           $blueprint->id();
+            $blueprint->id();
 
-           $blueprint->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
-           $blueprint->string('document_number')->unique();
-           $blueprint->string('name');
-           $blueprint->string('address');
-           $blueprint->string('email')->unique();
-           $blueprint->string('phone')->unique();
+            $blueprint->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
+            $blueprint->string('document_number')->unique();
+            $blueprint->string('name');
+            $blueprint->string('address');
+            $blueprint->string('email')->unique();
+            $blueprint->string('phone')->unique();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

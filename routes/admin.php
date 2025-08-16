@@ -1,34 +1,31 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Laravel\Jetstream\Http\Controllers\Inertia\UserProfileController;
 
-Route::get('/', function(){
+Route::get('/', function () {
     return view('admin.dashboard');
 })->name('dashboard');
 
+Route::get('/ecommerce', function () {
+    return view('admin.ecommerce');
+})->name('ecommerce');
 
+Route::get('/users', function () {
+    return view('admin.users');
+})->name('users');
 
-    Route::get('/ecommerce', function(){
-        return view('admin.ecommerce');
-    })->name('ecommerce');
+Route::get('/products', function () {
+    return view('admin.products');
+})->name('products');
 
-    Route::get('/users', function(){
-        return view('admin.users');
-    })->name('users');
+Route::get('/settings', function () {
+    return view('admin.settings');
+})->name('settings');
 
-    Route::get('/products', function(){
-        return view('admin.products');
-    })->name('products');
+Route::get('/logout', function () {
+    return view('admin.logout');
+})->name('logout');
 
-    Route::get('/settings', function(){
-        return view('admin.settings');
-    })->name('settings');
-
-    Route::get('/logout', function(){
-        return view('admin.logout');
-    })->name('logout');
-
-    Route::get('/products', function(){
-        return view('admin.products');
-    })->name('products');
+Route::get('/products', function () {
+    return view('admin.products');
+})->name('products');
