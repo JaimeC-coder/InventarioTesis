@@ -1,0 +1,68 @@
+name: Rector
+
+on:
+  workflow_run:
+    workflows: ["linter"]
+    types:
+      - completed
+
+jobs:
+  rector:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # necesario para auto-commit en push
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # permite hacer commit de vuelta a la rama
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # En PR: solo revisión (no cambia archivos)
+      - name: Rector dry-run (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: vendor/bin/rector process --dry-run --output-format=github > rector.log || true
+
+       # 🔹 Publicar comentarios de Rector en el PR
+      - name: Reviewdog Reporter (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: reviewdog/action-setup@v1
+
+      - name: Run reviewdog with Rector output
+        if: ${{ github.event_name == 'pull_request' }}
+        run: composer rector:dry | tee rector.log
+
+
+      # En push: aplica refactors
+      - name: Rector fix (push)
+        if: ${{ github.event_name == 'push' }}
+        run: composer rector | tee rector.log
+
+        # Guardar el log como artefacto
+      - name: Upload Rector log
+        if: always() # siempre sube el log, pase o falle
+        uses: actions/upload-artifact@v4
+        with:
+          name: rector-log
+          path: rector.log
+
+      # Auto-commit de cambios producidos por Rector solo en push
+      - name: Commit & push Rector changes
+        if: ${{ github.event_name == 'push' }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(rector): aplicar refactors automáticos [skip ci]"
+          branch: ${{ github.ref_name }}
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
