@@ -7,15 +7,15 @@ class Quote extends BaseModel
     protected $table = 'quotes';
 
     protected $fillable = [
-        'voucher_type',
-        'serie',
-        'correlativo',
-        'date',
-        'total',
-        'observation',
-        'customer_id',
-        'uuid',
-    ];
+            'voucher_type',
+            'serie',
+            'correlativo',
+            'date',
+            'total',
+            'observation',
+            'customer_id',
+            'uuid',
+        ];
 
     // Relación con clientes
     public function customer()
@@ -29,13 +29,11 @@ class Quote extends BaseModel
         return $this->hasMany(Sale::class);
     }
 
-      //Relacion muchos a muchos polimorfica
+    //Relacion muchos a muchos polimorfica
     public function products()
     {
         return $this->morphToMany(Product::class, 'productable', 'productables', 'productable_id', 'product_id')
             ->withPivot('quantity', 'price', 'total')
             ->withTimestamps();
     }
-
-
 }

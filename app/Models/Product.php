@@ -27,11 +27,9 @@ class Product extends BaseModel
         return $this->hasMany(Inventorie::class);
     }
 
-
     //Relacion polimorfica con imagenes
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');
     }
-
 }

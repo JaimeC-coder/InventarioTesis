@@ -7,10 +7,10 @@ class Warehouse extends BaseModel
     protected $table = 'warehouses';
 
     protected $fillable = [
-        'name',
-        'location',
-        'uuid',
-    ];
+            'name',
+            'location',
+            'uuid',
+        ];
 
     // Relación con transferencias (almacenes de origen)
     public function originTransfers()
@@ -23,6 +23,4 @@ class Warehouse extends BaseModel
     {
         return $this->hasMany(Transfer::class, 'destination_warehouse_id');
     }
-
-
 }

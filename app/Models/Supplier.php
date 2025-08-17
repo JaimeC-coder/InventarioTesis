@@ -7,14 +7,14 @@ class Supplier extends BaseModel
     protected $table = 'suppliers';
 
     protected $fillable = [
-        'identity_id',
-        'document_number',
-        'name',
-        'email',
-        'phone',
-        'address',
-        'uuid',
-    ];
+            'identity_id',
+            'document_number',
+            'name',
+            'email',
+            'phone',
+            'address',
+            'uuid',
+        ];
 
     // Relación con órdenes de compra
     public function purchaseOrders()
@@ -33,5 +33,4 @@ class Supplier extends BaseModel
     {
         return $this->hasMany(Purchase::class);
     }
-
 }

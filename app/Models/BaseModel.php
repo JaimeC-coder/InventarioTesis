@@ -19,8 +19,8 @@ class BaseModel extends Model
     protected $hidden = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
     protected $casts = [
-            'uuid' => 'uuid',
-        ];
+                'uuid' => 'uuid',
+            ];
 
     public function getRouteKeyName(): string
     {

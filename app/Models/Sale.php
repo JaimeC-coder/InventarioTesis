@@ -7,17 +7,17 @@ class Sale extends BaseModel
     protected $table = 'sales';
 
     protected $fillable = [
-        'voucher_type',
-        'serie',
-        'correlativo',
-        'date',
-        'quote_id',
-        'customer_id',
-        'warehouse_id',
-        'total',
-        'observation',
-        'uuid',
-    ];
+            'voucher_type',
+            'serie',
+            'correlativo',
+            'date',
+            'quote_id',
+            'customer_id',
+            'warehouse_id',
+            'total',
+            'observation',
+            'uuid',
+        ];
 
     // Relación con cotizaciones
     public function quote()
@@ -37,7 +37,7 @@ class Sale extends BaseModel
         return $this->belongsTo(Warehouse::class); //relacion uno a muchos inversa
     }
 
-      //Relacion muchos a muchos polimorfica
+    //Relacion muchos a muchos polimorfica
     public function products()
     {
         return $this->morphToMany(Product::class, 'productable', 'productables', 'productable_id', 'product_id')
