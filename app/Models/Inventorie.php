@@ -6,6 +6,7 @@ class Inventorie extends BaseModel
 {
     //
     protected $table = 'inventories';
+
     protected $fillable = [
         'detail',
         'quantity_in',

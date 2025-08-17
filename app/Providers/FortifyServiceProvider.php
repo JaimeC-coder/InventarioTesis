@@ -25,8 +25,8 @@ class FortifyServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
-     */
+         * Bootstrap any application services.
+         */
     public function boot(): void
     {
         Fortify::createUsersUsing(CreateNewUser::class);

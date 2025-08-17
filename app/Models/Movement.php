@@ -5,6 +5,7 @@ namespace App\Models;
 class Movement extends BaseModel
 {
     protected $table = 'movements';
+
     protected $fillable = [
         'type',
         'quantity',

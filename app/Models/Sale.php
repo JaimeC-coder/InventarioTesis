@@ -5,6 +5,7 @@ namespace App\Models;
 class Sale extends BaseModel
 {
     protected $table = 'sales';
+
     protected $fillable = [
         'voucher_type',
         'serie',

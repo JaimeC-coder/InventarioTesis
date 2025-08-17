@@ -6,6 +6,6 @@ class Identity extends BaseModel
 {
     //
     protected $table = 'identities';
-    protected $fillable = ['name', 'uuid'];
 
+    protected $fillable = ['name', 'uuid'];
 }

@@ -6,6 +6,7 @@ class Purchase extends BaseModel
 {
     //
     protected $table = 'purchases';
+
     protected $fillable = [
         'voucher_type',
         'serie',

@@ -6,6 +6,7 @@ class Customer extends BaseModel
 {
     //
     protected $table = 'customers';
+
     protected $fillable = [
         'document_number',
         'identity_id',
@@ -14,6 +15,5 @@ class Customer extends BaseModel
         'phone',
         'address',
         'uuid',
-
     ];
 }

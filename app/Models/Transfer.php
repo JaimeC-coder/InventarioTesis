@@ -5,6 +5,7 @@ namespace App\Models;
 class Transfer extends BaseModel
 {
     protected $table = 'transfers';
+
     protected $fillable = [
         'type',
         'serie',
