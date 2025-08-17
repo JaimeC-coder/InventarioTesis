@@ -16,26 +16,21 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         //
     }
-
     /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
         $this->configurePermissions();
-
         Jetstream::deleteUsersUsing(DeleteUser::class);
-
         Vite::prefetch(concurrency: 3);
     }
-
     /**
      * Configure the permissions that are available within the application.
      */
     protected function configurePermissions(): void
     {
         Jetstream::defaultApiTokenPermissions(['read']);
-
         Jetstream::permissions([
             'create',
             'read',

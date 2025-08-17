@@ -15,14 +15,12 @@ return new class () extends Migration {
             $blueprint->mediumText('value');
             $blueprint->integer('expiration');
         });
-
         Schema::create('cache_locks', function (Blueprint $blueprint): void {
             $blueprint->string('key')->primary();
             $blueprint->string('owner');
             $blueprint->integer('expiration');
         });
     }
-
     /**
      * Reverse the migrations.
      */

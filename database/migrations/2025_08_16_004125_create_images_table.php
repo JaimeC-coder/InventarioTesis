@@ -16,13 +16,11 @@ return new class () extends Migration {
             $blueprint->string('size');
             $blueprint->morphs('imageable');
             $blueprint->string('alt_text')->nullable();
-
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
         });
     }
-
     /**
      * Reverse the migrations.
      */

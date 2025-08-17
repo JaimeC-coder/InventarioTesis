@@ -19,7 +19,6 @@ return new class () extends Migration {
             $blueprint->unsignedInteger('available_at');
             $blueprint->unsignedInteger('created_at');
         });
-
         Schema::create('job_batches', function (Blueprint $blueprint): void {
             $blueprint->string('id')->primary();
             $blueprint->string('name');
@@ -32,7 +31,6 @@ return new class () extends Migration {
             $blueprint->integer('created_at');
             $blueprint->integer('finished_at')->nullable();
         });
-
         Schema::create('failed_jobs', function (Blueprint $blueprint): void {
             $blueprint->id();
             $blueprint->string('uuid')->unique();
@@ -43,7 +41,6 @@ return new class () extends Migration {
             $blueprint->timestamp('failed_at')->useCurrent();
         });
     }
-
     /**
      * Reverse the migrations.
      */

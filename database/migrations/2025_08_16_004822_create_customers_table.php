@@ -12,7 +12,6 @@ return new class () extends Migration {
     {
         Schema::create('customers', function (Blueprint $blueprint): void {
             $blueprint->id();
-
             $blueprint->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
             $blueprint->string('document_number')->unique();
             $blueprint->string('name');
@@ -24,7 +23,6 @@ return new class () extends Migration {
             $blueprint->softDeletes();
         });
     }
-
     /**
      * Reverse the migrations.
      */

@@ -18,7 +18,6 @@ class UserFactory extends Factory
      * The current password being used by the factory.
      */
     protected static ?string $password;
-
     /**
      * Define the model's default state.
      *
@@ -38,7 +37,6 @@ class UserFactory extends Factory
             'current_team_id' => null,
         ];
     }
-
     /**
      * Indicate that the model's email address should be unverified.
      */
@@ -48,7 +46,6 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
-
     /**
      * Indicate that the user should have a personal team.
      */
@@ -57,7 +54,6 @@ class UserFactory extends Factory
         if (! Features::hasTeamFeatures()) {
             return $this->state([]);
         }
-
         return $this->has(
             Team::factory()
                 ->state(fn (array $attributes, User $user): array => [

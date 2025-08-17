@@ -21,13 +21,11 @@ return new class () extends Migration {
             $blueprint->string('profile_photo_path', 2048)->nullable();
             $blueprint->timestamps();
         });
-
         Schema::create('password_reset_tokens', function (Blueprint $blueprint): void {
             $blueprint->string('email')->primary();
             $blueprint->string('token');
             $blueprint->timestamp('created_at')->nullable();
         });
-
         Schema::create('sessions', function (Blueprint $blueprint): void {
             $blueprint->string('id')->primary();
             $blueprint->foreignId('user_id')->nullable()->index();
@@ -37,7 +35,6 @@ return new class () extends Migration {
             $blueprint->integer('last_activity')->index();
         });
     }
-
     /**
      * Reverse the migrations.
      */

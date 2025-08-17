@@ -14,17 +14,14 @@ return new class () extends Migration {
             $blueprint->text('two_factor_secret')
                 ->after('password')
                 ->nullable();
-
             $blueprint->text('two_factor_recovery_codes')
-                ->after('two_factor_secret')
-                ->nullable();
-
+                            ->after('two_factor_secret')
+                            ->nullable();
             $blueprint->timestamp('two_factor_confirmed_at')
-                ->after('two_factor_recovery_codes')
-                ->nullable();
+                            ->after('two_factor_recovery_codes')
+                            ->nullable();
         });
     }
-
     /**
      * Reverse the migrations.
      */

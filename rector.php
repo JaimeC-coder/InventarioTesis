@@ -1,11 +1,8 @@
 <?php
 
 declare(strict_types=1);
-
-use App\Rector\Rules\RemoveBlankLinesInMethodsRector;
 use Rector\Config\RectorConfig;
 // Reglas puntuales
-
 // Sets generales
 use Rector\Set\ValueObject\SetList;
 
@@ -17,7 +14,6 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/config',
         __DIR__ . '/tests',
     ]);
-
     // Evita tocar Blade, vendor, storage, etc.
     $rectorConfig->skip([
         __DIR__ . '/vendor/*',
@@ -25,7 +21,6 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/bootstrap/*',
         __DIR__ . '/resources/views/*',
     ]);
-
     // Conjuntos recomendados (ajusta a tu versión de PHP)
     $rectorConfig->sets([
         SetList::PHP_82,
@@ -35,16 +30,12 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::NAMING,
         SetList::TYPE_DECLARATION,
     ]);
-
     // Opcional: ignora vendor/ y storage/ , tests/
     $rectorConfig->skip([
         __DIR__ . '/vendor/*',
         __DIR__ . '/storage/*',
         __DIR__ . '/tests/*',
     ]);
-
-    $rectorConfig->rule(RemoveBlankLinesInMethodsRector::class);
-
     // (Opcional) Si instalas rector/rector-laravel, puedes activar sets de Laravel:
     // use RectorLaravel\Set\LaravelSetList;
     // $rectorConfig->sets([LaravelSetList::LARAVEL_90 /* o el que corresponda */]);

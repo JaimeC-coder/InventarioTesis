@@ -2,6 +2,7 @@
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
+use App\PhpCsFixer\RemoveBlankLinesInMethodsFixer;
 
 $finder = Finder::create()
     ->in(__DIR__) // busca en TODO el proyecto
@@ -12,12 +13,16 @@ $finder = Finder::create()
     ->exclude('tests')
     ->exclude('stubs')
     ->exclude('storage')
-     ->notName('*.blade.php'); // excluye archivos Blade
+    ->notName('*.blade.php'); // excluye archivos Blade
 
 return (new Config())
+    ->registerCustomFixers([
+        new RemoveBlankLinesInMethodsFixer(),
+    ])
     ->setRules([
+        'App/remove_blank_lines_in_methods' => true,
         '@PSR12' => true, // estándar oficial PSR-12
-         'no_extra_blank_lines' => [
+        'no_extra_blank_lines' => [
             'tokens' => [
                 'extra',
                 'throw',
@@ -34,5 +39,10 @@ return (new Config())
         ],
         'array_syntax' => ['syntax' => 'short'], // arrays cortos []
         'no_unused_imports' => true, // limpia imports
+        'phpdoc_indent' => true,
+        'phpdoc_align' => [
+            'align' => 'vertical',
+        ]
+
     ])
     ->setFinder($finder);

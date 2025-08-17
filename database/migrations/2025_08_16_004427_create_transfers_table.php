@@ -17,7 +17,6 @@ return new class () extends Migration {
             $blueprint->timestamp('date');
             $blueprint->decimal('total', 10, 2)->default('0');
             $blueprint->string('observaciones')->nullable();
-
             $blueprint->foreignId('origin_warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->foreignId('destination_warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->uuid('uuid')->unique();
@@ -25,7 +24,6 @@ return new class () extends Migration {
             $blueprint->softDeletes();
         });
     }
-
     /**
      * Reverse the migrations.
      */

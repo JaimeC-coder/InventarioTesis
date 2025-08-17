@@ -12,7 +12,6 @@ return new class () extends Migration {
     {
         Schema::create('purchases', function (Blueprint $blueprint): void {
             $blueprint->id();
-
             $blueprint->string('voucher_type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
@@ -26,7 +25,6 @@ return new class () extends Migration {
             $blueprint->softDeletes();
         });
     }
-
     /**
      * Reverse the migrations.
      */
