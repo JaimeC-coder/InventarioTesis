@@ -14,4 +14,7 @@ class Productable extends BaseModel
         'productable_id',
         'uuid',
     ];
+
+
+
 }

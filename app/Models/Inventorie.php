@@ -24,4 +24,22 @@ class Inventorie extends BaseModel
         'inventoryable_type',
         'uuid',
     ];
+
+    // Relación polimórfica
+    public function inventoryable()
+    {
+        return $this->morphTo();
+    }
+
+    //relacion con productos
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    //relacion con almacenes
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
 }

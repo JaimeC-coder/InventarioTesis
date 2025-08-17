@@ -11,10 +11,29 @@ class Movement extends BaseModel
         'quantity',
         'cost',
         'total',
-        'product_id',
         'warehouse_id',
         'movementable_id',
         'movementable_type',
         'uuid',
     ];
+
+    // Relación polimórfica
+    public function movementable()
+    {
+        return $this->morphTo();
+    }
+
+    // Relación con productos
+    public function products()
+    {
+        return $this->morphToMany(Product::class, 'productable')
+            ->withPivot('quantity', 'price', 'subtotal')
+            ->withTimestamps();
+    }
+
+    // Relación con almacenes
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
 }

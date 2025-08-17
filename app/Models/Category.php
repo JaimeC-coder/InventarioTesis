@@ -12,4 +12,10 @@ class Category extends BaseModel
         'description',
         'uuid',
     ];
+
+    //relacion con productos
+    public function products()
+    {
+        return $this->hasMany(Product::class);//relacion uno a muchos
+    }
 }

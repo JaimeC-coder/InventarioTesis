@@ -15,4 +15,10 @@ class Image extends BaseModel
         'alt_text',
         'uuid',
     ];
+
+    // Relación polimórfica
+    public function imageable()
+    {
+        return $this->morphTo(); // Relación polimórfica
+    }
 }

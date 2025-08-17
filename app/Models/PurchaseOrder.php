@@ -16,4 +16,24 @@ class PurchaseOrder extends BaseModel
         'observation',
         'uuid',
     ];
+
+    // Relación con proveedores
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class); //relacion uno a muchos inversa
+    }
+
+    // Relación con órdenes de compra
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class); //relacion uno a muchos
+    }
+
+    //Relacion muchos a muchos polimorfica
+    public function products()
+    {
+        return $this->morphToMany(Product::class, 'productable', 'productables', 'productable_id', 'product_id')
+            ->withPivot('quantity', 'price', 'total')
+            ->withTimestamps();
+    }
 }
