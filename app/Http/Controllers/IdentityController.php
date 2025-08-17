@@ -14,6 +14,7 @@ class IdentityController extends Controller
     {
         //
     }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -21,6 +22,7 @@ class IdentityController extends Controller
     {
         //
     }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -28,6 +30,7 @@ class IdentityController extends Controller
     {
         //
     }
+
     /**
      * Display the specified resource.
      */
@@ -35,6 +38,7 @@ class IdentityController extends Controller
     {
         //
     }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -42,6 +46,7 @@ class IdentityController extends Controller
     {
         //
     }
+
     /**
      * Update the specified resource in storage.
      */
@@ -49,6 +54,7 @@ class IdentityController extends Controller
     {
         //
     }
+
     /**
      * Remove the specified resource from storage.
      */

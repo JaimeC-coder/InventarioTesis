@@ -22,6 +22,7 @@ return new class () extends Migration {
             $blueprint->softDeletes();
         });
     }
+
     /**
      * Reverse the migrations.
      */

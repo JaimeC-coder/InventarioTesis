@@ -16,6 +16,7 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         //
     }
+
     /**
      * Bootstrap any application services.
      */
@@ -25,6 +26,7 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::deleteUsersUsing(DeleteUser::class);
         Vite::prefetch(concurrency: 3);
     }
+
     /**
      * Configure the permissions that are available within the application.
      */

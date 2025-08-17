@@ -21,6 +21,7 @@ return new class () extends Migration {
             $blueprint->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
