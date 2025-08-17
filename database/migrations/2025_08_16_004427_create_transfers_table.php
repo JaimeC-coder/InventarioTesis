@@ -12,6 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('transfers', function (Blueprint $blueprint): void {
             $blueprint->id();
+            $blueprint->integer('type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
             $blueprint->timestamp('date');

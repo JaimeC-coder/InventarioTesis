@@ -15,9 +15,9 @@ return new class () extends Migration {
             $blueprint->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
             $blueprint->string('document_number')->unique();
             $blueprint->string('name');
-            $blueprint->string('address');
-            $blueprint->string('email')->unique();
-            $blueprint->string('phone')->unique();
+            $blueprint->string('address')->nullable();
+            $blueprint->string('email')->nullable();
+            $blueprint->string('phone')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

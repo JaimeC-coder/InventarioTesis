@@ -12,8 +12,8 @@ return new class () extends Migration {
     {
         Schema::create('warehouses', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('name');
-            $blueprint->string('location');
+            $blueprint->string('name')->unique();
+            $blueprint->string('location')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

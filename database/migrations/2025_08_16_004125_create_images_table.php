@@ -12,8 +12,8 @@ return new class () extends Migration {
     {
         Schema::create('images', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('path');
-            $blueprint->string('size');
+            $blueprint->string('path')->unique();
+            $blueprint->integer('size')->default(0);
             $blueprint->morphs('imageable');
             $blueprint->string('alt_text')->nullable();
             $blueprint->uuid('uuid')->unique();

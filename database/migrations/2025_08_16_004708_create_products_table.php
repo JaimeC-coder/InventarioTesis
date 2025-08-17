@@ -12,11 +12,11 @@ return new class () extends Migration {
     {
         Schema::create('products', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('name');
-            $blueprint->string('sku')->unique();
-            $blueprint->string('barcode')->unique();
+            $blueprint->string('name')->unique();
+            $blueprint->string('sku')->unique()->nullable();
+            $blueprint->string('barcode')->unique()->nullable();
             $blueprint->string('description')->nullable();
-            $blueprint->decimal('price', 10, 2);
+            $blueprint->decimal('price', 10, 2)->default(0.00);
             $blueprint->uuid('uuid')->unique();
             $blueprint->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $blueprint->timestamps();

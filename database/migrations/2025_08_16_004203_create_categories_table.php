@@ -12,7 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('categories', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('name');
+            $blueprint->string('name')->unique();
             $blueprint->string('description')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();

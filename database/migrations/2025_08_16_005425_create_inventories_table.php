@@ -12,7 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('inventories', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('type');
+            $blueprint->string('detail')->nullable();
             $blueprint->integer('quantity_in');
             $blueprint->integer('quantity_out');
             $blueprint->decimal('cost_in', 10, 2)->default(0);

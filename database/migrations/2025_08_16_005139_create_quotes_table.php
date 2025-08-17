@@ -12,12 +12,11 @@ return new class () extends Migration {
     {
         Schema::create('quotes', function (Blueprint $blueprint): void {
             $blueprint->id();
-            //voucher_type,serie,correlativo,date,total,observacion ,customer_id
             $blueprint->string('voucher_type');
             $blueprint->string('serie');
             $blueprint->string('correlativo');
             $blueprint->date('date');
-            $blueprint->decimal('total', 10, 2);
+            $blueprint->decimal('total', 10, 2)->default(0.00);
             $blueprint->string('observation')->nullable();
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->uuid('uuid')->unique();

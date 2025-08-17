@@ -12,14 +12,13 @@ return new class () extends Migration {
     {
         Schema::create('purchase_orders', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('voucher_type');
+            $blueprint->integer('voucher_type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
             $blueprint->timestamp('date');
             $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
-            $blueprint->decimal('total', 10, 2);
+            $blueprint->decimal('total', 10, 2)->default(0.00);
             $blueprint->string('observation')->nullable();
-            $blueprint->foreignId('purchase_id')->constrained('purchases')->onDelete('cascade');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

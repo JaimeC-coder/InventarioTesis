@@ -12,7 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('identities', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('name');
+            $blueprint->string('name')->unique();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
