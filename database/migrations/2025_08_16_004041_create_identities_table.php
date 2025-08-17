@@ -11,9 +11,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('identities', function (Blueprint $blueprint): void {
-            $blueprint->id();
-            $blueprint->string('name');
-            $blueprint->uuid('uuid')->unique();
+$blueprint->id();
+$blueprint->string('name');$blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
         });

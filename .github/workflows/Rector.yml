@@ -1,53 +1,57 @@
 name: Rector
 
 on:
-  workflow_run:
-    workflows: ["linter"]
-    types:
-      - completed
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
 
 jobs:
   rector:
     runs-on: ubuntu-latest
     permissions:
-      contents: write     # necesario para auto-commit en push
+      contents: write # necesario para auto-commit en push
       pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # permite hacer commit de vuelta a la rama
+          fetch-depth: 0 # permite hacer commit de vuelta a la rama
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
+          php-version: "8.4"
           tools: composer:v2
           coverage: none
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      # ------------------
+      # PHP-CS-FIXER
+      # ------------------
+      - name: Run PHP-CS-Fixer (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Run PHP-CS-Fixer (push)
+        if: ${{ github.event_name == 'push' }}
+        run: vendor/bin/php-cs-fixer fix
+
+      # ------------------
+      # RECTOR
+      # ------------------
+
       # En PR: solo revisión (no cambia archivos)
       - name: Rector dry-run (PR)
         if: ${{ github.event_name == 'pull_request' }}
         run: vendor/bin/rector process --dry-run --output-format=github > rector.log || true
 
-       # 🔹 Publicar comentarios de Rector en el PR
-      - name: Reviewdog Reporter (PR)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: reviewdog/action-setup@v1
-
-      - name: Run reviewdog with Rector output
-        if: ${{ github.event_name == 'pull_request' }}
-        run: composer rector:dry | tee rector.log
-
-
-      # En push: aplica refactors
-      - name: Rector fix (push)
+      - name: Run Rector (push)
         if: ${{ github.event_name == 'push' }}
-        run: composer rector | tee rector.log
+        run: vendor/bin/rector process | tee rector.log
 
         # Guardar el log como artefacto
       - name: Upload Rector log
@@ -56,13 +60,15 @@ jobs:
         with:
           name: rector-log
           path: rector.log
-
+      # ------------------
+      # AUTO-COMMIT SOLO EN PUSH
+      # ------------------
       # Auto-commit de cambios producidos por Rector solo en push
       - name: Commit & push Rector changes
         if: ${{ github.event_name == 'push' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(rector): aplicar refactors automáticos [skip ci]"
+          commit_message: "chore: aplicar fixes de cs-fixer y rector [skip ci]"
           branch: ${{ github.ref_name }}
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
