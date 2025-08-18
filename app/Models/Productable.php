@@ -4,7 +4,6 @@ namespace App\Models;
 
 class Productable extends BaseModel
 {
-    //
     protected $fillable = [
         'product_id',
         'quantity',

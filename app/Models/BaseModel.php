@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 
 class BaseModel extends Model
 {
-    //
     use SoftDeletes;
     protected $keyType = 'int';
     protected $primaryKey = 'id';

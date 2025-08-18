@@ -6,15 +6,15 @@ class Quote extends BaseModel
 {
     protected $table = 'quotes';
     protected $fillable = [
-                    'voucher_type',
-                    'serie',
-                    'correlativo',
-                    'date',
-                    'total',
-                    'observation',
-                    'customer_id',
-                    'uuid',
-                ];
+        'voucher_type',
+        'serie',
+        'correlativo',
+        'date',
+        'total',
+        'observation',
+        'customer_id',
+        'uuid',
+    ];
     // Relación con clientes
     public function customer()
     {

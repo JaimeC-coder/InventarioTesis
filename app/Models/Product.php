@@ -4,7 +4,6 @@ namespace App\Models;
 
 class Product extends BaseModel
 {
-    //
     protected $fillable = [
         'name',
         'sku',

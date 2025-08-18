@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,16 +15,16 @@ return new class () extends Migration {
                 ->after('password')
                 ->nullable();
             $blueprint->text('two_factor_recovery_codes')
-                            ->after('two_factor_secret')
-                            ->nullable();
+                ->after('two_factor_secret')
+                ->nullable();
             $blueprint->timestamp('two_factor_confirmed_at')
-                            ->after('two_factor_recovery_codes')
-                            ->nullable();
+                ->after('two_factor_recovery_codes')
+                ->nullable();
         });
     }
     /**
-         * Reverse the migrations.
-         */
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $blueprint): void {

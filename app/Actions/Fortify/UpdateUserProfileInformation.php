@@ -26,7 +26,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user->updateProfilePhoto($input['photo']);
         }
         if ($input['email'] !== $user->email &&
-                                                                            $user instanceof MustVerifyEmail) {
+                                                                                    $user instanceof MustVerifyEmail) {
             $this->updateVerifiedUser($user, $input);
         } else {
             $user->forceFill([
@@ -36,10 +36,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         }
     }
     /**
-         * Update the given verified user's profile information.
-         *
-         * @param array<string, string> $input
-         */
+     * Update the given verified user's profile information.
+     *
+     * @param array<string, string> $input
+     */
     protected function updateVerifiedUser(User $user, array $input): void
     {
         $user->forceFill([
