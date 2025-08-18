@@ -13,6 +13,7 @@ class JetstreamServiceProvider extends ServiceProvider
      * Register any application services.
      */
     public function register(): void {}
+
     /**
      * Bootstrap any application services.
      */
@@ -22,6 +23,7 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::deleteUsersUsing(DeleteUser::class);
         Vite::prefetch(concurrency: 3);
     }
+
     /**
      * Configure the permissions that are available within the application.
      */

@@ -5,6 +5,7 @@ namespace App\Models;
 class Image extends BaseModel
 {
     protected $table = 'images';
+
     protected $fillable = [
         'path',
         'size',
@@ -13,6 +14,7 @@ class Image extends BaseModel
         'alt_text',
         'uuid',
     ];
+
     // Relación polimórfica
     public function imageable()
     {

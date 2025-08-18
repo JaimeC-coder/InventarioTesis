@@ -18,6 +18,7 @@ final class RemoveBlankLinesInMethodsFixer extends AbstractFixer
             [new CodeSample("<?php\nclass A {\n    public function foo() {\n        \n        \$x = 1;\n    }\n}")]
         );
     }
+
     /**
      * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
@@ -25,6 +26,7 @@ final class RemoveBlankLinesInMethodsFixer extends AbstractFixer
     {
         return $tokens->isTokenKindFound(T_FUNCTION);
     }
+
     /**
      * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
@@ -38,10 +40,12 @@ final class RemoveBlankLinesInMethodsFixer extends AbstractFixer
             }
         }
     }
+
     public function isRisky(): bool
     {
         return false;
     }
+
     public function getName(): string
     {
         return 'App/remove_blank_lines_in_methods';

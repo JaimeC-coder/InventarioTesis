@@ -10,13 +10,18 @@ class BaseModel extends Model
 {
     use SoftDeletes;
     protected $keyType = 'int';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $hidden = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
     public function getRouteKeyName(): string
     {
         return 'uuid';
     }
+
     protected static function booted()
     {
         static::creating(function ($model): void {

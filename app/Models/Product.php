@@ -13,16 +13,19 @@ class Product extends BaseModel
         'uuid',
         'category_id',
     ];
+
     // Relación con categorías
     public function category()
     {
         return $this->belongsTo(Category::class); // relacion uno a muchos
     }
+
     // Relación con inventarios
     public function inventories()
     {
         return $this->hasMany(Inventorie::class);
     }
+
     //Relacion polimorfica con imagenes
     public function images()
     {

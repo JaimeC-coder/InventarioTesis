@@ -17,10 +17,18 @@ final class RemoveMethodPhpDocFixer extends AbstractFixer
             [new CodeSample("<?php\nclass A {\n    /** Some text */\n    public function foo() {}\n}")]
         );
     }
+
+    /**
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
+     */
     public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_DOC_COMMENT);
     }
+
+    /**
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
+     */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         for ($index = 0; $index < $tokens->count(); $index++) {
@@ -34,10 +42,12 @@ final class RemoveMethodPhpDocFixer extends AbstractFixer
             }
         }
     }
+
     public function isRisky(): bool
     {
         return false;
     }
+
     public function getName(): string
     {
         return 'App/remove_method_phpdoc';

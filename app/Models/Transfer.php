@@ -5,6 +5,7 @@ namespace App\Models;
 class Transfer extends BaseModel
 {
     protected $table = 'transfers';
+
     protected $fillable = [
         'type',
         'serie',
@@ -16,16 +17,19 @@ class Transfer extends BaseModel
         'destination_warehouse_id',
         'uuid',
     ];
+
     // Relación con almacenes de origen
     public function originWarehouse()
     {
         return $this->belongsTo(Warehouse::class, 'origin_warehouse_id');
     }
+
     // Relación con almacenes de destino
     public function destinationWarehouse()
     {
         return $this->belongsTo(Warehouse::class, 'destination_warehouse_id');
     }
+
     //Relación muchos a muchos polimórfica
     public function products()
     {

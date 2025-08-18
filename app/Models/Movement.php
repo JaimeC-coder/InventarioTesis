@@ -5,6 +5,7 @@ namespace App\Models;
 class Movement extends BaseModel
 {
     protected $table = 'movements';
+
     protected $fillable = [
         'type',
         'quantity',
@@ -15,11 +16,13 @@ class Movement extends BaseModel
         'movementable_type',
         'uuid',
     ];
+
     // Relación polimórfica
     public function movementable()
     {
         return $this->morphTo();
     }
+
     // Relación con productos
     public function products()
     {
@@ -27,6 +30,7 @@ class Movement extends BaseModel
             ->withPivot('quantity', 'price', 'subtotal')
             ->withTimestamps();
     }
+
     // Relación con almacenes
     public function warehouse()
     {

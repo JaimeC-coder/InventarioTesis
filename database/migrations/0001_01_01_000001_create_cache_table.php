@@ -21,6 +21,7 @@ return new class() extends Migration {
             $blueprint->integer('expiration');
         });
     }
+
     /**
      * Reverse the migrations.
      */
