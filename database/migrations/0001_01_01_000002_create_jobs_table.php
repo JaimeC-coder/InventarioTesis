@@ -41,7 +41,6 @@ return new class () extends Migration {
             $blueprint->timestamp('failed_at')->useCurrent();
         });
     }
-
     /**
          * Reverse the migrations.
          */

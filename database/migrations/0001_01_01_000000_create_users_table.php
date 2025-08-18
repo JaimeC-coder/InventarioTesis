@@ -35,7 +35,6 @@ return new class () extends Migration {
             $blueprint->integer('last_activity')->index();
         });
     }
-
     /**
          * Reverse the migrations.
          */
