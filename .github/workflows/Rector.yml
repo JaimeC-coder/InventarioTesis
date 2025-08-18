@@ -34,11 +34,11 @@ jobs:
       # ------------------
       - name: Run PHP-CS-Fixer (PR)
         if: ${{ github.event_name == 'pull_request' }}
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff
 
       - name: Run PHP-CS-Fixer (push)
         if: ${{ github.event_name == 'push' }}
-        run: vendor/bin/php-cs-fixer fix
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php
 
       # ------------------
       # RECTOR
@@ -47,11 +47,11 @@ jobs:
       # En PR: solo revisión (no cambia archivos)
       - name: Rector dry-run (PR)
         if: ${{ github.event_name == 'pull_request' }}
-        run: vendor/bin/rector process --dry-run --output-format=github > rector.log || true
+        run: vendor/bin/rector process --config rector.php --dry-run --output-format=github > rector.log || true
 
       - name: Run Rector (push)
         if: ${{ github.event_name == 'push' }}
-        run: vendor/bin/rector process | tee rector.log
+        run: vendor/bin/rector process --config rector.php | tee rector.log
 
         # Guardar el log como artefacto
       - name: Upload Rector log

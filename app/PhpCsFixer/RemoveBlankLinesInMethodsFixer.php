@@ -3,11 +3,11 @@
 namespace App\PhpCsFixer;
 
 use PhpCsFixer\AbstractFixer;
-use PhpCsFixer\Tokenizer\Tokens;
-use PhpCsFixer\Tokenizer\Token;
+use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
-use PhpCsFixer\FixerDefinition\CodeSample;
+use PhpCsFixer\Tokenizer\Token;
+use PhpCsFixer\Tokenizer\Tokens;
 
 final class RemoveBlankLinesInMethodsFixer extends AbstractFixer
 {
@@ -32,10 +32,18 @@ final class RemoveBlankLinesInMethodsFixer extends AbstractFixer
      */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
-        for ($index = $tokens->count() - 1; $index > 0; --$index) {
+        $insideMethod = false;
+        for ($index = 0; $index < $tokens->count(); $index++) {
             $token = $tokens[$index];
-            if ($token->isWhitespace() && substr_count($token->getContent(), "\n") > 1) {
-                // Deja solo un salto de línea
+            if ($token->isGivenKind(T_FUNCTION)) {
+                $insideMethod = true;
+            }
+
+            if ($insideMethod && $token->equals('}')) {
+                $insideMethod = false;
+            }
+
+            if ($insideMethod && $token->isWhitespace() && substr_count($token->getContent(), "\n") > 1) {
                 $tokens[$index] = new Token([T_WHITESPACE, "\n"]);
             }
         }
@@ -49,5 +57,10 @@ final class RemoveBlankLinesInMethodsFixer extends AbstractFixer
     public function getName(): string
     {
         return 'App/remove_blank_lines_in_methods';
+    }
+
+    public function getPriority(): int
+    {
+        return -10; // corre antes que class_attributes_separation
     }
 }

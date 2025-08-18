@@ -10,6 +10,7 @@ use Laravel\Fortify\Contracts\UpdatesUserPasswords;
 class UpdateUserPassword implements UpdatesUserPasswords
 {
     use PasswordValidationRules;
+
     /**
      * Validate and update the user's password.
      *

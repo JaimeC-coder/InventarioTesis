@@ -29,6 +29,7 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::DEAD_CODE,
         SetList::NAMING,
         SetList::TYPE_DECLARATION,
+        SetList::EARLY_RETURN,      // cambia if anidados por return temprano
     ]);
     // Opcional: ignora vendor/ y storage/ , tests/
     $rectorConfig->skip([
