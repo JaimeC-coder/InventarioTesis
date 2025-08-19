@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -54,5 +56,8 @@ class ImageController extends Controller
      */
     public function destroy(Image $image): void
     {
+        Log::info("Eliminando imagen:". $image);
+        Storage::delete($image->path);
+        $image->delete();
     }
 }

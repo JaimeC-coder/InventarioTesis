@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ImageController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,15 +14,18 @@ Route::get('/ecommerce', function () {
 Route::get('/users', function () {
     return view('admin.users');
 })->name('users');
-Route::get('/products', function () {
-    return view('admin.products');
-})->name('products');
+
 Route::get('/settings', function () {
     return view('admin.settings');
 })->name('settings');
 Route::get('/logout', function () {
     return view('admin.logout');
 })->name('logout');
-Route::get('/products', function () {
-    return view('admin.products');
-})->name('products');
+
+
+Route::resource('categories', CategoryController::class)->except(['show']);
+Route::resource('products', ProductController::class)->except(['show']);
+
+Route::post('products/{product}/images', [ProductController::class, 'uploadImages'])->name('products.uploadImages');
+
+Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('image.destroy');

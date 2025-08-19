@@ -26,6 +26,18 @@ class Product extends BaseModel
         return $this->hasMany(Inventorie::class);
     }
 
+
+    // Relacion mucho a muchos polimorfica con purchase
+    public function purchases()
+    {
+        return $this->morphedByMany(Purchase::class, 'productable');
+    }
+    // Relacion mucho a muchos polimorfica con quotes
+    public function quotes()
+    {
+        return $this->morphedByMany(Quote::class, 'productable');
+    }
+
     //Relacion polimorfica con imagenes
     public function images()
     {

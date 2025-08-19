@@ -1,4 +1,4 @@
-@props(['title' => config('app.name', 'Laravel')  ])
+@props(['title' => config('app.name', 'Laravel')])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -15,7 +15,10 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    {{-- sweet Alert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Scripts -->
+    @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
@@ -39,6 +42,15 @@
     @livewireScripts
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
+    @if (session('swal'))
+    <script>
+        Swal.fire(@json(session('swal')));
+    </script>
+    @endif
+
+    @stack('scripts')
+
 </body>
 
 </html>

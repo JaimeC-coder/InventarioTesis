@@ -15,20 +15,36 @@
             'route' => 'admin.ecommerce',
             'active' => request()->routeIs('admin.ecommerce'),
             'icon' => 'ecommerce',
+            // 'submenu' => [
+            //     ['name' => 'Products', 'route' => 'admin.products'],
+            //     // ['name' => 'Billing', 'route' => 'admin.billing'],
+            //     // ['name' => 'Invoice', 'route' => 'admin.invoice'],
+            // ],
+        ],
+        [
+            'name' => 'Categories',
+            'route' => 'admin.categories.index',
+            'active' => request()->routeIs('admin.categories.*'),
+            'icon' => 'categorie',
             'submenu' => [
-                ['name' => 'Products', 'route' => 'admin.products'],
+                ['name' => 'Crear', 'route' => 'admin.categories.create'],
                 // ['name' => 'Billing', 'route' => 'admin.billing'],
                 // ['name' => 'Invoice', 'route' => 'admin.invoice'],
             ],
         ],
 
+
         ['name' => 'Users', 'route' => 'admin.users', 'active' => request()->routeIs('admin.users'), 'icon' => 'users'],
 
         [
             'name' => 'Products',
-            'route' => 'admin.products',
-            'active' => request()->routeIs('admin.products'),
+            'route' => 'admin.products.index',
+            'active' => request()->routeIs('admin.products.*'),
             'icon' => 'products',
+            'submenu' => [
+                ['name' => 'Crear', 'route' => 'admin.products.create'],
+            ]
+
         ],
 
         [

@@ -15,7 +15,7 @@ return new class() extends Migration {
             $blueprint->string('name')->unique();
             $blueprint->string('sku')->unique()->nullable();
             $blueprint->string('barcode')->unique()->nullable();
-            $blueprint->string('description')->nullable();
+            $blueprint->text('description')->nullable();
             $blueprint->decimal('price', 10, 2)->default(0.00);
             $blueprint->uuid('uuid')->unique();
             $blueprint->foreignId('category_id')->constrained('categories')->onDelete('cascade');
