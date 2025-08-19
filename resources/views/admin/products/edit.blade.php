@@ -5,6 +5,14 @@
 ]" :title="'Producto'">
     @push('styles')
         <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+        <style>
+            .image-product {
+                width: 5rem;
+                height: 2.5rem;
+                object-fit: cover;
+                object-position: center
+            }
+        </style>
     @endpush
     <div
         class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">

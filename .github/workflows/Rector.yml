@@ -34,11 +34,11 @@ jobs:
       # ------------------
       - name: Run PHP-CS-Fixer (PR)
         if: ${{ github.event_name == 'pull_request' }}
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff
 
       - name: Run PHP-CS-Fixer (push)
         if: ${{ github.event_name == 'push' }}
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php
 
       # ------------------
       # RECTOR

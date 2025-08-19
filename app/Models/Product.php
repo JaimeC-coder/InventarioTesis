@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
+
 class Product extends BaseModel
 {
     protected $fillable = [
@@ -13,6 +16,15 @@ class Product extends BaseModel
         'uuid',
         'category_id',
     ];
+
+    //Accesores
+
+    public function image() : Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->images->count() > 0 ? Storage::url($this->images->first()->path) : 'https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ='
+        );
+    }
 
     // Relación con categorías
     public function category()
