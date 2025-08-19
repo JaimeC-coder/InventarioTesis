@@ -22,7 +22,6 @@ Route::get('/logout', function () {
     return view('admin.logout');
 })->name('logout');
 
-
 Route::resource('categories', CategoryController::class)->except(['show']);
 Route::resource('products', ProductController::class)->except(['show']);
 

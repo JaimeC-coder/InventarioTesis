@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             // Add other seeders here as needed
         ]);
-
         Product::factory(100)->create();
     }
 }

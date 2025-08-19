@@ -28,7 +28,7 @@ class ProductController extends Controller
     {
         // This method can be used to return a view with a form for creating a new product
         $categories = \App\Models\Category::all(); // Fetch all categories if needed
-        return view('admin.products.create', compact('categories')); // Assuming you have a view for creating products
+        return view('admin.products.create', ['categories' => $categories]); // Assuming you have a view for creating products
     }
 
     /**
@@ -37,14 +37,12 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Validate and create the product
-
-        $product = Product::create($request->validate([
+        Product::create($request->validate([
             'name' => 'required|string|max:255|unique:products,name',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:1',
             'category_id' => 'required|exists:categories,id',
         ]));
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'El producto se ha creado correctamente.',
@@ -57,7 +55,9 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void {}
+    public function show(Product $product): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -80,7 +80,6 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:1',
             'category_id' => 'required|exists:categories,id',
         ]));
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'El producto se ha actualizado correctamente.',
@@ -95,7 +94,6 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
-
         if ($product->inventories()->exists()) {
             session()->flash('swal', [
                 'title' => 'Error',
@@ -104,6 +102,7 @@ class ProductController extends Controller
             ]);
             return redirect()->route('admin.products.index');
         }
+
         if ($product->purchases()->exists() || $product->quotes()->exists()) {
             session()->flash('swal', [
                 'title' => 'Error',
@@ -124,35 +123,29 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index');
     }
 
-    public function uploadImages(Request $request, Product $product) //: RedirectResponse
+    public function uploadImages(Request $request, Product $product): \Symfony\Component\HttpFoundation\Response //: RedirectResponse
     {
-
-
         $tempPath = Storage::put('images/products', $request->file('file'));
         $extension = $request->file('file')->getClientOriginalExtension();
         $imagenProduct = $product->images()->create([
             'path' => $tempPath,
             'size' => $request->file('file')->getSize(),
-            'alt_text' => $product->uuid . '.' . $extension
+            'alt_text' => $product->uuid . '.' . $extension,
         ]);
-
         $newFileName = $product->uuid . '_' . time() . '.' . $extension;
         $newPath = 'images/products/' . $newFileName;
-
         // MOVEMOS FÍSICAMENTE el archivo del nombre temporal al nuevo nombre
         Storage::move($tempPath, $newPath);
-
         // Actualizamos la BD con el nuevo path
         $imagenProduct->update([
-            'path' => $newPath
+            'path' => $newPath,
         ]);
         Log::info($imagenProduct->path);
         $imagenProduct->save();
 
-
         return response()->json([
             'uuid' => $imagenProduct->uuid,
-            'path' => $imagenProduct->path
+            'path' => $imagenProduct->path,
         ])->setStatusCode(201);
     }
 }

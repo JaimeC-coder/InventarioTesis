@@ -56,7 +56,7 @@ class ImageController extends Controller
      */
     public function destroy(Image $image): void
     {
-        Log::info("Eliminando imagen:". $image);
+        Log::info('Eliminando imagen:'. $image);
         Storage::delete($image->path);
         $image->delete();
     }

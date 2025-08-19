@@ -19,10 +19,10 @@ class Product extends BaseModel
 
     //Accesores
 
-    public function image() : Attribute
+    public function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->images->count() > 0 ? Storage::url($this->images->first()->path) : 'https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ='
+            get: fn($value) => $this->images->count() > 0 ? Storage::url($this->images->first()->path) : 'https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ='
         );
     }
 
@@ -38,12 +38,12 @@ class Product extends BaseModel
         return $this->hasMany(Inventorie::class);
     }
 
-
     // Relacion mucho a muchos polimorfica con purchase
     public function purchases()
     {
         return $this->morphedByMany(Purchase::class, 'productable');
     }
+
     // Relacion mucho a muchos polimorfica con quotes
     public function quotes()
     {
