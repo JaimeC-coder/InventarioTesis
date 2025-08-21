@@ -23,4 +23,10 @@ class Warehouse extends BaseModel
     {
         return $this->hasMany(Transfer::class, 'destination_warehouse_id');
     }
+
+    // Relación con inventarios
+    public function inventories()
+    {
+        return $this->hasMany(inventorie::class);
+    }
 }

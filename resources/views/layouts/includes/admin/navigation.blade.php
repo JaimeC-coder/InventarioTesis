@@ -15,11 +15,7 @@
             'route' => 'admin.ecommerce',
             'active' => request()->routeIs('admin.ecommerce'),
             'icon' => 'ecommerce',
-            // 'submenu' => [
-            //     ['name' => 'Products', 'route' => 'admin.products'],
-            //     // ['name' => 'Billing', 'route' => 'admin.billing'],
-            //     // ['name' => 'Invoice', 'route' => 'admin.invoice'],
-            // ],
+
         ],
         [
             'name' => 'Categories',
@@ -32,6 +28,35 @@
                 // ['name' => 'Invoice', 'route' => 'admin.invoice'],
             ],
         ],
+        [
+            'name' => 'Customers',
+            'route' => 'admin.customers.index',
+            'active' => request()->routeIs('admin.customers.*'),
+            'icon' => 'customers',
+            'submenu' => [
+                ['name' => 'Crear', 'route' => 'admin.customers.create'],
+            ],
+        ],
+        [
+            'name' => 'Suppliers',
+            'route' => 'admin.suppliers.index',
+            'active' => request()->routeIs('admin.suppliers.*'),
+            'icon' => 'customers',
+            'submenu' => [
+                ['name' => 'Crear', 'route' => 'admin.suppliers.create'],
+            ],
+        ],
+        [
+            'name' => 'Warehouses',
+            'route' => 'admin.warehouses.index',
+            'active' => request()->routeIs('admin.warehouses.*'),
+            'icon' => 'warehouse',
+            'submenu' => [
+                ['name' => 'Crear', 'route' => 'admin.warehouses.create'],
+            ],
+        ],
+
+        ['header' => 'Users'],
 
 
         ['name' => 'Users', 'route' => 'admin.users', 'active' => request()->routeIs('admin.users'), 'icon' => 'users'],

@@ -23,9 +23,9 @@ class Supplier extends BaseModel
     }
 
     // Relación con identidades
-    public function identities()
+    public function identity()
     {
-        return $this->hasMany(Identity::class);
+        return $this->belongsTo(Identity::class); //relacion uno a muchos
     }
 
     // Relacion con compras

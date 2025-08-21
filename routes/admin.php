@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,6 +27,9 @@ Route::get('/logout', function () {
 
 Route::resource('categories', CategoryController::class)->except(['show']);
 Route::resource('products', ProductController::class)->except(['show']);
+Route::resource('customers', CustomerController::class)->except(['show']);
+Route::resource('suppliers', SupplierController::class)->except(['show']);
+Route::resource('warehouses', WarehouseController::class)->except(['show']);
 
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages'])->name('products.uploadImages');
 
