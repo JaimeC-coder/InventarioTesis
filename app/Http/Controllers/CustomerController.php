@@ -21,7 +21,7 @@ class CustomerController extends Controller
     public function create(): \Illuminate\View\View
     {
         $identities = \App\Models\Identity::all(); // Assuming you have an Identity model
-        return view('admin.customers.create', compact('identities'));
+        return view('admin.customers.create', ['identities' => $identities]);
     }
 
     /**
@@ -29,7 +29,6 @@ class CustomerController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-
         Customer::create($request->validate([
             'identity_id' => 'required|exists:identities,id',
             'document_number' => 'required|numeric|unique:customers,document_number',
@@ -38,7 +37,6 @@ class CustomerController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
         ]));
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La creación del cliente fue exitosa.',
@@ -51,7 +49,9 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer): void {}
+    public function show(Customer $customer): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -59,7 +59,7 @@ class CustomerController extends Controller
     public function edit(Customer $customer): \Illuminate\View\View
     {
         $identities = \App\Models\Identity::all(); // Assuming you have an Identity model
-        return view('admin.customers.edit', compact('customer', 'identities'));
+        return view('admin.customers.edit', ['customer' => $customer, 'identities' => $identities]);
     }
 
     /**
@@ -75,7 +75,6 @@ class CustomerController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
         ]));
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La actualización del cliente fue exitosa.',
@@ -98,8 +97,8 @@ class CustomerController extends Controller
             ]);
             return redirect()->route('admin.customers.index');
         }
-        $customer->delete();
 
+        $customer->delete();
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'El cliente fue eliminado exitosamente.',

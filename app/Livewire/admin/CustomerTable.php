@@ -2,10 +2,10 @@
 
 namespace App\Livewire\admin;
 
+use App\Models\Customer;
+use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\Customer;
 
 class CustomerTable extends DataTableComponent
 {
@@ -25,17 +25,17 @@ class CustomerTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make("Num Doc", "document_number")
+            Column::make('Num Doc', 'document_number')
                 ->sortable(),
-            Column::make("Identity", "identity.name")
+            Column::make('Identity', 'identity.name')
                 ->sortable(),
-            Column::make("Razon Social", "name")
+            Column::make('Razon Social', 'name')
                 ->sortable(),
-            Column::make("Correo", "email")
+            Column::make('Correo', 'email')
                 ->sortable(),
-            Column::make("Teléfono", "phone")
+            Column::make('Teléfono', 'phone')
                 ->sortable(),
-            Column::make("Dirección", "address")
+            Column::make('Dirección', 'address')
                 ->sortable(),
             Column::make('UUID', 'uuid')
                 ->sortable()

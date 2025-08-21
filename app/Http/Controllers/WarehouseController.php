@@ -32,15 +32,12 @@ class WarehouseController extends Controller
             'name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
         ]);
-
         Warehouse::create($validated);
-
-         session()->flash('swal', [
+        session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La creación del almacén fue exitosa.',
             'icon' => 'success',
         ]);
-
 
         return redirect()->route('admin.warehouses.index');
     }
@@ -58,7 +55,7 @@ class WarehouseController extends Controller
     public function edit(Warehouse $warehouse): \Illuminate\View\View
     {
 
-        return view('admin.warehouses.edit', compact('warehouse'));
+        return view('admin.warehouses.edit', ['warehouse' => $warehouse]);
     }
 
     /**
@@ -70,9 +67,7 @@ class WarehouseController extends Controller
             'name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
         ]);
-
         $warehouse->update($validated);
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La actualización del almacén fue exitosa.',
@@ -87,7 +82,7 @@ class WarehouseController extends Controller
      */
     public function destroy(Warehouse $warehouse): \Illuminate\Http\RedirectResponse
     {
-        if ( $warehouse->inventories()->count() > 0 ) {
+        if ($warehouse->inventories()->count() > 0) {
             session()->flash('swal', [
                 'title' => 'Error',
                 'text' => 'No se puede eliminar el almacén porque tiene productos asociados.',
@@ -98,7 +93,6 @@ class WarehouseController extends Controller
         }
 
         $warehouse->delete();
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La eliminación del almacén fue exitosa.',

@@ -21,7 +21,7 @@ class SupplierController extends Controller
     public function create(): \Illuminate\View\View
     {
         $identities = \App\Models\Identity::all(); // Assuming you have an Identity model
-        return view('admin.suppliers.create', compact('identities'));
+        return view('admin.suppliers.create', ['identities' => $identities]);
     }
 
     /**
@@ -37,7 +37,6 @@ class SupplierController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
         ]));
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La creación del proveedor fue exitosa.',
@@ -60,7 +59,7 @@ class SupplierController extends Controller
     public function edit(Supplier $supplier): \Illuminate\View\View
     {
         $identities = \App\Models\Identity::all(); // Assuming you have an Identity model
-        return view('admin.suppliers.edit', compact('supplier', 'identities'));
+        return view('admin.suppliers.edit', ['supplier' => $supplier, 'identities' => $identities]);
     }
 
     /**
@@ -76,7 +75,6 @@ class SupplierController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
         ]));
-
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'La actualización del proveedor fue exitosa.',
@@ -99,8 +97,8 @@ class SupplierController extends Controller
             ]);
             return redirect()->route('admin.suppliers.index');
         }
-        $supplier->delete();
 
+        $supplier->delete();
         session()->flash('swal', [
             'title' => 'Exitoso',
             'text' => 'El proveedor fue eliminado exitosamente.',

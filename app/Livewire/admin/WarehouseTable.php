@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Warehouse;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use App\Models\Warehouse;
 
 class WarehouseTable extends DataTableComponent
 {
@@ -12,23 +12,23 @@ class WarehouseTable extends DataTableComponent
 
     public function configure(): void
     {
-          $this->setPrimaryKey('id');
+        $this->setPrimaryKey('id');
         $this->setDefaultSort('created_at', 'desc');
     }
 
     public function columns(): array
     {
         return [
-             Column::make('#')
+            Column::make('#')
                 ->label(function ($row, Column $column): int {
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make("Name", "name")
+            Column::make('Name', 'name')
                 ->sortable(),
-            Column::make("Location", "location")
+            Column::make('Location', 'location')
                 ->sortable(),
-              Column::make('UUID', 'uuid')
+            Column::make('UUID', 'uuid')
                 ->sortable()
                 ->hideIf(true),
             Column::make('Fecha de creación', 'created_at')
@@ -43,7 +43,8 @@ class WarehouseTable extends DataTableComponent
                 }),
         ];
     }
-       protected function getRowNumber(): int
+
+    protected function getRowNumber(): int
     {
         static $position = null;
         if ($position === null) {
