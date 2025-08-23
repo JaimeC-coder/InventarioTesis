@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/admin');
@@ -12,3 +13,7 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::post('prueba', function (Request $request): \Illuminate\Http\Request {
+    return $request;
+})->name('prueba');

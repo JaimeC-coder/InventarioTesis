@@ -10,15 +10,17 @@ class PurchaseOrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): void
+    public function index(): \Illuminate\View\View
     {
+        return view('admin.purchase_orders.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): void
+    public function create(): \Illuminate\View\View
     {
+        return view('admin.purchase_orders.create');
     }
 
     /**
