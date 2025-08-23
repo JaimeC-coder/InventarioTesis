@@ -1,26 +1,64 @@
 <div>
-    <form wire:submit='save'>
+    <form wire:submit='save' class="space-y-4">
         <div class="grid grid-cols-4 gap-4">
             <div class="md-4">
                 <label for="supplier_id" class="text-gray-700 dark:text-white">Tipo de Comprobante</label>
-                <select name="voucher_type" id="voucher_type" wire:model="voucher_type" class="form-select block w-full mt-1">
+                <select name="voucher_type" id="voucher_type" wire:model="voucher_type"
+                    class="form-select block w-full mt-1">
                     <option value="">Seleccione Tipo de Comprobante</option>
-                    <option value="1" @if($voucher_type === 1) selected @endif>Factura</option>
-                    <option value="2" @if($voucher_type === 2) selected @endif>Boleta</option>
+                    <option value="1" @if ($voucher_type === 1) selected @endif>Factura</option>
+                    <option value="2" @if ($voucher_type === 2) selected @endif>Boleta</option>
                 </select>
             </div>
-            <div class="md-4">
-                <label for="serie" class="text-gray-700 dark:text-white">Serie</label>
-                <input type="text" name="serie" id="serie" wire:model="serie" class="form-input block w-full mt-1 disabled:opacity-50" placeholder="Serie"  disabled="true">
-            </div>
-            <div class="md-4">
-                <label for="correlativo" class="text-gray-700 dark:text-white">Correlativo</label>
-                <input type="text" name="correlativo" id="correlativo" wire:model="correlativo" class="form-input block w-full mt-1" placeholder="Correlativo">
-            </div>
-            <div class="md-4">
-                <label for="date" class="text-gray-700 dark:text-white">Fecha</label>
-                <input type="date" name="date" id="date" wire:model="date" class="form-input block w-full mt-1">
-            </div>
+            <x-forms.input label="Nombre" name="serie" type="text" placeholder="Ingrese el numero " required
+                wire:model="serie" disabled="true" />
+            <x-forms.input label="Correlativo" name="correlativo" type="text" placeholder="Correlativo" required
+                wire:model="correlativo" />
+            <x-forms.input label="Fecha" name="date" type="date" required wire:model="date" />
+
         </div>
+        <x-forms.search label="Proveedor" placeholder="Escribe el nombre o documento..."
+            endpoint="{{ route('admin.suppliers') }}" name="supplier_id" required wire:model="supplier_id" />
+
+        <div class="flex gap-4">
+            <x-forms.search name="product_id" label="Producto" placeholder="Buscar productos..." additionalClasses="flex-1"
+                endpoint="{{ route('admin.products') }}" wire:model="product_id" :livewire="true"
+                searchField="name" valueField="uuid" required />
+            <div class="">
+                <x-button type="button" class="mt-8" wire:click="addProduct">Agregar</x-button>
+            </div>
+
+        </div>
+
+        <table class="w-full text-sm text-left">
+            <thead>
+                <tr class=" text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <th class="py-2 px-4">Producto</th>
+                    <th class="py-2 px-4">Precio</th>
+                    <th class="py-2 px-4">Cantidad</th>
+                    <th class="py-2 px-4">Subtotal</th>
+                    <th class="py-2 px-4">Acciones</th>
+                </tr>
+            <tbody>
+                @forelse ($products as $product)
+                    <tr class="border-b">
+                        <td class="py-2 px-4">{{ $product->name }}</td>
+                        <td class="py-2 px-4">{{ $product->price }}</td>
+                        <td class="py-2 px-4">{{ $product->quantity }}</td>
+                        <td class="py-2 px-4">{{ $product->subtotal }}</td>
+                        <td class="py-2 px-4">
+                            <x-button type="button" wire:click="removeProduct({{ $product->id }})">Eliminar</x-button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="py-2 px-4 text-center bg-gray-400 dark:bg-white">No hay productos
+                            agregados.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            </thead>
+        </table>
+
     </form>
 </div>
