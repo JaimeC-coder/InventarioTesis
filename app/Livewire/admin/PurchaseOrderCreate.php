@@ -4,7 +4,6 @@ namespace App\Livewire\Admin;
 
 use App\Models\Product;
 use App\Models\Purchase;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class PurchaseOrderCreate extends Component
@@ -48,6 +47,7 @@ class PurchaseOrderCreate extends Component
             ]);
             return;
         }
+
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
