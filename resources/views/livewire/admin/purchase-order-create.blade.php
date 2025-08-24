@@ -41,13 +41,13 @@
                 </tr>
             <tbody>
                 @forelse ($products as $product)
-                    <tr class="border-b">
-                        <td class="py-2 px-4">{{ $product->name }}</td>
-                        <td class="py-2 px-4">{{ $product->price }}</td>
-                        <td class="py-2 px-4">{{ $product->quantity }}</td>
-                        <td class="py-2 px-4">{{ $product->subtotal }}</td>
+                    <tr class="border-b dark:border-gray-700  dark:bg-gray-500 dark:text-gray-50">
+                        <td class="py-2 px-4">{{ $product['name'] }}</td>
+                        <td class="py-2 px-4">{{ $product['price'] }}</td>
+                        <td class="py-2 px-4">{{ $product['quantity'] }}</td>
+                        <td class="py-2 px-4">{{ $product['subtotal'] }}</td>
                         <td class="py-2 px-4">
-                            <x-button type="button" wire:click="removeProduct({{ $product->id }})">Eliminar</x-button>
+                            <x-button type="button" wire:click="removeProduct({{ $product['id'] }})">Eliminar</x-button>
                         </td>
                     </tr>
                 @empty

@@ -35,13 +35,30 @@ class PurchaseOrderCreate extends Component
 
     public function addProduct(): void
     {
-        Log::info('Producto agregado', ['product_id' => $this]);
         $this->validate([
-            'product_id' => 'required|exists:products,id',
+            'product_id' => 'required|exists:products,uuid',
         ]);
         $product = Product::where('uuid', $this->product_id)->first();
-        $this->products[] = $product;
-        Log::info('Producto agregado', ['product' => $product]);
+
+        // $exists = collect($this->products)->where('id', $product->id)->first();
+        // if ($exists) {
+        //     //quiero enviar un flash.banner para notificar que el producto ya fue agregado
+        //     $this->dispatchBrowserEvent('banner-message', [
+        //         'style' => 'success',
+        //         'message' => 'Producto agregado correctamente!',
+        //     ]);
+
+        //     return;
+        // }
+
+        $this->products[] = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'quantity' => 1,
+            'price' => 0,
+            'subtotal' => 0,
+        ];
+
         $this->reset('product_id');
     }
 
