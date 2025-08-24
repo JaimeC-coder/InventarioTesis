@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Product;
 use App\Models\Purchase;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class PurchaseOrderCreate extends Component
@@ -38,15 +39,15 @@ class PurchaseOrderCreate extends Component
             'product_id' => 'required|exists:products,uuid',
         ]);
         $product = Product::where('uuid', $this->product_id)->first();
-        // $exists = collect($this->products)->where('id', $product->id)->first();
-        // if ($exists) {
-        //     //quiero enviar un flash.banner para notificar que el producto ya fue agregado
-        //     $this->dispatchBrowserEvent('banner-message', [
-        //         'style' => 'success',
-        //         'message' => 'Producto agregado correctamente!',
-        //     ]);
-        //     return;
-        // }
+        $exists = collect($this->products)->where('id', $product->id)->first();
+        if ($exists) {
+            //quiero enviar un flash.banner para notificar que el producto ya fue agregado
+            $this->dispatch('banner-message', [
+                'style' => 'success',
+                'message' => 'Producto agregado correctamente!',
+            ]);
+            return;
+        }
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
