@@ -23,30 +23,38 @@ class QuoteController extends Controller
         return view('admin.purchases.create');
     }
 
-
-
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): void {}
+    public function store(Request $request): void
+    {
+    }
 
     /**
      * Display the specified resource.
      */
-    public function show(Quote $quote): void {}
+    public function show(Quote $quote): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Quote $quote): void {}
+    public function edit(Quote $quote): void
+    {
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Quote $quote): void {}
+    public function update(Request $request, Quote $quote): void
+    {
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Quote $quote): void {}
+    public function destroy(Quote $quote): void
+    {
+    }
 }

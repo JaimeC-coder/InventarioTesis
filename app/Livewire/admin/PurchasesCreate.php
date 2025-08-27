@@ -34,7 +34,9 @@ class PurchasesCreate extends Component
     public $purchase_order_id;
 
     public $product_id;
+
     public $warehouse_uuid = '';
+
     public $warehouse_id;
 
     public $products = [];
@@ -77,7 +79,6 @@ class PurchasesCreate extends Component
 
     public function updated($property, $value): void
     {
-
         if ($property === 'purchase_order_uuid' && !empty($value)) {
             $purchaseOrder = PurchaseOrder::where('uuid', $value)->first();
             if ($purchaseOrder) {
@@ -130,6 +131,7 @@ class PurchasesCreate extends Component
         if (!empty($this->supplier_uuid)) {
             $this->supplier_id = Supplier::where('uuid', $this->supplier_uuid)->value('id');
         }
+
         if (!empty($this->purchase_order_uuid)) {
             $this->purchase_order_id = PurchaseOrder::where('uuid', $this->purchase_order_uuid)->value('id');
         }

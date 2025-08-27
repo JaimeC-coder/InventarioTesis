@@ -9,7 +9,6 @@ use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\WarehouseController;
-use App\Models\Quote;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,5 +44,3 @@ Route::resource('purchases-orders', PurchaseOrderController::class)->only(['inde
 Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store']);
 
 Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('image.destroy');
-
-
