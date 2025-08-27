@@ -12,7 +12,7 @@ class QuoteController extends Controller
      */
     public function index(): \Illuminate\View\View
     {
-        return view('admin.purchases.index');
+        return view('admin.quotes.index');
     }
 
     /**
@@ -20,7 +20,7 @@ class QuoteController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
-        return view('admin.purchases.create');
+        return view('admin.quotes.create');
     }
 
     /**
