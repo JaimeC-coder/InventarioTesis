@@ -42,14 +42,14 @@ class array_nav_use
                 ],
             ],
             [
-                'name' => 'Ventas falta',
+                'name' => 'Ventas',
                 'route' => 'admin.ecommerce',
                 'active' => request()->routeIs('admin.ecommerce'),
                 'icon' => 'ecommerce',
                 'submenu' => [
-                    ['name' => 'Proveedores', 'route' => 'admin.suppliers.index'],
-                    ['name' => 'Ordenes de compra ', 'route' => 'admin.purchases-orders.index'],
-                    ['name' => 'Compras Falta', 'route' => 'admin.warehouses.index'],
+                    ['name' => 'Cotizaciones', 'route' => 'admin.quotes.index'],
+                    ['name' => 'Ordenes de compra falta ', 'route' => 'admin.purchases-orders.index'],
+                    ['name' => 'ventas Falta', 'route' => 'admin.warehouses.index'],
                 ],
             ],
             [
