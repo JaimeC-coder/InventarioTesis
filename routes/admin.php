@@ -4,9 +4,12 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\WarehouseController;
+use App\Models\Quote;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,8 +37,13 @@ Route::resource('warehouses', WarehouseController::class)->except(['show']);
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages'])->name('products.uploadImages');
 //Ventas
 Route::resource('customers', CustomerController::class)->except(['show']);
+
+Route::resource('quotes', QuoteController::class)->only(['index', 'create', 'store']);
 //Compras
 Route::resource('suppliers', SupplierController::class)->except(['show']);
 Route::resource('purchases-orders', PurchaseOrderController::class)->only(['index', 'create', 'store']);
+Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store']);
 
 Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('image.destroy');
+
+

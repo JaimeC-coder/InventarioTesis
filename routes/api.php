@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\Supplier;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +15,7 @@ Route::post('suppliers', function (Request $request) {
         })
         ->when(
             $request->exists('selected'),
-            fn($query) => $query->whereIn('id', $request->input('selected')),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
             fn($query) => $query->limit(10)
         )
         ->get();
@@ -28,9 +30,62 @@ Route::post('products', function (Request $request) {
         })
         ->when(
             $request->exists('selected'),
-            fn($query) => $query->whereIn('id', $request->input('selected')),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
             fn($query) => $query->limit(10)
         )
         ->get();
     return response()->json($product);
 })->name('admin.products');
+
+Route::post('warehouses', function (Request $request) {
+    $warehouse = Warehouse::select('uuid', 'name')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('sku', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->get();
+    return response()->json($warehouse);
+})->name('admin.warehouses');
+Route::post('purchases-orders', function (Request $request) {
+    $purchaseOrder = PurchaseOrder::when($request->search, function ($query) use ($request): void {
+        $parts = explode('-', $request->search);
+        if (count($parts) == 1) {
+            $query->whereHas('supplier', function ($q) use ($request): void {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('document_number', 'like', '%' . $request->search . '%');
+            });
+            return;
+        }
+
+        if (count($parts) === 2) {
+            $serie = $parts[0];
+            $correlativo = ltrim($parts[1], '0');
+            $query->where('serie', $serie)
+                ->where('correlativo', 'like', '%' . $correlativo . '%');
+            return;
+        }
+    })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->with(['supplier'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+    //str_pad($po->correlativo, 6, '0', STR_PAD_LEFT)
+
+    return $purchaseOrder->map(function ($po): array {
+        return [
+            'uuid' => $po->uuid,
+            'name' => $po->serie . ' - ' . $po->correlativo,
+            'description' => $po->supplier->name . ' - ' . $po->supplier->document_number,
+        ];
+    });
+    //return response()->json($purchaseOrder);
+})->name('admin.purchases-orders');

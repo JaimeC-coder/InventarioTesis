@@ -1,6 +1,6 @@
 @props(['title' => config('app.name', 'Laravel')])
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark:bg-gray-900 dark:text-white">
 
 <head>
     <meta charset="utf-8">
@@ -18,6 +18,8 @@
     {{-- sweet Alert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Scripts -->
+    <wireui:scripts />
+
     @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -44,6 +46,12 @@
     @livewireScripts
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
+    <script>
+        Livewire.on('swal', (data) => {
+             Swal.fire(data[0]);
+        });
+    </script>
 
     @if (session('swal'))
     <script>

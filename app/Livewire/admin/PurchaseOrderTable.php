@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\PurchaseOrder;
+use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
@@ -13,11 +14,17 @@ class PurchaseOrderTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
+        $this->setDefaultSort('created_at', 'desc');
     }
 
     public function columns(): array
     {
         return [
+            Column::make('#')
+                ->label(function ($row, Column $column): int {
+                    return $this->getRowNumber();
+                })
+                ->sortable(),
             Column::make('Voucher type', 'voucher_type')
                 ->sortable(),
             Column::make('Serie', 'serie')
@@ -26,16 +33,33 @@ class PurchaseOrderTable extends DataTableComponent
                 ->sortable(),
             Column::make('Date', 'date')
                 ->sortable(),
-            Column::make('Supplier id', 'supplier_id')
+            Column::make('Supplier', 'supplier.name')
                 ->sortable(),
             Column::make('Total', 'total')
                 ->sortable(),
             Column::make('Observation', 'observation')
                 ->sortable(),
             Column::make('Uuid', 'uuid')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+                ->sortable() ->sortable()->hideIf(true),
+            Column::make('Fecha de creación', 'created_at')
                 ->sortable(),
         ];
+    }
+
+    protected function getRowNumber(): int
+    {
+        static $position = null;
+        if ($position === null) {
+            $position = (($this->getPage() - 1) * $this->getPerPage()) + 1;
+        } else {
+            $position++;
+        }
+
+        return $position;
+    }
+
+    public function builder(): Builder
+    {
+        return PurchaseOrder::query()->with(['supplier']);
     }
 }

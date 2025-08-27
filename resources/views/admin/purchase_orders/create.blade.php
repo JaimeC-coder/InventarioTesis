@@ -6,5 +6,6 @@
 
 
 
-  @livewire('admin.purchase-order-create')
+    @livewire('admin.purchase-order-create')
+
 </x-admin-layout>

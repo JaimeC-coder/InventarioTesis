@@ -281,4 +281,5 @@ return [
         'work' => 'trabajo',
         'year' => 'año',
     ],
+
 ];

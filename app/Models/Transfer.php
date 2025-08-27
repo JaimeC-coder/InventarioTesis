@@ -34,6 +34,7 @@ class Transfer extends BaseModel
     public function products()
     {
         return $this->morphToMany(Product::class, 'productable')
+            ->using(Productable::class)
             ->withPivot('quantity', 'price', 'subtotal')
             ->withTimestamps();
     }

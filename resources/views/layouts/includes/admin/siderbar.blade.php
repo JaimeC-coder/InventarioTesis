@@ -22,6 +22,8 @@
             <div class="flex items-center">
                 <div class="flex items-center ms-3">
                     <div>
+                        {{-- agregar el componente para cambiar de estado de widget a dark --}}
+
 
                         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                             <button aria-expanded="false" data-dropdown-toggle="dropdown-user"

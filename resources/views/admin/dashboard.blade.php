@@ -9,7 +9,7 @@
 
     {{-- Form nuevo inicio --}}
 
-    <x-forms.form method="POST" action="{{ route('prueba') }}" class="space-y-6">
+    {{-- <x-forms.form method="POST" action="{{ route('prueba') }}" class="space-y-6">
 
         <x-slot name="form">
             <div class="grid grid-cols-3 gap-3">
@@ -21,14 +21,14 @@
                     placeholder="Ingrese su correo" required />
                 <x-forms.input label="Nombre" name="name3" type="password" value=""
                     placeholder="Ingrese su contraseña" required />
-                <x-forms.search label="Proveedor" placeholder="Escribe el nombre o documento..."
+                <x-forms.select label="Proveedor" placeholder="Escribe el nombre o documento..."
                     endpoint="{{ route('admin.suppliers') }}" name="supplier_id" required />
                 <x-forms.input label="Nombre" name="name4" type="date" value=""
                     placeholder="Ingrese su fecha de nacimiento" required />
                 <x-button>Guardar</x-button>
             </div>
         </x-slot>
-    </x-forms.form>
+    </x-forms.form> --}}
 
     {{-- Form nuevo fin  --}}
 

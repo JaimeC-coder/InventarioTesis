@@ -38,7 +38,7 @@ class array_nav_use
                 'submenu' => [
                     ['name' => 'Proveedores', 'route' => 'admin.suppliers.index'],
                     ['name' => 'Ordenes de compra ', 'route' => 'admin.purchases-orders.index'],
-                    ['name' => 'Compras Falta', 'route' => 'admin.warehouses.index'],
+                    ['name' => 'Compras', 'route' => 'admin.purchases.index'],
                 ],
             ],
             [
