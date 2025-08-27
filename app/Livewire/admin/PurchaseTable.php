@@ -33,18 +33,18 @@ class PurchaseTable extends DataTableComponent
                 ->sortable(),
             Column::make('Date', 'date')
                 ->sortable()
-                ->format(fn($value) => \Carbon\Carbon::parse($value)->format('d/m/Y')),
+                ->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y')),
             Column::make('Supplier', 'supplier.name')
                 ->sortable(),
             Column::make('Warehouse', 'warehouse.name')
                 ->sortable(),
             Column::make('Total', 'total')
                 ->sortable()
-                ->format(fn($value) => 'S/.' . number_format($value, 2)),
+                ->format(fn($value): string => 'S/.' . number_format($value, 2)),
             Column::make('Uuid', 'uuid')
                 ->sortable()->hideIf(true),
             Column::make('Created at', 'created_at')
-                ->sortable()->format(fn($value) => \Carbon\Carbon::parse($value)->format('d/m/Y H:i')),
+                ->sortable()->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y H:i')),
         ];
     }
 
