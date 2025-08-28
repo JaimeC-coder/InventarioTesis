@@ -6,7 +6,7 @@
 
 
 
-    <livewire:admin.purchase-order-table />
+    <livewire:admin.tables.purchase-order-table />
 
     @push('scripts')
         <script>

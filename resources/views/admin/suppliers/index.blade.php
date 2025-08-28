@@ -6,7 +6,7 @@
 
 
 
-    <livewire:admin.supplier-table />
+    <livewire:admin.tables.supplier-table />
 
     @push('scripts')
         <script>

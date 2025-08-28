@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Livewire\admin\tables;
+
+use Rappasoft\LaravelLivewireTables\DataTableComponent;
+use Rappasoft\LaravelLivewireTables\Views\Column;
+use App\Models\Sale;
+
+class SaleTable extends DataTableComponent
+{
+    protected $model = Sale::class;
+
+    public function configure(): void
+    {
+        $this->setPrimaryKey('id');
+    }
+
+    public function columns(): array
+    {
+        return [
+            Column::make("Voucher type", "voucher_type")
+                ->sortable(),
+            Column::make("Serie", "serie")
+                ->sortable(),
+            Column::make("Correlativo", "correlativo")
+                ->sortable(),
+            Column::make("Date", "date")
+                ->sortable(),
+            Column::make("Quote id", "quote_id")
+                ->sortable(),
+            Column::make("Customer id", "customer_id")
+                ->sortable(),
+            Column::make("Warehouse id", "warehouse_id")
+                ->sortable(),
+            Column::make("Total", "total")
+                ->sortable(),
+            Column::make("Observation", "observation")
+                ->sortable(),
+            Column::make("Uuid", "uuid")
+                ->sortable(),
+            Column::make("Created at", "created_at")
+                ->sortable(),
+        ];
+    }
+}

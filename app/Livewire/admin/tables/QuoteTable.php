@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Livewire\admin;
+namespace App\Livewire\admin\tables;
 
-use App\Models\Supplier;
+use App\Models\Quote;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class SupplierTable extends DataTableComponent
+class QuoteTable extends DataTableComponent
 {
-    protected $model = Supplier::class;
+    protected $model = Quote::class;
 
     public function configure(): void
     {
@@ -25,34 +25,26 @@ class SupplierTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make('Num Doc', 'document_number')
+            Column::make('Voucher type', 'voucher_type')
                 ->sortable(),
-            Column::make('Identity', 'identity.name')
+            Column::make('Serie', 'serie')
                 ->sortable(),
-            Column::make('Razon Social', 'name')
+            Column::make('Correlativo', 'correlativo')
                 ->sortable(),
-            Column::make('Correo', 'email')
+            Column::make('Date', 'date')
                 ->sortable(),
-            Column::make('Teléfono', 'phone')
+            Column::make('Total', 'total')
                 ->sortable(),
-            Column::make('Dirección', 'address')
+            Column::make('Observation', 'observation')
                 ->sortable(),
-            Column::make('UUID', 'uuid')
-                ->sortable()
-                ->hideIf(true),
+            Column::make('Customer name', 'customer.name')
+                ->sortable(),
+            Column::make('Uuid', 'uuid')
+                ->sortable()->sortable()->hideIf(true),
             Column::make('Fecha de creación', 'created_at')
-                ->sortable()
-                ->searchable(),
-            Column::make('Acciones')
-                ->label(function ($row, Column $column) {
-                    // $row aquí es el modelo completo Customer
-                    return view('admin.customers.actions', [
-                        'customer' => $row, // Pasa el modelo completo
-                    ]);
-                }),
+                ->sortable(),
         ];
     }
-
     protected function getRowNumber(): int
     {
         static $position = null;
@@ -67,6 +59,6 @@ class SupplierTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Supplier::query()->with(['identity']);
+        return Quote::query()->with(['customer']);
     }
 }

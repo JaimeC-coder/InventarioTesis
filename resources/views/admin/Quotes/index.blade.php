@@ -6,7 +6,7 @@
 
 
 
-    <livewire:admin.quote-table />
+    <livewire:admin.tables.quote-table />
 
     @push('scripts')
         <script>

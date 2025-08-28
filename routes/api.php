@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
@@ -51,6 +53,7 @@ Route::post('warehouses', function (Request $request) {
         ->get();
     return response()->json($warehouse);
 })->name('admin.warehouses');
+
 Route::post('purchases-orders', function (Request $request) {
     $purchaseOrder = PurchaseOrder::when($request->search, function ($query) use ($request): void {
         $parts = explode('-', $request->search);
@@ -89,3 +92,60 @@ Route::post('purchases-orders', function (Request $request) {
     });
     //return response()->json($purchaseOrder);
 })->name('admin.purchases-orders');
+
+
+
+
+Route::post('quotes', function (Request $request) {
+    $quote = Quote::when($request->search, function ($query) use ($request): void {
+        $parts = explode('-', $request->search);
+        if (count($parts) == 1) {
+            $query->whereHas('customer', function ($q) use ($request): void {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('document_number', 'like', '%' . $request->search . '%');
+            });
+            return;
+        }
+
+        if (count($parts) === 2) {
+            $serie = $parts[0];
+            $correlativo = ltrim($parts[1], '0');
+            $query->where('serie', $serie)
+                ->where('correlativo', 'like', '%' . $correlativo . '%');
+            return;
+        }
+    })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->with(['supplier'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+    //str_pad($po->correlativo, 6, '0', STR_PAD_LEFT)
+
+    return $quote->map(function ($po): array {
+        return [
+            'uuid' => $po->uuid,
+            'name' => $po->serie . ' - ' . $po->correlativo,
+            'description' => $po->customer->name . ' - ' . $po->customer->document_number,
+        ];
+    });
+    //return response()->json($purchaseOrder);
+})->name('admin.quotes');
+
+Route::post('customers', function (Request $request) {
+    $customer = Customer::select('uuid', 'name')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('document_number', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->get();
+    return response()->json($customer);
+})->name('admin.customers');

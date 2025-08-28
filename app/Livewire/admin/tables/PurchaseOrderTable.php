@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\admin\tables;
 
-use App\Models\Purchase;
+use App\Models\PurchaseOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class PurchaseTable extends DataTableComponent
+class PurchaseOrderTable extends DataTableComponent
 {
-    protected $model = Purchase::class;
+    protected $model = PurchaseOrder::class;
 
     public function configure(): void
     {
@@ -25,26 +25,24 @@ class PurchaseTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
+            Column::make('Voucher type', 'voucher_type')
+                ->sortable(),
             Column::make('Serie', 'serie')
                 ->sortable(),
             Column::make('Correlativo', 'correlativo')
                 ->sortable(),
-            Column::make('Purchase order id', 'purchaseOrder.serie')
-                ->sortable(),
             Column::make('Date', 'date')
-                ->sortable()
-                ->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y')),
+                ->sortable(),
             Column::make('Supplier', 'supplier.name')
                 ->sortable(),
-            Column::make('Warehouse', 'warehouse.name')
-                ->sortable(),
             Column::make('Total', 'total')
-                ->sortable()
-                ->format(fn($value): string => 'S/.' . number_format($value, 2)),
+                ->sortable(),
+            Column::make('Observation', 'observation')
+                ->sortable(),
             Column::make('Uuid', 'uuid')
-                ->sortable()->hideIf(true),
-            Column::make('Created at', 'created_at')
-                ->sortable()->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y H:i')),
+                ->sortable() ->sortable()->hideIf(true),
+            Column::make('Fecha de creación', 'created_at')
+                ->sortable(),
         ];
     }
 
@@ -62,6 +60,6 @@ class PurchaseTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Purchase::query()->with(['supplier','purchaseOrder','warehouse']);
+        return PurchaseOrder::query()->with(['supplier']);
     }
 }

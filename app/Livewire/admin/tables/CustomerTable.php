@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Livewire\admin;
+namespace App\Livewire\admin\tables;
 
-use App\Models\Category;
+use App\Models\Customer;
+use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class CategoryTable extends DataTableComponent
+class CustomerTable extends DataTableComponent
 {
-    protected $model = Category::class;
+    protected $model = Customer::class;
 
     public function configure(): void
     {
@@ -24,12 +25,18 @@ class CategoryTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make('Nombre', 'name')
-                ->sortable()
-                ->searchable(),
-            Column::make('Descripción', 'description')
-                ->sortable()
-                ->searchable(),
+            Column::make('Num Doc', 'document_number')
+                ->sortable(),
+            Column::make('Identity', 'identity.name')
+                ->sortable(),
+            Column::make('Razon Social', 'name')
+                ->sortable(),
+            Column::make('Correo', 'email')
+                ->sortable(),
+            Column::make('Teléfono', 'phone')
+                ->sortable(),
+            Column::make('Dirección', 'address')
+                ->sortable(),
             Column::make('UUID', 'uuid')
                 ->sortable()
                 ->hideIf(true),
@@ -38,9 +45,9 @@ class CategoryTable extends DataTableComponent
                 ->searchable(),
             Column::make('Acciones')
                 ->label(function ($row, Column $column) {
-                    // $row aquí es el modelo completo Category
-                    return view('admin.categories.actions', [
-                        'category' => $row, // Pasa el modelo completo
+                    // $row aquí es el modelo completo Customer
+                    return view('admin.customers.actions', [
+                        'customer' => $row, // Pasa el modelo completo
                     ]);
                 }),
         ];
@@ -56,5 +63,10 @@ class CategoryTable extends DataTableComponent
         }
 
         return $position;
+    }
+
+    public function builder(): Builder
+    {
+        return Customer::query()->with(['identity']);
     }
 }

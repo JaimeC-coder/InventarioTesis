@@ -6,7 +6,7 @@
 
 
 
-    <livewire:admin.category-table />
+    <livewire:admin.tables.category-table />
 
     @push('scripts')
         <script>

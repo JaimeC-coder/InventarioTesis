@@ -6,7 +6,7 @@
 
 
 
-    <livewire:admin.warehouse-table />
+    <livewire:admin.tables.warehouse-table />
 
     @push('scripts')
         <script>

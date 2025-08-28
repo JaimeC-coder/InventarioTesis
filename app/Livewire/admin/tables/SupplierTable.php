@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\admin\tables;
 
-use App\Models\Warehouse;
+use App\Models\Supplier;
+use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class WarehouseTable extends DataTableComponent
+class SupplierTable extends DataTableComponent
 {
-    protected $model = Warehouse::class;
+    protected $model = Supplier::class;
 
     public function configure(): void
     {
@@ -24,9 +25,17 @@ class WarehouseTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make('Name', 'name')
+            Column::make('Num Doc', 'document_number')
                 ->sortable(),
-            Column::make('Location', 'location')
+            Column::make('Identity', 'identity.name')
+                ->sortable(),
+            Column::make('Razon Social', 'name')
+                ->sortable(),
+            Column::make('Correo', 'email')
+                ->sortable(),
+            Column::make('Teléfono', 'phone')
+                ->sortable(),
+            Column::make('Dirección', 'address')
                 ->sortable(),
             Column::make('UUID', 'uuid')
                 ->sortable()
@@ -36,9 +45,9 @@ class WarehouseTable extends DataTableComponent
                 ->searchable(),
             Column::make('Acciones')
                 ->label(function ($row, Column $column) {
-                    // $row aquí es el modelo completo Warehouse
-                    return view('admin.warehouses.actions', [
-                        'warehouse' => $row, // Pasa el modelo completo
+                    // $row aquí es el modelo completo Customer
+                    return view('admin.customers.actions', [
+                        'customer' => $row, // Pasa el modelo completo
                     ]);
                 }),
         ];
@@ -54,5 +63,10 @@ class WarehouseTable extends DataTableComponent
         }
 
         return $position;
+    }
+
+    public function builder(): Builder
+    {
+        return Supplier::query()->with(['identity']);
     }
 }

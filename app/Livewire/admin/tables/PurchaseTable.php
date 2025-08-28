@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Livewire\admin;
+namespace App\Livewire\admin\tables;
 
-use App\Models\Customer;
+use App\Models\Purchase;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class CustomerTable extends DataTableComponent
+class PurchaseTable extends DataTableComponent
 {
-    protected $model = Customer::class;
+    protected $model = Purchase::class;
 
     public function configure(): void
     {
@@ -25,31 +25,26 @@ class CustomerTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make('Num Doc', 'document_number')
+            Column::make('Serie', 'serie')
                 ->sortable(),
-            Column::make('Identity', 'identity.name')
+            Column::make('Correlativo', 'correlativo')
                 ->sortable(),
-            Column::make('Razon Social', 'name')
+            Column::make('Purchase order id', 'purchaseOrder.serie')
                 ->sortable(),
-            Column::make('Correo', 'email')
-                ->sortable(),
-            Column::make('Teléfono', 'phone')
-                ->sortable(),
-            Column::make('Dirección', 'address')
-                ->sortable(),
-            Column::make('UUID', 'uuid')
+            Column::make('Date', 'date')
                 ->sortable()
-                ->hideIf(true),
-            Column::make('Fecha de creación', 'created_at')
+                ->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y')),
+            Column::make('Supplier', 'supplier.name')
+                ->sortable(),
+            Column::make('Warehouse', 'warehouse.name')
+                ->sortable(),
+            Column::make('Total', 'total')
                 ->sortable()
-                ->searchable(),
-            Column::make('Acciones')
-                ->label(function ($row, Column $column) {
-                    // $row aquí es el modelo completo Customer
-                    return view('admin.customers.actions', [
-                        'customer' => $row, // Pasa el modelo completo
-                    ]);
-                }),
+                ->format(fn($value): string => 'S/.' . number_format($value, 2)),
+            Column::make('Uuid', 'uuid')
+                ->sortable()->hideIf(true),
+            Column::make('Created at', 'created_at')
+                ->sortable()->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y H:i')),
         ];
     }
 
@@ -67,6 +62,6 @@ class CustomerTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Customer::query()->with(['identity']);
+        return Purchase::query()->with(['supplier','purchaseOrder','warehouse']);
     }
 }
