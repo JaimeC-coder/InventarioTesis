@@ -47,9 +47,9 @@ class array_nav_use
                 'active' => request()->routeIs('admin.ecommerce'),
                 'icon' => 'ecommerce',
                 'submenu' => [
+                    ['name' => 'Clientes', 'route' => 'admin.customers.index'],
                     ['name' => 'Cotizaciones', 'route' => 'admin.quotes.index'],
-                    ['name' => 'Ordenes de compra falta ', 'route' => 'admin.purchases-orders.index'],
-                    ['name' => 'ventas Falta', 'route' => 'admin.warehouses.index'],
+                    ['name' => 'Ventas', 'route' => 'admin.sales.index'],
                 ],
             ],
             [

@@ -5,6 +5,7 @@ namespace App\Livewire\admin\tables;
 use App\Models\Sale;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Illuminate\Database\Eloquent\Builder;
 
 class SaleTable extends DataTableComponent
 {
@@ -13,11 +14,17 @@ class SaleTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
+                $this->setDefaultSort('created_at', 'desc');
     }
 
     public function columns(): array
     {
         return [
+              Column::make('#')
+                ->label(function ($row, Column $column): int {
+                    return $this->getRowNumber();
+                })
+                ->sortable(),
             Column::make('Voucher type', 'voucher_type')
                 ->sortable(),
             Column::make('Serie', 'serie')
@@ -26,20 +33,36 @@ class SaleTable extends DataTableComponent
                 ->sortable(),
             Column::make('Date', 'date')
                 ->sortable(),
-            Column::make('Quote id', 'quote_id')
+            Column::make('Quote', 'quote.id')
                 ->sortable(),
-            Column::make('Customer id', 'customer_id')
+            Column::make('Customer', 'customer.name')
                 ->sortable(),
-            Column::make('Warehouse id', 'warehouse_id')
+            Column::make('Warehouse', 'warehouse.name')
                 ->sortable(),
             Column::make('Total', 'total')
                 ->sortable(),
             Column::make('Observation', 'observation')
                 ->sortable(),
-            Column::make('Uuid', 'uuid')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+             Column::make('Uuid', 'uuid')
+                ->sortable()->sortable()->hideIf(true),
+            Column::make('Fecha de creación', 'created_at')
                 ->sortable(),
         ];
+    }
+        protected function getRowNumber(): int
+    {
+        static $position = null;
+        if ($position === null) {
+            $position = (($this->getPage() - 1) * $this->getPerPage()) + 1;
+        } else {
+            $position++;
+        }
+
+        return $position;
+    }
+
+    public function builder(): Builder
+    {
+        return Sale::query()->with(['customer', 'warehouse', 'quote']);
     }
 }
