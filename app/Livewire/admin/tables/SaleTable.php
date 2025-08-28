@@ -3,9 +3,9 @@
 namespace App\Livewire\admin\tables;
 
 use App\Models\Sale;
+use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Illuminate\Database\Eloquent\Builder;
 
 class SaleTable extends DataTableComponent
 {
@@ -14,13 +14,13 @@ class SaleTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-                $this->setDefaultSort('created_at', 'desc');
+        $this->setDefaultSort('created_at', 'desc');
     }
 
     public function columns(): array
     {
         return [
-              Column::make('#')
+            Column::make('#')
                 ->label(function ($row, Column $column): int {
                     return $this->getRowNumber();
                 })
@@ -43,13 +43,14 @@ class SaleTable extends DataTableComponent
                 ->sortable(),
             Column::make('Observation', 'observation')
                 ->sortable(),
-             Column::make('Uuid', 'uuid')
+            Column::make('Uuid', 'uuid')
                 ->sortable()->sortable()->hideIf(true),
             Column::make('Fecha de creación', 'created_at')
                 ->sortable(),
         ];
     }
-        protected function getRowNumber(): int
+
+    protected function getRowNumber(): int
     {
         static $position = null;
         if ($position === null) {
