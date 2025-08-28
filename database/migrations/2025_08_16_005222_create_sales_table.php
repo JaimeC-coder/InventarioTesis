@@ -16,7 +16,7 @@ return new class() extends Migration {
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
             $blueprint->timestamp('date');
-            $blueprint->foreignId('quote_id')->constrained('quotes')->onDelete('cascade');
+            $blueprint->foreignId('quote_id')->constrained('quotes')->onDelete('cascade')->nullable();
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->decimal('total', 10, 2);

@@ -117,7 +117,7 @@ Route::post('quotes', function (Request $request) {
             fn($query) => $query->whereIn('uuid', $request->input('selected')),
             fn($query) => $query->limit(10)
         )
-        ->with(['supplier'])
+        ->with(['customer'])
         ->orderBy('created_at', 'desc')
         ->get();
     //str_pad($po->correlativo, 6, '0', STR_PAD_LEFT)

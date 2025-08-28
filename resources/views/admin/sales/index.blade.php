@@ -1,12 +1,12 @@
-<x-admin-layout :breadcrumbs="[['name' => 'Dashboard', 'href' => route('admin.dashboard')], ['name' => 'Compras']]" :title="'Compras'">
+<x-admin-layout :breadcrumbs="[['name' => 'Dashboard', 'href' => route('admin.dashboard')], ['name' => 'Ventas']]" :title="'Ventas'">
 
     <x-slot name="action">
-        <a href="{{ route('admin.purchases.create') }}" class="btn btn-primary">Crear Nueva Compra</a>
+        <a href="{{ route('admin.sales.create') }}" class="btn btn-primary">Crear Nueva Venta</a>
     </x-slot>
 
 
 
-    <livewire:admin.tables.purchase-table />
+    <livewire:admin.tables.sale-table />
 
     @push('scripts')
         <script>
