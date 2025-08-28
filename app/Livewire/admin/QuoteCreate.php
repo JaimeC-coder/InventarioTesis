@@ -5,7 +5,6 @@ namespace App\Livewire\Admin;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Purchase;
-use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use Livewire\Component;
 
@@ -154,6 +153,7 @@ class QuoteCreate extends Component
 
         return redirect()->route('admin.quotes.index');
     }
+
     public function render()
     {
         return view('livewire.admin.quote-create');

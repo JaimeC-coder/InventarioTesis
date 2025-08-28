@@ -45,6 +45,7 @@ class QuoteTable extends DataTableComponent
                 ->sortable(),
         ];
     }
+
     protected function getRowNumber(): int
     {
         static $position = null;

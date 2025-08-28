@@ -93,9 +93,6 @@ Route::post('purchases-orders', function (Request $request) {
     //return response()->json($purchaseOrder);
 })->name('admin.purchases-orders');
 
-
-
-
 Route::post('quotes', function (Request $request) {
     $quote = Quote::when($request->search, function ($query) use ($request): void {
         $parts = explode('-', $request->search);
