@@ -53,26 +53,20 @@ class array_nav_use
                 ],
             ],
             [
-                'name' => 'Movimientos falta',
+                'name' => 'Movimientos',
                 'route' => 'admin.ecommerce',
                 'active' => request()->routeIs('admin.ecommerce'),
                 'icon' => 'customers',
                 'submenu' => [
-                    ['name' => 'Proveedores', 'route' => 'admin.suppliers.index'],
-                    ['name' => 'Ordenes de compra ', 'route' => 'admin.purchases-orders.index'],
-                    ['name' => 'Compras Falta', 'route' => 'admin.warehouses.index'],
+                    ['name' => 'Entradas y Salidas', 'route' => 'admin.movements.index'],
+                    ['name' => 'Transferencias', 'route' => 'admin.purchases-orders.index'],
                 ],
             ],
             [
                 'name' => 'Reportes falta',
                 'route' => 'admin.ecommerce',
                 'active' => request()->routeIs('admin.ecommerce'),
-                'icon' => 'customers',
-                'submenu' => [
-                    ['name' => 'Proveedores', 'route' => 'admin.suppliers.index'],
-                    ['name' => 'Ordenes de compra ', 'route' => 'admin.purchases-orders.index'],
-                    ['name' => 'Compras Falta', 'route' => 'admin.warehouses.index'],
-                ],
+                'icon' => 'customers'
             ],
             ['header' => 'Configuraciones falta'],
             ['name' => 'Users', 'route' => 'admin.users', 'active' => request()->routeIs('admin.users'), 'icon' => 'users'],
@@ -84,7 +78,7 @@ class array_nav_use
                 'icon' => 'settings',
             ],
             [
-                'name' => 'Logout',
+                'name' => 'Permisos',
                 'route' => 'admin.logout',
                 'active' => request()->routeIs('admin.logout'),
                 'icon' => 'logout',

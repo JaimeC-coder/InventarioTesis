@@ -13,6 +13,7 @@ return new class() extends Migration {
         Schema::create('reasons', function (Blueprint $blueprint): void {
             $blueprint->id();
             $blueprint->string('name');
+            $blueprint->integer('type');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

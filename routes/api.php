@@ -4,6 +4,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
+use App\Models\Reason;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
@@ -146,3 +147,18 @@ Route::post('customers', function (Request $request) {
         ->get();
     return response()->json($customer);
 })->name('admin.customers');
+
+Route::post('reasons', function (Request $request) {
+    $reason = Reason::select('uuid', 'name')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->where('type', $request->input('type','')) // 1 ingreso, 2 salida
+        ->get();
+    return response()->json($reason);
+})->name('admin.reasons');

@@ -8,20 +8,15 @@ class Movement extends BaseModel
 
     protected $fillable = [
         'type',
-        'quantity',
-        'cost',
+        'serie',
+        'correlativo',
+        'date',
+        'observaciones',
         'total',
         'warehouse_id',
-        'movementable_id',
-        'movementable_type',
+        'reason_id',
         'uuid',
     ];
-
-    // Relación polimórfica
-    public function movementable()
-    {
-        return $this->morphTo();
-    }
 
     // Relación con productos
     public function products()
@@ -36,5 +31,10 @@ class Movement extends BaseModel
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
+    }
+    // Relación con motivos
+    public function reason()
+    {
+        return $this->belongsTo(Reason::class);
     }
 }
