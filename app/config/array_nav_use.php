@@ -59,7 +59,7 @@ class array_nav_use
                 'icon' => 'customers',
                 'submenu' => [
                     ['name' => 'Entradas y Salidas', 'route' => 'admin.movements.index'],
-                    ['name' => 'Transferencias', 'route' => 'admin.purchases-orders.index'],
+                    ['name' => 'Transferencias', 'route' => 'admin.transfers.index'],
                 ],
             ],
             [
