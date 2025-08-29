@@ -2,10 +2,10 @@
 
 namespace App\Livewire\admin\tables;
 
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
-use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Movement;
 use Illuminate\Database\Eloquent\Builder;
+use Rappasoft\LaravelLivewireTables\DataTableComponent;
+use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class MovementTable extends DataTableComponent
 {
@@ -25,23 +25,23 @@ class MovementTable extends DataTableComponent
                     return $this->getRowNumber();
                 })
                 ->sortable(),
-            Column::make("Type", "type")
+            Column::make('Type', 'type')
                 ->sortable()
-                ->format(fn($value) => match($value) {
+                ->format(fn($value): string => match($value) {
                     '1' => 'Ingreso',
                     '2' => 'Salida',
                     default => 'Desconocido',
                 })
-                ,
-            Column::make("Serie", "serie")
+            ,
+            Column::make('Serie', 'serie')
                 ->sortable(),
-            Column::make("Correlativo", "correlativo")
+            Column::make('Correlativo', 'correlativo')
                 ->sortable(),
-            Column::make("Total", "total")
+            Column::make('Total', 'total')
                 ->sortable(),
-            Column::make("Warehouse", "warehouse.name")
+            Column::make('Warehouse', 'warehouse.name')
                 ->sortable(),
-            Column::make("Reason", "reason.name")
+            Column::make('Reason', 'reason.name')
                 ->sortable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()->sortable()->hideIf(true),
@@ -49,6 +49,7 @@ class MovementTable extends DataTableComponent
                 ->sortable(),
         ];
     }
+
     protected function getRowNumber(): int
     {
         static $position = null;

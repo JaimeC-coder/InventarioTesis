@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ReasonSeeder extends Seeder
@@ -21,7 +20,6 @@ class ReasonSeeder extends Seeder
             ['name' => 'Ajuste de inventario negativo', 'type' => 2],
             //['name' => 'Transferencia entre almacenes', 'type' => 0],
         ];
-
         foreach ($reasons as $reason) {
             \App\Models\Reason::create($reason);
         }

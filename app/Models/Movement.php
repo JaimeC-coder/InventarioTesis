@@ -32,6 +32,7 @@ class Movement extends BaseModel
     {
         return $this->belongsTo(Warehouse::class);
     }
+
     // Relación con motivos
     public function reason()
     {

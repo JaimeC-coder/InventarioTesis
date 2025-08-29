@@ -11,19 +11,27 @@ use Livewire\Component;
 class MovementCreate extends Component
 {
     public $type = 1;
+
     public $serie = 'MV-00001';
+
     public $correlativo;
+
     public $date = '';
+
     public $observaciones = '';
+
     public $total = 0.00;
 
     public $reason_id = '';
+
     public $reason_uuid = '';
 
     public $warehouse_id = '';
+
     public $warehouse_uuid = '';
 
     public $product_uuid = '';
+
     public $product_id;
 
     public $products = [];
@@ -60,7 +68,7 @@ class MovementCreate extends Component
 
     public function updated($property, $value): void
     {
-        if($property === 'type') {
+        if ($property === 'type') {
             $this->reset('reason_uuid');
         }
     }
@@ -103,6 +111,7 @@ class MovementCreate extends Component
         if (!empty($this->warehouse_uuid)) {
             $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
         }
+
         if (!empty($this->reason_uuid)) {
             $this->reason_id = Reason::where('uuid', $this->reason_uuid)->value('id');
         }

@@ -66,7 +66,7 @@ class array_nav_use
                 'name' => 'Reportes falta',
                 'route' => 'admin.ecommerce',
                 'active' => request()->routeIs('admin.ecommerce'),
-                'icon' => 'customers'
+                'icon' => 'customers',
             ],
             ['header' => 'Configuraciones falta'],
             ['name' => 'Users', 'route' => 'admin.users', 'active' => request()->routeIs('admin.users'), 'icon' => 'users'],

@@ -158,7 +158,7 @@ Route::post('reasons', function (Request $request) {
             fn($query) => $query->whereIn('uuid', $request->input('selected')),
             fn($query) => $query->limit(10)
         )
-        ->where('type', $request->input('type','')) // 1 ingreso, 2 salida
+        ->where('type', $request->input('type', '')) // 1 ingreso, 2 salida
         ->get();
     return response()->json($reason);
 })->name('admin.reasons');
