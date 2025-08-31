@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Customer;
+use App\Models\Inventorie;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\Sale;
@@ -186,6 +187,28 @@ class SalesCreate extends Component
                 'quantity' => $product['quantity'],
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
+            ]);
+            $lastrecortd = Inventorie::where('product_id', $product_id)
+                ->where('warehouse_id', $this->warehouse_id)
+                ->latest()
+                ->first();
+            $lastQuantity = $lastrecortd ? $lastrecortd->quantity_balance : 0;
+            $lastTotal = $lastrecortd ? $lastrecortd->total_balance : 0;
+            $lastcostBalance = $lastrecortd ? $lastrecortd->cost_balance : 0;
+            $newQuantity = $lastQuantity - $product['quantity'];
+            $newTotal = $lastTotal - ($product['quantity'] * $lastcostBalance);
+            //$costBalance = $newQuantity > 0 ? $newTotal / $newQuantity : 0;
+            $costBalance = $newTotal / ($newQuantity ?: 1);
+            $Sale->inventories()->create([
+                'detail' => 'Venta ID: ' . $Sale->id,
+                'cost_out' => $lastcostBalance,
+                'total_out' => $product['quantity'] * $lastcostBalance,
+                'quantity_out' => $product['quantity'],
+                'quantity_balance' => $newQuantity,
+                'cost_balance' => $costBalance,
+                'total_balance' => $newTotal,
+                'product_id' => $product_id,
+                'warehouse_id' => $this->warehouse_id,
             ]);
         }
 

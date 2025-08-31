@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use App\Models\Transfer;
 use App\Models\Warehouse;
+use App\Services\KardexServices;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -81,8 +82,10 @@ class TransferCreate extends Component
     {
         $this->validate([
             'product_uuid' => 'required|exists:products,uuid',
+            'origin_warehouse_uuid' => 'required|exists:warehouses,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
+        $origin_warehouse_id = Warehouse::where('uuid', $this->origin_warehouse_uuid)->value('id');
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -94,12 +97,13 @@ class TransferCreate extends Component
             return;
         }
 
+        $kardex = KardexServices::getLastRecord($product->id, $origin_warehouse_id);
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => $product->price,
-            'subtotal' => 0,
+            'price' => $kardex['cost_balance'] ?? 0,
+            'subtotal' => $kardex['cost_balance'],
         ];
         $this->reset('product_uuid');
     }
@@ -158,6 +162,8 @@ class TransferCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
+            KardexServices::registerExit($Movement, $product, $this->origin_warehouse_id, sprintf('Salida de almacen %s al %s', $this->origin_warehouse_id, $this->destination_warehouse_id));
+            KardexServices::registerEntry($Movement, $product, $this->destination_warehouse_id, sprintf('Entrada de almacen %s desde %s', $this->destination_warehouse_id, $this->origin_warehouse_id));
         }
 
         session()->flash('swal', [

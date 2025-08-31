@@ -19,6 +19,7 @@ return new class() extends Migration {
             $blueprint->decimal('price', 10, 2)->default(0.00);
             $blueprint->uuid('uuid')->unique();
             $blueprint->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $blueprint->integer('stock')->default(0);
             $blueprint->timestamps();
             $blueprint->softDeletes();
         });

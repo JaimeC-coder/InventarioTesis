@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Inventorie;
 use App\Models\Movement;
 use App\Models\Product;
 use App\Models\Reason;
@@ -83,9 +84,15 @@ class MovementCreate extends Component
     {
         $this->validate([
             'product_uuid' => 'required|exists:products,uuid',
+            'warehouse_uuid' => 'required|exists:warehouses,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
         $exists = collect($this->products)->where('id', $product->id)->first();
+        $lastrecortd = Inventorie::where('product_id', $product->id)
+            ->where('warehouse_id', $this->warehouse_id)
+            ->latest()
+            ->first();
+        $costBalance = $lastrecortd ? $lastrecortd->cost_balance : 0;
         if ($exists) {
             $this->dispatch('swal', [
                 'icon' => 'warning',
@@ -100,8 +107,8 @@ class MovementCreate extends Component
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => $product->price,
-            'subtotal' => 0,
+            'price' => $costBalance,
+            'subtotal' => $costBalance,
         ];
         $this->reset('product_uuid');
     }
@@ -160,6 +167,43 @@ class MovementCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
+            $lastrecortd = Inventorie::where('product_id', $product_id)
+                ->where('warehouse_id', $this->warehouse_id)
+                ->latest()
+                ->first();
+            $lastQuantity = $lastrecortd ? $lastrecortd->quantity_balance : 0;
+            $lastTotal = $lastrecortd ? $lastrecortd->total_balance : 0;
+            if ($this->type == 1) {
+                $newQuantity = $lastQuantity + $product['quantity'];
+                $newTotal = $lastTotal + ($product['quantity'] * $product['price']);
+                $costBalance = $newTotal / $newQuantity;
+                $Movement->inventories()->create([
+                    'detail' => 'Movimiento de '.($this->type == 1 ? 'entrada' : 'salida'),
+                    'quantity_in' => $product['quantity'],
+                    'cost_in' => $product['price'],
+                    'total_in' => $product['quantity'] * $product['price'],
+                    'warehouse_id' => $this->warehouse_id,
+                    'product_id' => $product_id,
+                    'quantity_balance' => $newQuantity,
+                    'total_balance' => $newTotal,
+                    'cost_balance' => $costBalance,
+                ]);
+            } elseif ($this->type == 2) {
+                $newQuantity = $lastQuantity - $product['quantity'];
+                $newTotal = $lastTotal - ($product['quantity'] * $product['price']);
+                $costBalance = $newTotal / ($newQuantity ?: 1);
+                $Movement->inventories()->create([
+                    'detail' => 'Movimiento de '.($this->type == 1 ? 'entrada' : 'salida'),
+                    'quantity_out' => $product['quantity'],
+                    'cost_out' => $product['price'],
+                    'total_out' => $product['quantity'] * $product['price'],
+                    'warehouse_id' => $this->warehouse_id,
+                    'product_id' => $product_id,
+                    'quantity_balance' => $newQuantity,
+                    'total_balance' => $newTotal,
+                    'cost_balance' => $costBalance,
+                ]);
+            }
         }
 
         session()->flash('swal', [

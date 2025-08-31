@@ -45,6 +45,8 @@ class ProductTable extends DataTableComponent
                 ),
             Column::make('Price', 'price')
                 ->sortable()->searchable(),
+            Column::make('Stock', 'stock')
+                ->sortable()->searchable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()->hideIf(true),
             Column::make('Sku', 'sku')

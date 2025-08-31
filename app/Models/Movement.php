@@ -38,4 +38,10 @@ class Movement extends BaseModel
     {
         return $this->belongsTo(Reason::class);
     }
+
+    //Relacion uno a muchos polimorfica
+    public function inventories()
+    {
+        return $this->morphMany(Inventorie::class, 'inventoryable');
+    }
 }

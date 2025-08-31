@@ -15,6 +15,7 @@ class Product extends BaseModel
         'price',
         'uuid',
         'category_id',
+        'stock',
     ];
 
     //Accesores

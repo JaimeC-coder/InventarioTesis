@@ -1,5 +1,5 @@
 <div x-data="{
-    products: @entangle('products'),
+    products: @entangle('products').live,
     total: @entangle('total'),
     removeProduct(index) { this.products.splice(index, 1); },
     init() {
@@ -34,7 +34,7 @@
             <x-forms.select label="Cliente" placeholder="Escribe el nombre o documento..." wire:model.live="customer_uuid" :async-data="['api' => route('admin.customers'), 'method' => 'POST']"
                 option-label="name" option-value="uuid"  />
             <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST']"
-                option-label="name" option-value="uuid" wire:model="warehouse_uuid" />
+                option-label="name" option-value="uuid" wire:model="warehouse_uuid" :disabled="count($products) > 0"  />
         </div>
 
 

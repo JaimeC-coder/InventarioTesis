@@ -7,6 +7,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Warehouse;
+use App\Services\KardexServices;
 use Livewire\Component;
 
 class PurchasesCreate extends Component
@@ -103,8 +104,10 @@ class PurchasesCreate extends Component
     {
         $this->validate([
             'product_uuid' => 'required|exists:products,uuid',
+            'warehouse_uuid' => 'required|exists:warehouses,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
+        $warehouse = Warehouse::where('uuid', $this->warehouse_uuid)->first();
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -116,12 +119,13 @@ class PurchasesCreate extends Component
             return;
         }
 
+        $kardex = KardexServices::getLastRecord($product->id, $warehouse->id);
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => 0,
-            'subtotal' => 0,
+            'price' => $kardex['cost_balance'],
+            'subtotal' => $kardex['cost_balance'],
         ];
         $this->reset('product_uuid');
     }
@@ -187,6 +191,7 @@ class PurchasesCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
+            KardexServices::registerEntry($Purchase, $product, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
         }
 
         session()->flash('swal', [
