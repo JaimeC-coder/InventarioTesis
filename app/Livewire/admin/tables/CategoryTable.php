@@ -35,7 +35,7 @@ class CategoryTable extends DataTableComponent
                 ->hideIf(true),
             Column::make('Fecha de creación', 'created_at')
                 ->sortable()
-                ->searchable(),
+                ->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y')),
             Column::make('Acciones')
                 ->label(function ($row, Column $column) {
                     // $row aquí es el modelo completo Category

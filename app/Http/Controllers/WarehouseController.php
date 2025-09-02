@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\WarehouseRequest;
 use App\Models\Warehouse;
-use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
 {
@@ -26,20 +26,27 @@ class WarehouseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(WarehouseRequest $warehouseRequest): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-        ]);
-        Warehouse::create($validated);
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'La creación del almacén fue exitosa.',
-            'icon' => 'success',
-        ]);
+        try {
+            $validated = $warehouseRequest->validated();
+            Warehouse::create($validated);
+            session()->flash('swal', [
+                'title' => 'Exitoso',
+                'text' => 'La creación del almacén fue exitosa.',
+                'icon' => 'success',
+            ]);
 
-        return redirect()->route('admin.warehouses.index');
+            return redirect()->route('admin.warehouses.index');
+        } catch (\Exception $exception) {
+            session()->flash('swal', [
+                'title' => 'Error',
+                'text' => 'Hubo un problema al crear el almacén.',
+                'icon' => 'error',
+            ]);
+
+            return redirect()->route('admin.warehouses.index');
+        }
     }
 
     /**
@@ -61,20 +68,27 @@ class WarehouseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Warehouse $warehouse): \Illuminate\Http\RedirectResponse
+    public function update(WarehouseRequest $warehouseRequest, Warehouse $warehouse): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-        ]);
-        $warehouse->update($validated);
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'La actualización del almacén fue exitosa.',
-            'icon' => 'success',
-        ]);
+        try {
+            $validated = $warehouseRequest->validated();
+            $warehouse->update($validated);
+            session()->flash('swal', [
+                'title' => 'Exitoso',
+                'text' => 'La actualización del almacén fue exitosa.',
+                'icon' => 'success',
+            ]);
 
-        return redirect()->route('admin.warehouses.index');
+            return redirect()->route('admin.warehouses.index');
+        } catch (\Exception $exception) {
+            session()->flash('swal', [
+                'title' => 'Error',
+                'text' => 'Hubo un problema al actualizar el almacén.',
+                'icon' => 'error',
+            ]);
+
+            return redirect()->route('admin.warehouses.index');
+        }
     }
 
     /**

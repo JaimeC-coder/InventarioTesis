@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -27,64 +28,74 @@ class ProductController extends Controller
     public function create(): View
     {
         // This method can be used to return a view with a form for creating a new product
-        $categories = \App\Models\Category::all(); // Fetch all categories if needed
+        $categories = \App\Models\Category::select('name', 'uuid')->get(); // Fetch all categories if needed
+
         return view('admin.products.create', ['categories' => $categories]); // Assuming you have a view for creating products
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ProductRequest $productRequest): RedirectResponse
     {
-        // Validate and create the product
-        Product::create($request->validate([
-            'name' => 'required|string|max:255|unique:products,name',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:1',
-            'category_id' => 'required|exists:categories,id',
-        ]));
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'El producto se ha creado correctamente.',
-            'icon' => 'success',
-        ]);
 
-        return redirect()->route('admin.products.index');
+        //dd($productRequest->validated());
+        try {
+            // Validate and create the product
+            Product::create($productRequest->validated());
+            session()->flash('swal', [
+                'title' => 'Exitoso',
+                'text' => 'El producto se ha creado correctamente.',
+                'icon' => 'success',
+            ]);
+
+            return redirect()->route('admin.products.index');
+        } catch (\Exception $exception) {
+            Log::info('Error al crear producto: ' . $exception->getMessage());
+            session()->flash('swal', [
+                'title' => 'Error',
+                'text' => 'Hubo un problema al crear el producto.',
+                'icon' => 'error',
+            ]);
+
+            return redirect()->route('admin.products.index');
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void
-    {
-    }
+    public function show(Product $product): void {}
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Product $product): View
     {
-        $categories = \App\Models\Category::all(); // Fetch all categories if needed
+        $categories = \App\Models\Category::select('name', 'uuid')->get(); // Fetch all categories if needed
         return view('admin.products.edit', ['product' => $product, 'categories' => $categories]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(ProductRequest $productRequest, Product $product): RedirectResponse
     {
-        // Validate and update the product
-        $product->update($request->validate([
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:1',
-            'category_id' => 'required|exists:categories,id',
-        ]));
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'El producto se ha actualizado correctamente.',
-            'icon' => 'success',
-        ]);
+        try {
+            // Validate and update the product
+            $product->update($productRequest->validated());
+            session()->flash('swal', [
+                'title' => 'Exitoso',
+                'text' => 'El producto se ha actualizado correctamente.',
+                'icon' => 'success',
+            ]);
+        } catch (\Exception $exception) {
+            session()->flash('swal', [
+                'title' => 'Error',
+                'text' => 'Hubo un problema al actualizar el producto.',
+                'icon' => 'error',
+            ]);
+        }
 
         return redirect()->route('admin.products.index');
     }
@@ -94,31 +105,41 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
-        if ($product->inventories()->exists()) {
+        try {
+            if ($product->inventories()->exists()) {
+                session()->flash('swal', [
+                    'title' => 'Error',
+                    'text' => 'No se puede eliminar el producto porque está asociado a una orden.',
+                    'icon' => 'error',
+                ]);
+                return redirect()->route('admin.products.index');
+            }
+
+            if ($product->purchases()->exists() || $product->quotes()->exists()) {
+                session()->flash('swal', [
+                    'title' => 'Error',
+                    'text' => 'No se puede eliminar el producto porque está asociado a una compra o cotización.',
+                    'icon' => 'error',
+                ]);
+                return redirect()->route('admin.products.index');
+            }
+
+            $product->images()->delete();
+            $product->delete();
+            session()->flash('swal', [
+                'title' => 'Exitoso',
+                'text' => 'El producto se ha eliminado correctamente.',
+                'icon' => 'success',
+            ]);
+
+            return redirect()->route('admin.products.index');
+        } catch (\Exception $exception) {
             session()->flash('swal', [
                 'title' => 'Error',
-                'text' => 'No se puede eliminar el producto porque está asociado a una orden.',
+                'text' => 'Hubo un problema al eliminar el producto.',
                 'icon' => 'error',
             ]);
-            return redirect()->route('admin.products.index');
         }
-
-        if ($product->purchases()->exists() || $product->quotes()->exists()) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'No se puede eliminar el producto porque está asociado a una compra o cotización.',
-                'icon' => 'error',
-            ]);
-            return redirect()->route('admin.products.index');
-        }
-
-        $product->images()->delete();
-        $product->delete();
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'El producto se ha eliminado correctamente.',
-            'icon' => 'success',
-        ]);
 
         return redirect()->route('admin.products.index');
     }
@@ -140,7 +161,6 @@ class ProductController extends Controller
         $imagenProduct->update([
             'path' => $newPath,
         ]);
-        Log::info($imagenProduct->path);
         $imagenProduct->save();
 
         return response()->json([

@@ -24,45 +24,16 @@
         <form action="{{ route('admin.products.update', $product) }}" method="POST">
             @csrf
             @method('PUT')
-            <div class="mb-4">
-                <label for="name"
-                    class="block text-sm font-medium text-gray-700 dark:text-white text-left">Nombre</label>
-                <input type="text" name="name" id="name" value="{{ old('name', $product->name) }}"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50 {{ $errors->has('name') ? 'border-red-600 bg-red-500 text-red-400' : '' }}"
-                    placeholder="Nombre del producto">
-            </div>
-            <div class="mb-4">
-                <label for="description"
-                    class="block text-sm font-medium text-gray-700 dark:text-white text-left">Descripción</label>
-                <textarea name="description" id="description" rows="3"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50 {{ $errors->has('description') ? 'border-red-500 bg-red-600' : '' }}">{{ old('description', $product->description) }}</textarea>
-            </div>
-            <div class="mb-4">
-                <label for="price"
-                    class="block text-sm font-medium text-gray-700 dark:text-white text-left">Precio</label>
-                <input type="number" name="price" id="price" value="{{ old('price', $product->price) }}"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50 {{ $errors->has('price') ? 'border-red-500 bg-red-600' : '' }}"
-                    placeholder="Precio del producto">
-            </div>
-            <div class="mb-4">
-                <label for="category_id"
-                    class="block text-sm font-medium text-gray-700 dark:text-white text-left">Categoría</label>
-                <select id="category_id" name="category_id"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
-                    <option value="">Seleccione una categoría</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}"
-                            {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-forms.input label="Nombre" name="name" type="text" value="{{ old('name', $product->name) }}" />
+            <x-forms.textarea label="Descripción" name="description">
+                {{ old('description', $product->description) }}</x-forms.textarea>
+            <x-forms.input label="Precio" name="price" type="number" value="{{ old('price', $product->price) }}" />
 
-            <div class="flex justify-end">
-                <button type="submit"
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Actualizar
-                    Producto</button>
-            </div>
+            <x-forms.select label="Categoría" name="category_uuid" :options="$categories" option-label="name"
+                option-value="uuid" />
+            <x-button type="submit" class="mt-4">
+                Actualizar Producto
+            </x-button>
         </form>
     </div>
 
@@ -70,7 +41,6 @@
         <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
         <script>
-
             Dropzone.options.myDropzone = {
                 addRemoveLinks: true,
                 init: function() {

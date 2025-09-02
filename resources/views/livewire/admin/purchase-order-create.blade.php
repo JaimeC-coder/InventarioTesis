@@ -1,7 +1,7 @@
 <div x-data="{ products: @entangle('products'),total : @entangle('total'), removeProduct(index) { this.products.splice(index, 1); }, init() { this.$watch('products', (value) => { let sum = 0; value.forEach(product => { sum += product.price * product.quantity; }); this.total = sum.toFixed(2); }); } }">
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
-            <x-forms.native-select label="Tipo de Comprobante" wire:model="voucher_type" dark>
+            <x-forms.native-select label="Tipo de Comprobante" wire:model="voucher_type">
                 <option value="">Seleccione Tipo de Comprobante</option>
                 <option value="1" @if ($voucher_type === 1) selected @endif>Factura</option>
                 <option value="2" @if ($voucher_type === 2) selected @endif>Boleta</option>
