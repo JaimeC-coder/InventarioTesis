@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
-use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
@@ -51,7 +50,9 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer): void {}
+    public function show(Customer $customer): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -65,10 +66,10 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(CustomerRequest $request, Customer $customer): \Illuminate\Http\RedirectResponse
+    public function update(CustomerRequest $customerRequest, Customer $customer): \Illuminate\Http\RedirectResponse
     {
         try {
-            $customer->update($request->validated());
+            $customer->update($customerRequest->validated());
             session()->flash('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La actualización del cliente fue exitosa.',
@@ -85,8 +86,6 @@ class CustomerController extends Controller
             return redirect()->route('admin.customers.index');
         }
     }
-
-
 
     /**
      * Remove the specified resource from storage.

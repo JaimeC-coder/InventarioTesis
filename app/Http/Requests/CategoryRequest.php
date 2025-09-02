@@ -37,6 +37,7 @@ class CategoryRequest extends FormRequest
             default:
                 return 'index';
         }
+
         return null;
     }
 

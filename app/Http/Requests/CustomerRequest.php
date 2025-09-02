@@ -17,7 +17,6 @@ class CustomerRequest extends FormRequest
     public function validated($key = null, $default = null)
     {
         $validated = parent::validated($key, $default);
-
         // Reemplazamos uuid por id de forma segura
         if (isset($validated['identity_uuid'])) {
             $validated['identity_id'] = \App\Models\Identity::where('uuid', $validated['identity_uuid'])->value('id');
@@ -50,6 +49,7 @@ class CustomerRequest extends FormRequest
             default:
                 return 'index';
         }
+
         return null;
     }
 

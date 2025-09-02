@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 
 class ProductRequest extends FormRequest
 {
@@ -15,11 +14,9 @@ class ProductRequest extends FormRequest
         return true;
     }
 
-
     public function validated($key = null, $default = null)
     {
         $validated = parent::validated($key, $default);
-
         // Reemplazamos uuid por id de forma segura
         if (isset($validated['category_uuid'])) {
             $validated['category_id'] = \App\Models\Category::where('uuid', $validated['category_uuid'])->value('id');
@@ -52,6 +49,7 @@ class ProductRequest extends FormRequest
             default:
                 return 'index';
         }
+
         return null;
     }
 

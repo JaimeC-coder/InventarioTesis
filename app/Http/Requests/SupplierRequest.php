@@ -14,11 +14,9 @@ class SupplierRequest extends FormRequest
         return true;
     }
 
-
     public function validated($key = null, $default = null)
     {
         $validated = parent::validated($key, $default);
-
         // Reemplazamos uuid por id de forma segura
         if (isset($validated['identity_uuid'])) {
             $validated['identity_id'] = \App\Models\Identity::where('uuid', $validated['identity_uuid'])->value('id');
@@ -51,6 +49,7 @@ class SupplierRequest extends FormRequest
             default:
                 return 'index';
         }
+
         return null;
     }
 
