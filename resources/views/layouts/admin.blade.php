@@ -35,7 +35,7 @@
 
     @include('layouts.includes.admin.siderbar')
 
-    <x-navigation-menu />
+    @livewire('navigation-menu')
 
     @include('components.admin.structurebody')
 
@@ -49,14 +49,14 @@
 
     <script>
         Livewire.on('swal', (data) => {
-             Swal.fire(data[0]);
+            Swal.fire(data[0]);
         });
     </script>
 
     @if (session('swal'))
-    <script>
-        Swal.fire(@json(session('swal')));
-    </script>
+        <script>
+            Swal.fire(@json(session('swal')));
+        </script>
     @endif
 
     @stack('scripts')
