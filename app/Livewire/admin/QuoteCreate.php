@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\admin;
 
 use App\Models\Customer;
 use App\Models\Product;
