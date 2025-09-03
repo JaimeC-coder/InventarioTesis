@@ -33,12 +33,12 @@
     <x-banner />
 
 
-    @include('layouts.includes.admin.siderbar')
+    {{-- @include('layouts.includes.admin.siderbar') --}}
 
     <livewire:components.navigation-menu />
 
 
-    @include('components.admin.structurebody')
+    {{-- @include('components.admin.structurebody') --}}
 
 
 
