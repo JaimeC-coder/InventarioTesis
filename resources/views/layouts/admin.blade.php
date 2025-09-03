@@ -33,7 +33,11 @@
     <x-banner />
 
 
-    @livewire('profile.delete-user-form')
+    @include('layouts.includes.admin.siderbar')
+
+
+
+    @include('components.admin.structurebody')
 
 
 
