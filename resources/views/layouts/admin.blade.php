@@ -35,7 +35,7 @@
 
     @include('layouts.includes.admin.siderbar')
 
-    @livewire('components.navigation-menu')
+    <x-navigation-menu />
 
     @include('components.admin.structurebody')
 
