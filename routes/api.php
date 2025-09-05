@@ -65,6 +65,7 @@ Route::post('purchases-orders', function (Request $request) {
             });
             return;
         }
+
         if (count($parts) === 2) {
             $serie = $parts[0];
             $correlativo = ltrim($parts[1], '0');
@@ -103,6 +104,7 @@ Route::post('quotes', function (Request $request) {
             });
             return;
         }
+
         if (count($parts) === 2) {
             $serie = $parts[0];
             $correlativo = ltrim($parts[1], '0');
