@@ -14,20 +14,20 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.dashboard');
 })->name('dashboard');
-Route::get('/ecommerce', function () {
+Route::get('/ecommerce', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.ecommerce');
 })->name('ecommerce');
-Route::get('/users', function () {
+Route::get('/users', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.users');
 })->name('users');
 
-Route::get('/settings', function () {
+Route::get('/settings', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.settings');
 })->name('settings');
-Route::get('/logout', function () {
+Route::get('/logout', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.logout');
 })->name('logout');
 

@@ -154,7 +154,7 @@ class QuoteCreate extends Component
         return redirect()->route('admin.quotes.index');
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         return view('livewire.admin.quote-create');
     }

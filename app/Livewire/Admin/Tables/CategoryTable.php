@@ -37,7 +37,7 @@ class CategoryTable extends DataTableComponent
                 ->sortable()
                 ->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y')),
             Column::make('Acciones')
-                ->label(function ($row, Column $column) {
+                ->label(function ($row, Column $column): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory {
                     // $row aquí es el modelo completo Category
                     return view('admin.categories.actions', [
                         'category' => $row, // Pasa el modelo completo

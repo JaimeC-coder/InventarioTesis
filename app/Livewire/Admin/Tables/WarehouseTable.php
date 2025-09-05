@@ -35,7 +35,7 @@ class WarehouseTable extends DataTableComponent
                 ->sortable()
                 ->searchable(),
             Column::make('Acciones')
-                ->label(function ($row, Column $column) {
+                ->label(function ($row, Column $column): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
                     // $row aquí es el modelo completo Warehouse
                     return view('admin.warehouses.actions', [
                         'warehouse' => $row, // Pasa el modelo completo

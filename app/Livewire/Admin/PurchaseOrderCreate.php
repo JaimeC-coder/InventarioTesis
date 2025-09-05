@@ -154,7 +154,7 @@ class PurchaseOrderCreate extends Component
         return redirect()->route('admin.purchases-orders.index');
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         return view('livewire.admin.purchase-order-create');
     }

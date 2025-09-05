@@ -221,7 +221,7 @@ class SalesCreate extends Component
         return redirect()->route('admin.sales.index');
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         return view('livewire.admin.sales-create');
     }

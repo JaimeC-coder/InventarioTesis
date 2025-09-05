@@ -175,7 +175,7 @@ class TransferCreate extends Component
         return redirect()->route('admin.transfers.index');
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('livewire.admin.transfer-create');
     }

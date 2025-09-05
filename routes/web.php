@@ -9,7 +9,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function (): void {
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
         return view('dashboard');
     })->name('dashboard');
 });

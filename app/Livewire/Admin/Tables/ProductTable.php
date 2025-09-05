@@ -59,7 +59,7 @@ class ProductTable extends DataTableComponent
             Column::make('Fecha de creación', 'created_at')
                 ->sortable(),
             Column::make('Acciones')
-                ->label(function ($row, Column $column) {
+                ->label(function ($row, Column $column): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
                     // $row aquí es el modelo completo Product
                     return view('admin.products.actions', [
                         'product' => $row, // Pasa el modelo completo

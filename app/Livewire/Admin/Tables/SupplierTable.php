@@ -44,7 +44,7 @@ class SupplierTable extends DataTableComponent
                 ->sortable()
                 ->searchable(),
             Column::make('Acciones')
-                ->label(function ($row, Column $column) {
+                ->label(function ($row, Column $column): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
                     // $row aquí es el modelo completo Customer
                     return view('admin.customers.actions', [
                         'customer' => $row, // Pasa el modelo completo
