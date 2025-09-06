@@ -3,65 +3,147 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Purchase;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
-use Rappasoft\LaravelLivewireTables\Views\Column;
+use PowerComponents\LivewirePowerGrid\Button;
+use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-class PurchaseTable extends DataTableComponent
+final class PurchaseTable extends PowerGridComponent
 {
-    protected $model = Purchase::class;
+    public string $tableName = 'purchase-table-kk6jy5-table';
 
-    public function configure(): void
+    public function setUp(): array
     {
-        $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->showCheckBox();
+
+        return [
+            PowerGrid::header()
+                ->showSearchInput(),
+            PowerGrid::footer()
+                ->showPerPage()
+                ->showRecordCount(),
+        ];
+    }
+
+    public function datasource(): Builder
+    {
+        return Purchase::query();
+    }
+
+    public function relationSearch(): array
+    {
+        return [];
+    }
+
+    public function fields(): PowerGridFields
+    {
+        return PowerGrid::fields()
+            ->add('voucher_type')
+            ->add('serie')
+            ->add('correlativo')
+            ->add('purchase_order_id')
+            ->add('date')
+            ->add('supplier_id')
+            ->add('warehouse_id')
+            ->add('total')
+            ->add('observation')
+            ->add('uuid')
+            ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('#')
-                ->label(function ($row, Column $column): int {
-                    return $this->getRowNumber();
-                })
-                ->sortable(),
+            Column::make('Voucher type', 'voucher_type')
+                ->sortable()
+                ->searchable(),
+
             Column::make('Serie', 'serie')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Correlativo', 'correlativo')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Purchase order id', 'purchase_order_id')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
-            Column::make('Purchase order id', 'purchaseOrder.serie')
-                ->sortable(),
+
             Column::make('Date', 'date')
                 ->sortable()
-                ->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y')),
-            Column::make('Supplier', 'supplier.name')
-                ->sortable(),
-            Column::make('Warehouse', 'warehouse.name')
-                ->sortable(),
+                ->searchable(),
+
+            Column::make('Supplier id', 'supplier_id')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Warehouse id', 'warehouse_id')
+                ->sortable()
+                ->searchable(),
+
             Column::make('Total', 'total')
                 ->sortable()
-                ->format(fn($value): string => 'S/.' . number_format($value, 2)),
+                ->searchable(),
+
+            Column::make('Observation', 'observation')
+                ->sortable()
+                ->searchable(),
+
             Column::make('Uuid', 'uuid')
-                ->sortable()->hideIf(true),
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Created at', 'created_at_formatted', 'created_at')
+                ->sortable(),
+
             Column::make('Created at', 'created_at')
-                ->sortable()->format(fn($value): string => \Carbon\Carbon::parse($value)->format('d/m/Y H:i')),
+                ->sortable()
+                ->searchable(),
+
+            Column::action('Action')
         ];
     }
 
-    protected function getRowNumber(): int
+    public function filters(): array
     {
-        static $position = null;
-        if ($position === null) {
-            $position = (($this->getPage() - 1) * $this->getPerPage()) + 1;
-        } else {
-            $position++;
-        }
-
-        return $position;
+        return [
+        ];
     }
 
-    public function builder(): Builder
+    #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
     {
-        return Purchase::query()->with(['supplier','purchaseOrder','warehouse']);
+        $this->js('alert('.$rowId.')');
     }
+
+    public function actions(Purchase $row): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('Edit: '.$row->id)
+                ->id()
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('edit', ['rowId' => $row->id])
+        ];
+    }
+
+    /*
+    public function actionRules($row): array
+    {
+       return [
+            // Hide button edit for ID 1
+            Rule::button('edit')
+                ->when(fn($row) => $row->id === 1)
+                ->hide(),
+        ];
+    }
+    */
 }

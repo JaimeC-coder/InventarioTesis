@@ -3,85 +3,134 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Product;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
-use Rappasoft\LaravelLivewireTables\Views\Column;
-use Rappasoft\LaravelLivewireTables\Views\Columns\ImageColumn;
+use PowerComponents\LivewirePowerGrid\Button;
+use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-class ProductTable extends DataTableComponent
+final class ProductTable extends PowerGridComponent
 {
-    // protected $model = Product::class;
+    public string $tableName = 'product-table-dwonrg-table';
 
-    public function configure(): void
+    public function setUp(): array
     {
-        $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->showCheckBox();
+
+        return [
+            PowerGrid::header()
+                ->showSearchInput(),
+            PowerGrid::footer()
+                ->showPerPage()
+                ->showRecordCount(),
+        ];
+    }
+
+    public function datasource(): Builder
+    {
+        return Product::query();
+    }
+
+    public function relationSearch(): array
+    {
+        return [];
+    }
+
+    public function fields(): PowerGridFields
+    {
+        return PowerGrid::fields()
+            ->add('name')
+            ->add('sku')
+            ->add('barcode')
+            ->add('description')
+            ->add('price')
+            ->add('uuid')
+            ->add('category_id')
+            ->add('stock')
+            ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('#')
-                ->label(function ($row, Column $column): int {
-                    return $this->getRowNumber();
-                })
-                ->sortable(),
             Column::make('Name', 'name')
-                ->sortable()->searchable(),
-            ImageColumn::make('Image')
-                ->location(fn($row) => $row->image)
-                ->attributes(
-                    fn($row): array => [
-                        'class' => 'image-product',
-                    ]
-                ),
-            Column::make('Category', 'category.name')
-                ->sortable()->searchable(),
-            Column::make('Description', 'description')
-                ->sortable()->searchable()
-                ->format(
-                    fn($value, $row, Column $column) =>
-                    strlen($value) > 50 ? substr($value, 0, 50) . '...' : $value
-                ),
-            Column::make('Price', 'price')
-                ->sortable()->searchable(),
-            Column::make('Stock', 'stock')
-                ->sortable()->searchable(),
-            Column::make('Uuid', 'uuid')
-                ->sortable()->hideIf(true),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Sku', 'sku')
-                ->sortable()->searchable()->format(
-                    fn($value, $row, Column $column) =>
-                    strlen($value) > 50 ? substr($value, 0, 50) . '...' : $value
-                ),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Barcode', 'barcode')
-                ->sortable()->searchable(),
-            Column::make('Fecha de creación', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Description', 'description')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Price', 'price')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Uuid', 'uuid')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Category id', 'category_id')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Stock', 'stock')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Created at', 'created_at_formatted', 'created_at')
                 ->sortable(),
-            Column::make('Acciones')
-                ->label(function ($row, Column $column): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-                    // $row aquí es el modelo completo Product
-                    return view('admin.products.actions', [
-                        'product' => $row, // Pasa el modelo completo
-                    ]);
-                }),
+
+            Column::make('Created at', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::action('Action')
         ];
     }
 
-    protected function getRowNumber(): int
+    public function filters(): array
     {
-        static $position = null;
-        if ($position === null) {
-            $position = (($this->getPage() - 1) * $this->getPerPage()) + 1;
-        } else {
-            $position++;
-        }
-
-        return $position;
+        return [
+        ];
     }
 
-    public function builder(): Builder
+    #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
     {
-        return Product::query()->with(['category', 'images']);
+        $this->js('alert('.$rowId.')');
     }
+
+    public function actions(Product $row): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('Edit: '.$row->id)
+                ->id()
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('edit', ['rowId' => $row->id])
+        ];
+    }
+
+    /*
+    public function actionRules($row): array
+    {
+       return [
+            // Hide button edit for ID 1
+            Rule::button('edit')
+                ->when(fn($row) => $row->id === 1)
+                ->hide(),
+        ];
+    }
+    */
 }

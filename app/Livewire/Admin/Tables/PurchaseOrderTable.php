@@ -3,63 +3,137 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\PurchaseOrder;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
-use Rappasoft\LaravelLivewireTables\Views\Column;
+use PowerComponents\LivewirePowerGrid\Button;
+use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-class PurchaseOrderTable extends DataTableComponent
+final class PurchaseOrderTable extends PowerGridComponent
 {
-    protected $model = PurchaseOrder::class;
+    public string $tableName = 'purchase-order-table-da1dl0-table';
 
-    public function configure(): void
+    public function setUp(): array
     {
-        $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->showCheckBox();
+
+        return [
+            PowerGrid::header()
+                ->showSearchInput(),
+            PowerGrid::footer()
+                ->showPerPage()
+                ->showRecordCount(),
+        ];
+    }
+
+    public function datasource(): Builder
+    {
+        return PurchaseOrder::query();
+    }
+
+    public function relationSearch(): array
+    {
+        return [];
+    }
+
+    public function fields(): PowerGridFields
+    {
+        return PowerGrid::fields()
+            ->add('voucher_type')
+            ->add('serie')
+            ->add('correlativo')
+            ->add('date')
+            ->add('supplier_id')
+            ->add('total')
+            ->add('observation')
+            ->add('uuid')
+            ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('#')
-                ->label(function ($row, Column $column): int {
-                    return $this->getRowNumber();
-                })
-                ->sortable(),
             Column::make('Voucher type', 'voucher_type')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Serie', 'serie')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Correlativo', 'correlativo')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
+
             Column::make('Date', 'date')
-                ->sortable(),
-            Column::make('Supplier', 'supplier.name')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Supplier id', 'supplier_id')
+                ->sortable()
+                ->searchable(),
+
             Column::make('Total', 'total')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Observation', 'observation')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
+
             Column::make('Uuid', 'uuid')
-                ->sortable() ->sortable()->hideIf(true),
-            Column::make('Fecha de creación', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Created at', 'created_at_formatted', 'created_at')
                 ->sortable(),
+
+            Column::make('Created at', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::action('Action')
         ];
     }
 
-    protected function getRowNumber(): int
+    public function filters(): array
     {
-        static $position = null;
-        if ($position === null) {
-            $position = (($this->getPage() - 1) * $this->getPerPage()) + 1;
-        } else {
-            $position++;
-        }
-
-        return $position;
+        return [
+        ];
     }
 
-    public function builder(): Builder
+    #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
     {
-        return PurchaseOrder::query()->with(['supplier']);
+        $this->js('alert('.$rowId.')');
     }
+
+    public function actions(PurchaseOrder $row): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('Edit: '.$row->id)
+                ->id()
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('edit', ['rowId' => $row->id])
+        ];
+    }
+
+    /*
+    public function actionRules($row): array
+    {
+       return [
+            // Hide button edit for ID 1
+            Rule::button('edit')
+                ->when(fn($row) => $row->id === 1)
+                ->hide(),
+        ];
+    }
+    */
 }

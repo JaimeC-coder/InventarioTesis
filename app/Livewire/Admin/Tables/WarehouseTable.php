@@ -3,56 +3,109 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Warehouse;
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
-use Rappasoft\LaravelLivewireTables\Views\Column;
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use PowerComponents\LivewirePowerGrid\Button;
+use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-class WarehouseTable extends DataTableComponent
+final class WarehouseTable extends PowerGridComponent
 {
-    protected $model = Warehouse::class;
+    public string $tableName = 'warehouse-table-itbilq-table';
 
-    public function configure(): void
+    public function setUp(): array
     {
-        $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->showCheckBox();
+
+        return [
+            PowerGrid::header()
+                ->showSearchInput(),
+            PowerGrid::footer()
+                ->showPerPage()
+                ->showRecordCount(),
+        ];
+    }
+
+    public function datasource(): Builder
+    {
+        return Warehouse::query();
+    }
+
+    public function relationSearch(): array
+    {
+        return [];
+    }
+
+    public function fields(): PowerGridFields
+    {
+        return PowerGrid::fields()
+            ->add('name')
+            ->add('location')
+            ->add('uuid')
+            ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('#')
-                ->label(function ($row, Column $column): int {
-                    return $this->getRowNumber();
-                })
-                ->sortable(),
             Column::make('Name', 'name')
-                ->sortable(),
-            Column::make('Location', 'location')
-                ->sortable(),
-            Column::make('UUID', 'uuid')
-                ->sortable()
-                ->hideIf(true),
-            Column::make('Fecha de creación', 'created_at')
                 ->sortable()
                 ->searchable(),
-            Column::make('Acciones')
-                ->label(function ($row, Column $column): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-                    // $row aquí es el modelo completo Warehouse
-                    return view('admin.warehouses.actions', [
-                        'warehouse' => $row, // Pasa el modelo completo
-                    ]);
-                }),
+
+            Column::make('Location', 'location')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Uuid', 'uuid')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Created at', 'created_at_formatted', 'created_at')
+                ->sortable(),
+
+            Column::make('Created at', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::action('Action')
         ];
     }
 
-    protected function getRowNumber(): int
+    public function filters(): array
     {
-        static $position = null;
-        if ($position === null) {
-            $position = (($this->getPage() - 1) * $this->getPerPage()) + 1;
-        } else {
-            $position++;
-        }
-
-        return $position;
+        return [
+        ];
     }
+
+    #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
+    {
+        $this->js('alert('.$rowId.')');
+    }
+
+    public function actions(Warehouse $row): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('Edit: '.$row->id)
+                ->id()
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('edit', ['rowId' => $row->id])
+        ];
+    }
+
+    /*
+    public function actionRules($row): array
+    {
+       return [
+            // Hide button edit for ID 1
+            Rule::button('edit')
+                ->when(fn($row) => $row->id === 1)
+                ->hide(),
+        ];
+    }
+    */
 }
