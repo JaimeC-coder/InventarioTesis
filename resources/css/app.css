@@ -1,4 +1,5 @@
 @import "flowbite/src/themes/default";
+@import './../../vendor/power-components/livewire-powergrid/dist/tailwind.css';
 @plugin "flowbite/plugin";
 @source "../../node_modules/flowbite";
 @tailwind base;

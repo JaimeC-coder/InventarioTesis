@@ -6,8 +6,7 @@
 
 
 
-    <livewire:admin.tables.category-table />
-
+    <livewire:admin.tables.user-table />
     @push('scripts')
         <script>
             let formEliminar = document.querySelectorAll('.delete-form');
