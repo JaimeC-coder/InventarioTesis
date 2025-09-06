@@ -29,7 +29,7 @@ final class PurchaseTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Purchase::query();
+        return Purchase::query()->with(['supplier', 'warehouse', 'purchaseOrder']);
     }
 
     public function relationSearch(): array
@@ -43,10 +43,10 @@ final class PurchaseTable extends PowerGridComponent
             ->add('voucher_type')
             ->add('serie')
             ->add('correlativo')
-            ->add('purchase_order_id')
+            ->add('purchaseOrder.serie')
             ->add('date')
-            ->add('supplier_id')
-            ->add('warehouse_id')
+            ->add('supplier.name')
+            ->add('warehouse.name')
             ->add('total')
             ->add('observation')
             ->add('uuid')
@@ -65,7 +65,7 @@ final class PurchaseTable extends PowerGridComponent
             Column::make('Correlativo', 'correlativo')
                 ->sortable()
                 ->searchable(),
-            Column::make('Purchase order id', 'purchase_order_id')
+            Column::make('Purchase order id', 'purchaseOrder.serie')
                 ->sortable()
                 ->searchable(),
             Column::make('Date', 'date_formatted', 'date')
@@ -73,10 +73,10 @@ final class PurchaseTable extends PowerGridComponent
             Column::make('Date', 'date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Supplier id', 'supplier_id')
+            Column::make('Supplier id', 'supplier.name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Warehouse id', 'warehouse_id')
+            Column::make('Warehouse id', 'warehouse.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')

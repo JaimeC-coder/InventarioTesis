@@ -29,7 +29,7 @@ final class SupplierTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Supplier::query();
+        return Supplier::query()->with(['identity']);
     }
 
     public function relationSearch(): array
@@ -40,7 +40,7 @@ final class SupplierTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('identity_id')
+            ->add('identity.name')
             ->add('document_number')
             ->add('name')
             ->add('email')
@@ -53,7 +53,7 @@ final class SupplierTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Identity id', 'identity_id')
+            Column::make('Identity id', 'identity.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Document number', 'document_number')

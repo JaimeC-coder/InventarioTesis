@@ -29,7 +29,7 @@ final class SaleTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Sale::query();
+        return Sale::query()->with(['customer', 'warehouse', 'quote']);
     }
 
     public function relationSearch(): array
@@ -44,9 +44,9 @@ final class SaleTable extends PowerGridComponent
             ->add('serie')
             ->add('correlativo')
             ->add('date')
-            ->add('quote_id')
-            ->add('customer_id')
-            ->add('warehouse_id')
+            ->add('quote.serie')
+            ->add('customer.name')
+            ->add('warehouse.name')
             ->add('total')
             ->add('observation')
             ->add('uuid')
@@ -70,13 +70,13 @@ final class SaleTable extends PowerGridComponent
             Column::make('Date', 'date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Quote id', 'quote_id')
+            Column::make('Quote id', 'quote.serie')
                 ->sortable()
                 ->searchable(),
-            Column::make('Customer id', 'customer_id')
+            Column::make('Customer id', 'customer.name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Warehouse id', 'warehouse_id')
+            Column::make('Warehouse id', 'warehouse.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')

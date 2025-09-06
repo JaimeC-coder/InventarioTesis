@@ -31,7 +31,7 @@ final class QuoteTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Quote::query();
+        return Quote::query()->with(['customer']);
     }
 
     public function relationSearch(): array
@@ -48,7 +48,7 @@ final class QuoteTable extends PowerGridComponent
             ->add('date_formatted', fn(Quote $quote): string => Carbon::parse($quote->date)->format('d/m/Y'))
             ->add('total')
             ->add('observation')
-            ->add('customer_id')
+            ->add('customer.name')
             ->add('uuid')
             ->add('created_at');
     }
@@ -73,7 +73,7 @@ final class QuoteTable extends PowerGridComponent
             Column::make('Observation', 'observation')
                 ->sortable()
                 ->searchable(),
-            Column::make('Customer id', 'customer_id')
+            Column::make('Customer id', 'customer.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Uuid', 'uuid')

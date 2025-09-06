@@ -29,7 +29,7 @@ final class TransferTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Transfer::query();
+        return Transfer::query()->with(['originWarehouse', 'destinationWarehouse']);
     }
 
     public function relationSearch(): array
@@ -46,8 +46,8 @@ final class TransferTable extends PowerGridComponent
             ->add('date')
             ->add('total')
             ->add('observaciones')
-            ->add('origin_warehouse_id')
-            ->add('destination_warehouse_id')
+            ->add('originWarehouse.name')
+            ->add('destinationWarehouse.name')
             ->add('uuid')
             ->add('created_at');
     }
@@ -75,10 +75,10 @@ final class TransferTable extends PowerGridComponent
             Column::make('Observaciones', 'observaciones')
                 ->sortable()
                 ->searchable(),
-            Column::make('Origin warehouse id', 'origin_warehouse_id')
+            Column::make('Origin warehouse id', 'originWarehouse.name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Destination warehouse id', 'destination_warehouse_id')
+            Column::make('Destination warehouse id', 'destinationWarehouse.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Uuid', 'uuid')

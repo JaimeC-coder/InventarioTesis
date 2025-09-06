@@ -16,6 +16,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6.4",
+        "picqer/php-barcode-generator": "^3.2",
         "power-components/livewire-powergrid": "^6.6",
         "wireui/wireui": "^2.4"
     },

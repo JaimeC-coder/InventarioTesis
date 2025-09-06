@@ -29,7 +29,7 @@ final class CustomerTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Customer::query();
+        return Customer::query()->with(['identity']);
     }
 
     public function relationSearch(): array
@@ -41,7 +41,7 @@ final class CustomerTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('document_number')
-            ->add('identity_id')
+            ->add('identity.name')
             ->add('name')
             ->add('email')
             ->add('phone')
@@ -56,7 +56,7 @@ final class CustomerTable extends PowerGridComponent
             Column::make('Document number', 'document_number')
                 ->sortable()
                 ->searchable(),
-            Column::make('Identity id', 'identity_id')
+            Column::make('Identity id', 'identity.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Name', 'name')

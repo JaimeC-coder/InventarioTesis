@@ -29,7 +29,7 @@ final class PurchaseOrderTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return PurchaseOrder::query();
+        return PurchaseOrder::query()->with(['supplier']);
     }
 
     public function relationSearch(): array
@@ -44,7 +44,7 @@ final class PurchaseOrderTable extends PowerGridComponent
             ->add('serie')
             ->add('correlativo')
             ->add('date')
-            ->add('supplier_id')
+            ->add('supplier.name')
             ->add('total')
             ->add('observation')
             ->add('uuid')
@@ -68,7 +68,7 @@ final class PurchaseOrderTable extends PowerGridComponent
             Column::make('Date', 'date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Supplier id', 'supplier_id')
+            Column::make('Supplier id', 'supplier.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')

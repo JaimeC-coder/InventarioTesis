@@ -29,7 +29,7 @@ final class ProductTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Product::query();
+        return Product::query()->with(['category']);
     }
 
     public function relationSearch(): array
@@ -39,14 +39,20 @@ final class ProductTable extends PowerGridComponent
 
     public function fields(): PowerGridFields
     {
+         $barcodeGenerator = new \Picqer\Barcode\BarcodeGeneratorPNG;
         return PowerGrid::fields()
             ->add('name')
             ->add('sku')
-            ->add('barcode')
+            ->add('barcode', function (Product $product) use ($barcodeGenerator) {
+                return sprintf(
+                    '<img src="data:image/png;base64,%s">',
+                    base64_encode($barcodeGenerator->getBarcode($product->id, $barcodeGenerator::TYPE_CODE_128))
+                );
+            })
             ->add('description')
             ->add('price')
             ->add('uuid')
-            ->add('category_id')
+            ->add('category.name')
             ->add('stock')
             ->add('created_at');
     }
@@ -72,7 +78,7 @@ final class ProductTable extends PowerGridComponent
             Column::make('Uuid', 'uuid')
                 ->sortable()
                 ->searchable(),
-            Column::make('Category id', 'category_id')
+            Column::make('Category id','category.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Stock', 'stock')

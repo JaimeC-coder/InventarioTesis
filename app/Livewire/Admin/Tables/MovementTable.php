@@ -29,7 +29,7 @@ final class MovementTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Movement::query();
+        return Movement::query()->with(['warehouse', 'reason']);
     }
 
     public function relationSearch(): array
@@ -46,8 +46,8 @@ final class MovementTable extends PowerGridComponent
             ->add('date')
             ->add('observaciones')
             ->add('total')
-            ->add('warehouse_id')
-            ->add('reason_id')
+            ->add('warehouse.name')
+            ->add('reason.name')
             ->add('uuid')
             ->add('created_at');
     }
@@ -75,10 +75,10 @@ final class MovementTable extends PowerGridComponent
             Column::make('Total', 'total')
                 ->sortable()
                 ->searchable(),
-            Column::make('Warehouse id', 'warehouse_id')
+            Column::make('Warehouse id', 'warehouse.name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Reason id', 'reason_id')
+            Column::make('Reason id', 'reason.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Uuid', 'uuid')
