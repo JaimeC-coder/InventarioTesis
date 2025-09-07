@@ -5,9 +5,11 @@ namespace Database\Seeders;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Models\TypeCustomer;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\JsonSchema\Types\Type;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,11 +24,19 @@ class DatabaseSeeder extends Seeder
             'email' => 'centurionjaime@gmail.com',
             'password' => bcrypt('admin123'),
         ]);
+        TypeCustomer::create(
+            ['type' => 'Regular', 'porcentage_discount' => 0.00000]
+        );
+        TypeCustomer::create(
+            ['type' => 'Premium', 'porcentage_discount' => 0.500000]
+        );
         $this->call([
             CategorySeeder::class,
             IdentitySeeder::class,
             WarehouseSeeder::class,
             ReasonSeeder::class,
+            UnitSeeder::class,
+            MeasureSeeder::class,
             // Add other seeders here as needed
         ]);
         Product::factory(100)->create();

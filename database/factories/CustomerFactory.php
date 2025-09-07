@@ -24,6 +24,7 @@ class CustomerFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
+            'type_customer_id' => \App\Models\TypeCustomer::all()->random()->id,
         ];
     }
 }

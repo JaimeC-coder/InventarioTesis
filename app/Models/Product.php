@@ -16,6 +16,8 @@ class Product extends BaseModel
         'uuid',
         'category_id',
         'stock',
+        'unit_id',
+        'measure_id',
     ];
 
     //Accesores
@@ -55,5 +57,21 @@ class Product extends BaseModel
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    // Relacion con unidad
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+    // Relacion con medida
+    public function measure()
+    {
+        return $this->belongsTo(Measure::class);
+    }
+    // Relacion con productos base
+    public function productBase()
+    {
+        return $this->belongsTo(Product::class, 'productBase_id');
     }
 }
