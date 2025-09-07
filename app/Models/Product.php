@@ -64,11 +64,13 @@ class Product extends BaseModel
     {
         return $this->belongsTo(Unit::class);
     }
+
     // Relacion con medida
     public function measure()
     {
         return $this->belongsTo(Measure::class);
     }
+
     // Relacion con productos base
     public function productBase()
     {

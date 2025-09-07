@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UnitSeeder extends Seeder
@@ -15,7 +14,7 @@ class UnitSeeder extends Seeder
         $units = [
             ['name' => 'CAJA'],
             ['name' => 'UNIDAD'],
-            ['name' => 'DOCENA']
+            ['name' => 'DOCENA'],
         ];
         foreach ($units as $unit) {
             \App\Models\Unit::create([

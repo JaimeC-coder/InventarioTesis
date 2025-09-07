@@ -9,7 +9,6 @@ use App\Models\TypeCustomer;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\JsonSchema\Types\Type;
 
 class DatabaseSeeder extends Seeder
 {

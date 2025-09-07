@@ -34,6 +34,7 @@ class Customer extends BaseModel
     {
         return $this->hasMany(Quote::class);
     }
+
     //relacion con tipo de cliente
     public function typeCustomer()
     {

@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 class TypeCustomer extends BaseModel
 {
     protected $table = 'type_customers';

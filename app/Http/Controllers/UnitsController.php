@@ -10,7 +10,7 @@ class UnitsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): void
     {
         //
     }
@@ -18,7 +18,7 @@ class UnitsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -26,7 +26,7 @@ class UnitsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -34,7 +34,7 @@ class UnitsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Units $units)
+    public function show(Units $units): void
     {
         //
     }
@@ -42,7 +42,7 @@ class UnitsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Units $units)
+    public function edit(Units $units): void
     {
         //
     }
@@ -50,7 +50,7 @@ class UnitsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Units $units)
+    public function update(Request $request, Units $units): void
     {
         //
     }
@@ -58,7 +58,7 @@ class UnitsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Units $units)
+    public function destroy(Units $units): void
     {
         //
     }
