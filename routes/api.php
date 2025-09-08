@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
@@ -162,3 +163,47 @@ Route::post('reasons', function (Request $request) {
         ->get();
     return response()->json($reason);
 })->name('admin.reasons');
+
+
+//Productos Create
+Route::post('categories', function (Request $request) {
+    $category = Category::select('uuid', 'name')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->get();
+    return response()->json($category);
+})->name('admin.categories');
+
+Route::post('units', function (Request $request) {
+    $units = \App\Models\Unit::select('uuid', 'name')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->get();
+    return response()->json($units);
+})->name('admin.units');
+
+Route::post('measures', function (Request $request) {
+    $brands = \App\Models\Measure::select('uuid', 'name', 'description_for_product', 'code', 'abbreviation')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->get();
+    return response()->json($brands);
+})->name('admin.measures');

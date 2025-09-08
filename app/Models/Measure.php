@@ -9,6 +9,8 @@ class Measure extends BaseModel
     protected $fillable = [
         'name',
         'abbreviation',
+        'code',
+        'description_for_product',
         'uuid',
     ];
 

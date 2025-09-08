@@ -12,13 +12,14 @@ class UnitSeeder extends Seeder
     public function run(): void
     {
         $units = [
-            ['name' => 'CAJA'],
+            ['name' => 'CAJA','code' => '14'],
             ['name' => 'UNIDAD'],
-            ['name' => 'DOCENA'],
+            ['name' => 'DOCENA','code' => '15'],
         ];
         foreach ($units as $unit) {
             \App\Models\Unit::create([
                 'name' => $unit['name'],
+                'code' => $unit['code'] ?? null,
             ]);
         }
     }

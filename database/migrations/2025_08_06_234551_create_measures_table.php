@@ -14,6 +14,8 @@ return new class() extends Migration {
             $blueprint->id();
             $blueprint->string('name')->unique();
             $blueprint->string('abbreviation')->unique();
+            $blueprint->string('code')->nullable();
+            $blueprint->string('description_for_product')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

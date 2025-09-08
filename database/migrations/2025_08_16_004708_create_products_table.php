@@ -12,7 +12,9 @@ return new class() extends Migration {
     {
         Schema::create('products', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('name')->unique();
+            $blueprint->string('name');
+            $blueprint->string('category_code')->nullable();
+            $blueprint->string('code')->unique()->nullable();
             $blueprint->string('sku')->unique()->nullable();
             $blueprint->string('barcode')->unique()->nullable();
             $blueprint->text('description')->nullable();

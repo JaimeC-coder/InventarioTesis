@@ -32,8 +32,6 @@
 
     <x-banner />
 
-    <h1>Este es solo una prueba de lo que se puede hacer xd</h1>
-
     @include('layouts.includes.admin.siderbar')
 
     @livewire('components.navigation-menu')

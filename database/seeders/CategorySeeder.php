@@ -14,16 +14,20 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Electronics',
-                'description' => 'Devices and gadgets',
+                'name' => 'ESCENCIAS',
+                'description' => 'ESCENCIAS BASE , SOLUBLES y TURBIA',
             ],
             [
-                'name' => 'Furniture',
-                'description' => 'Home and office furniture',
+                'name' => 'COLORANTES',
+                'description' => 'LIQUIDOS , GEL , A LA GRASA ,POLVO PARA PETALOS ,NACARADOS ,COLORANTE EX-A,COLORANTE EX-C',
             ],
             [
-                'name' => 'Clothing',
-                'description' => 'Apparel and accessories',
+                'name' => 'MASAS',
+                'description' => 'ELASTICA, FONDANT,DE COLORES,PASTA DE GOMA',
+            ],
+            [
+                'name' => 'PRODUCTOS QUIMICOS',
+                'description' => 'CARAMELINA,GLICERINA,GLUCOSA ,MANTENCA VEGETAL HIDROGENA , ETC',
             ],
         ];
         foreach ($categories as $category) {
