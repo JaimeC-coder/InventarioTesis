@@ -164,7 +164,6 @@ Route::post('reasons', function (Request $request) {
     return response()->json($reason);
 })->name('admin.reasons');
 
-
 //Productos Create
 Route::post('categories', function (Request $request) {
     $category = Category::select('uuid', 'name')
