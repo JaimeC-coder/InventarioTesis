@@ -1,4 +1,8 @@
-<div>
+<div x-data="{
+    products: @entangle('products').live,
+    removeProduct(index) { this.products.splice(index, 1); },
+
+}">
     <form wire:submit='save' class="space-y-4">
 
         <div class="grid lg:grid-cols-2 gap-4">
@@ -15,23 +19,20 @@
 
         <div class="grid lg:grid-cols-5 gap-4 border-collapse lg:border lg:border-gray-200 p-4 rounded">
             <div class="grid lg:col-span-4 gap-4">
-                <div class="flex gap-4">
-                    <div class="grid grid-cols-6 gap-2">
-                        <div class="col-span-5">
-                            <div class="flex gap-4">
-                                <x-forms.input label="Base del producto" name="name" type="text"
-                                    placeholder="Ingrese el nombre del producto" required wire:model="name"
-                                    class="w-7/12" />
-                                <x-forms.input label="Especificación (opcional)" name="name_specific" type="text"
-                                    placeholder="Ingrese la especificación del producto" wire:model="name_specific"
-                                    class="flex-1" />
-                            </div>
-                        </div>
-                        <x-forms.input label="Codigo" name="code" type="text"
-                            placeholder="Ingrese el codigo" required wire:model="code"
-                            class="col-span-1" />
+                <div class="grid grid-cols-7 gap-4">
+                    <div class="grid grid-cols-3 gap-4 col-span-6">
+                        <x-forms.input label="Base del producto" name="name" type="text"
+                            placeholder="Ingrese el nombre del producto" required wire:model="name"
+                            class="col-span-2" />
+                        <x-forms.input label="Especificación (opcional)" name="name_specific" type="text"
+                            placeholder="Ingrese la especificación del producto" wire:model="name_specific"
+                            class="flex-1" />
+
                     </div>
+                    <x-forms.input label="Codigo" name="code" type="text" placeholder="Ingrese el codigo" required
+                        wire:model="code" class="flex-1" />
                 </div>
+
 
                 <div class="flex gap-4">
                     <x-forms.select label="Unidad de Stock" placeholder="Escribe el nombre o documento..."
@@ -40,7 +41,7 @@
                         option-label="name" option-value="uuid" wire:model="measures_uuid" multiselect />
                 </div>
             </div>
-            <div class="lg:col-span-1 flex flex-col justify-center">
+            <div class=" lg:grid-cols-1 gap-4  flex flex-col justify-center">
                 <x-forms.button type="button" class="w-full mt-4 lg:mt-7" spinner="addProduct"
                     wire:click="addProduct">Agregar</x-forms.button>
             </div>
@@ -49,6 +50,7 @@
             <table class="w-full text-sm text-left">
                 <thead>
                     <tr class="border-y text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <td class="py-2 px-4">Los uuids que no se guardan</td>
                         <th class="py-2 px-4">Codigo</th>
                         <th class="py-2 px-4">Producto</th>
                         <th class="py-2 px-4">Unidad</th>
@@ -59,17 +61,13 @@
                 <tbody>
                     <template x-for="(product, index) in products" :key="product.id">
                         <tr class="border-b dark:border-gray-700  dark:bg-gray-500 dark:text-gray-50">
-                            <td class="py-1 px-4" x-text="product.code"></td>
+                            <td class="py-1 px-4" x-text="product.uuid"></td>
+                            <td class="py-1 px-4" x-text="product.codigo"></td>
                             <td class="py-1 px-4" x-text="product.name"></td>
-                            <td class="py-1 px-4"><x-forms.input type="number" class="w-20" x-model="product.price"
+                            <td class="py-1 px-4" x-text="product.unit"></td>
+                            <td class="py-1 px-4" x-text="product.measure"></td>
+                            <td class="py-1 px-4"><x-forms.input type="number" class="w-20" x-model="product.precio"
                                     step="0.01" /></td>
-                            <td class="py-1 px-4">
-                                <x-forms.input type="number" class="w-20" x-model="product.quantity" />
-                            </td>
-                            <td class="py-1 px-4" x-text="(product.quantity * product.price).toFixed(2)"></td>
-                            <td class="py-1 px-4">
-                                <x-forms.input type="number" class="w-20" x-model="product.measure" step="0.01" />
-                            </td>
                             <td class="py-1 px-4">
                                 <x-button type="button" x-on:click="removeProduct(index)">Eliminar</x-button>
                             </td>
@@ -77,7 +75,7 @@
                     </template>
                     <template x-if="products.length === 0">
                         <tr>
-                            <td colspan="5" class="py-2 px-4 text-center">No hay productos agregados</td>
+                            <td colspan="7" class="py-2 px-4 text-center">No hay productos agregados</td>
                         </tr>
                     </template>
                 </tbody>

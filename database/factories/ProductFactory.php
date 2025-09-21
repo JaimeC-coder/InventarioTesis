@@ -18,14 +18,8 @@ class ProductFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->name(),
-            'sku' => $this->faker->unique()->sentence(),
-            'barcode' => $this->faker->unique()->numerify('##########'),
-            'description' => $this->faker->paragraph(),
-            'price_sale' => $this->faker->randomFloat(2, 1, 100),
-            'price_purchase' => $this->faker->randomFloat(2, 1, 100),
-            'category_id' => \App\Models\Category::all()->random()->id,
-            'unit_id' => \App\Models\Unit::all()->random()->id,
-            'measure_id' => \App\Models\Measure::all()->random()->id,
+            'price' => $this->faker->randomFloat(2, 1, 1000),
+            'stock' => $this->faker->numberBetween(0, 100),
         ];
     }
 }
