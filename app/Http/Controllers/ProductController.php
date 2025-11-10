@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
+use App\Models\Measure;
 use App\Models\Product;
+use App\Models\Unit;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -168,5 +170,91 @@ class ProductController extends Controller
             'uuid' => $imagenProduct->uuid,
             'path' => $imagenProduct->path,
         ])->setStatusCode(201);
+    }
+
+    public function massiveProducts(Request $request)
+    {
+        $products = [];
+        foreach ($request['productos'] as $productData) {
+            $productBase = Product::create([
+                'name'          => strtoupper($productData['PRODUCTO']),
+                'category_code' => $productData['CP'],
+                'code'          => $productData['CODIGO'],
+                'price_sale' => 0,
+                'price_purchase' => 0,
+                'stock' => 0,
+                'min_stock' => 0,
+            ]);
+            $generatedProducts = $this->information10($productData, $productBase->id);
+            //registrar productos en la base de datos
+            foreach ($generatedProducts as $generatedProduct) {
+                $existingProduct = Product::where('barcode', $generatedProduct['barcode'])->first();
+                if (!$existingProduct) {
+                    Product::create($generatedProduct);
+                    $products[] = $generatedProduct; // Agrega el producto creado al array
+                }
+            }
+
+            $products = array_merge($products, $generatedProducts);
+        }
+
+        return response()->json(['products' => $products], 200);
+    }
+
+    protected function information10($product, int $productBase): array
+    {
+        $measureLiquido = [1, 3, 5, 7, 8, 11, 13];
+        $measureSolido = [2, 4, 6, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20];
+        $units = [1, 2, 3];
+        if (in_array($product['CP'], [10, 20, 30, 40])) {
+            return $this->arrayinfo($units, $measureLiquido, (array)$product, $productBase);
+        }
+
+        if (in_array($product['CP'], [50, 60, 70, 80, 90, 100, 101, 102])) {
+            return $this->arrayinfo($units, $measureSolido, (array)$product, $productBase);
+        }
+
+        return []; // Retorna array vacío si no coincide
+    }
+
+    protected function arrayinfo(array $unitarry, array $measurearry, array $data, int $productBase): array
+    {
+        $products = []; // Inicializa el array ANTES del foreach
+        $price_sale = 150;
+        $price_purchase = 100;
+        $units = Unit::whereIn('id', $unitarry)->get();
+        $measures = Measure::whereIn('id', $measurearry)->get();
+        foreach ($units as $unit) {
+            foreach ($measures as $measure) {
+                $codigoConcatenado = sprintf('%s%s%s%s', $data['CP'], $data['CODIGO'], $unit->code, $measure->code);
+                $nombreFinal = sprintf('%s por %s de %s', $this->clearName($data['PRODUCTO'], $data['CODIGO']), $unit->name, $measure->description_for_product);
+                $products[] = [
+                    'barcode'        => $codigoConcatenado,
+                    'name'          => strtoupper($nombreFinal),
+                    'price_sale' => $price_sale,
+                    'price_purchase' => $price_purchase,
+                    'category_id' => 1,
+                    'category_code' => $data['CP'],
+                    'stock' => 100,
+                    'min_stock' => 10,
+                    'code' => $data['CODIGO'],
+                    'unit_id' => $unit->id,
+                    'measure_id' => $measure->id,
+                    'productBase_id' => $productBase,
+                ];
+            }
+        }
+
+        return $products; // ¡Retorna el array!
+    }
+
+    protected function clearName(string $name, String $codigo): string
+    {
+        // busca y elimina el valor de $codigo en $name
+        $name = str_ireplace($codigo, '', $name);
+        // elimina espacios en blanco al inicio y al final
+        $name = trim($name);
+        LOG::info('Nombre limpiado: ' . $name);
+        return $name;
     }
 }

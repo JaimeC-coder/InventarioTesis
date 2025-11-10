@@ -13,21 +13,20 @@ return new class() extends Migration {
         Schema::create('products', function (Blueprint $blueprint): void {
             $blueprint->id();
             $blueprint->string('name');
-            $blueprint->string('category_code')->nullable();
-            $blueprint->string('code')->unique()->nullable();
-            $blueprint->string('sku')->unique()->nullable();
+            $blueprint->string('category_code')->nullable()->description('Código de la categoría del producto osea el CP');
+            $blueprint->string('code')->nullable()->description('Código del producto osea el CODIGO');
             $blueprint->string('barcode')->unique()->nullable();
             $blueprint->text('description')->nullable();
             $blueprint->decimal('price_sale', 10, 6)->default(0.000000);
             $blueprint->decimal('price_purchase', 10, 6)->default(0.000000);
             $blueprint->uuid('uuid')->unique();
-            $blueprint->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $blueprint->foreignId('category_id')->nullable()->constrained('categories')->onDelete('cascade');
             $blueprint->integer('stock')->default(0);
             $blueprint->timestamps();
             $blueprint->integer('min_stock')->default(0);
             $blueprint->foreignId('productBase_id')->nullable()->constrained('products')->onDelete('cascade');
-            $blueprint->foreignId('unit_id')->constrained('units')->onDelete('cascade');//Caja ,Docena,Unidad
-            $blueprint->foreignId('measure_id')->constrained('measures')->onDelete('cascade');
+            $blueprint->foreignId('unit_id')->nullable()->constrained('units')->onDelete('cascade');//Caja ,Docena,Unidad
+            $blueprint->foreignId('measure_id')->nullable()->constrained('measures')->onDelete('cascade');
             $blueprint->boolean('is_active_product')->default(false);
             /**
              * productBase_id: referencia al producto base

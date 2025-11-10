@@ -42,16 +42,13 @@ final class ProductTable extends PowerGridComponent
         $barcodeGeneratorPNG = new \Picqer\Barcode\BarcodeGeneratorPNG();
         return PowerGrid::fields()
             ->add('name')
-            ->add('sku')
             ->add('barcode', function (Product $product) use ($barcodeGeneratorPNG): string {
                 return sprintf(
                     '<img src="data:image/png;base64,%s">',
                     base64_encode($barcodeGeneratorPNG->getBarcode($product->id, $barcodeGeneratorPNG::TYPE_CODE_128))
                 );
             })
-            ->add('description')
             ->add('price')
-            ->add('uuid')
             ->add('category.name')
             ->add('stock')
             ->add('created_at');
@@ -63,13 +60,7 @@ final class ProductTable extends PowerGridComponent
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Sku', 'sku')
-                ->sortable()
-                ->searchable(),
             Column::make('Barcode', 'barcode')
-                ->sortable()
-                ->searchable(),
-            Column::make('Description', 'description')
                 ->sortable()
                 ->searchable(),
             Column::make('Price', 'price')
@@ -84,8 +75,6 @@ final class ProductTable extends PowerGridComponent
             Column::make('Stock', 'stock')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
             Column::make('Created at', 'created_at')
                 ->sortable()
                 ->searchable(),
@@ -105,6 +94,13 @@ final class ProductTable extends PowerGridComponent
         $this->js('alert('.$rowId.')');
     }
 
+    #[\Livewire\Attributes\On('delete')]
+    public function delete(string $rowId): void
+    {
+        Product::find($rowId)?->delete();
+        $this->emit('pg:eventRefresh-'.$this->tableName);
+    }
+
     public function actions(Product $product): array
     {
         return [
@@ -113,6 +109,11 @@ final class ProductTable extends PowerGridComponent
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $product->id]),
+            Button::add('delete')
+                ->slot('Delete: '.$product->id)
+                ->id()
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('delete', ['rowId' => $product->id]),
         ];
     }
 

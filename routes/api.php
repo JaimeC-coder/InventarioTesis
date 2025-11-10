@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProductController;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
@@ -206,3 +207,5 @@ Route::post('measures', function (Request $request) {
         ->get();
     return response()->json($brands);
 })->name('admin.measures');
+
+Route::POST('masive-products', [ProductController::class, 'massiveProducts'])->name('admin.massive-products');

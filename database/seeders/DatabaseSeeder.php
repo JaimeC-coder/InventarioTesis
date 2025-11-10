@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             MeasureSeeder::class,
             // Add other seeders here as needed
         ]);
-        Product::factory(100)->create();
+        //  Product::factory(100)->create();
         Customer::factory(100)->create();
         Supplier::factory(100)->create();
     }

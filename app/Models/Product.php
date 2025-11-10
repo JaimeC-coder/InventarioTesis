@@ -9,10 +9,16 @@ class Product extends BaseModel
 {
     protected $fillable = [
         'name',
-        'sku',
+        'code',
+        'category_code',
         'barcode',
         'description',
-        'price',
+        'price_sale',
+        'price_purchase',
+        'stock',
+        'min_stock',
+        'is_active_product',
+        'productBase_id',
         'uuid',
         'category_id',
         'stock',
