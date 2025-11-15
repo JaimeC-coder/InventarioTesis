@@ -69,24 +69,76 @@ final class CategoryTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
     public function edit(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js("Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esta acción no se puede deshacer.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });");
+    }
+
+    protected function getListeners()
+    {
+        return [
+            'confirmDelete',
+            'deleteConfirmed' => 'delete', // Evento que se lanza desde JS cuando el usuario confirma
+        ];
+    }
+
+    #[\Livewire\Attributes\On('confirmDelete')]
+    public function confirmDelete(int $params): void
+    {
+        //   dd($params);
+        //  $categoryId = $params['categoryId'] ?? null;
+        // Emitimos un evento de JS (usaremos JS para mostrar Swal)
+        $this->dispatch('swal:confirmDelete', [
+            'title' => '¿Estás seguro?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'icon' => 'warning',
+            'confirmButtonText' => 'Sí, eliminar',
+            'cancelButtonText' => 'Cancelar',
+            'categoryId' => $params,
+        ]);
+    }
+
+    public function delete($categoryId): void
+    {
+        $category = Category::find($categoryId);
+        if ($category) {
+            $category->delete();
+            $this->dispatch('pg:eventRefresh-' . $this->tableName);
+            $this->dispatch('swal:success', [
+                'title' => 'Eliminado',
+                'text' => 'La categoría se eliminó correctamente.',
+                'icon' => 'success',
+            ]);
+        }
     }
 
     public function actions(Category $category): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$category->id)
+                ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $category->id]),
+                ->dispatch('editCategory', ['categoryId' => $category->id  ]),
+            Button::add('delete')
+                ->slot('delete')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('confirmDelete', ['params' => $category->id]),
         ];
     }
 
