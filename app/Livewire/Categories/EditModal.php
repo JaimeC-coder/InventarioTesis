@@ -18,7 +18,6 @@ class EditModal extends Component
     #[\Livewire\Attributes\On('editCategory')]
     public function loadCategory($categoryId): void
     {
-
         $category = Category::find($categoryId);
         if ($category) {
             $this->categoryId = $category->id;
