@@ -8,6 +8,10 @@
 
     <livewire:admin.tables.product-table />
 
+
+
+    <livewire:products.edit-price />
+
     @push('scripts')
         <script>
             let formEliminar = document.querySelectorAll('.delete-form');

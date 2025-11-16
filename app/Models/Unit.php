@@ -11,4 +11,10 @@ class Unit extends BaseModel
         'code',
         'uuid',
     ];
+
+    //relacion con productos
+    public function products()
+    {
+        return $this->hasMany(Product::class);//relacion uno a muchos
+    }
 }

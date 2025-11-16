@@ -14,9 +14,9 @@ class Measure extends BaseModel
         'uuid',
     ];
 
-    // Relación con productos
+    //relacion con productos
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class);//relacion uno a muchos
     }
 }

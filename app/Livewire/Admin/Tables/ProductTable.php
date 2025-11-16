@@ -29,7 +29,8 @@ final class ProductTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Product::query()->with(['category']);
+        return Product::where('productBase_id', '!=', null)
+            ->with(['category', 'unit', 'measure', 'productBase']);
     }
 
     public function relationSearch(): array
@@ -41,76 +42,121 @@ final class ProductTable extends PowerGridComponent
     {
         $barcodeGeneratorPNG = new \Picqer\Barcode\BarcodeGeneratorPNG();
         return PowerGrid::fields()
+            ->add('codigo')
             ->add('name')
-            ->add('barcode', function (Product $product) use ($barcodeGeneratorPNG): string {
+            ->add('code', function (Product $product) use ($barcodeGeneratorPNG): string {
                 return sprintf(
                     '<img src="data:image/png;base64,%s">',
-                    base64_encode($barcodeGeneratorPNG->getBarcode($product->id, $barcodeGeneratorPNG::TYPE_CODE_128))
+                    base64_encode($barcodeGeneratorPNG->getBarcode($product->barcode, $barcodeGeneratorPNG::TYPE_CODE_128))
                 );
             })
-            ->add('price')
+            ->add('price_purchase')
+            ->add('price_sale')
             ->add('category.name')
+            ->add('unit.name')
+            ->add('measure.name')
+            ->add('productBase.name')
             ->add('stock')
+            ->add('min_stock')
             ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Name', 'name')
+            Column::make('Código', 'barcode')
                 ->sortable()
                 ->searchable(),
-            Column::make('Barcode', 'barcode')
+            Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Price', 'price')
+            Column::make('Código de barras', 'code')
                 ->sortable()
                 ->searchable(),
-            Column::make('Uuid', 'uuid')
+            Column::make('Precio de compra', 'price_purchase')
                 ->sortable()
                 ->searchable(),
-            Column::make('Category id', 'category.name')
+            Column::make('Precio de venta', 'price_sale')
                 ->sortable()
                 ->searchable(),
-            Column::make('Stock', 'stock')
+            // Column::make('Uuid', 'uuid')
+            //     ->sortable()
+            //     ->searchable(),
+            Column::make('Category', 'category.name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Unidad', 'unit.name')
                 ->sortable()
                 ->searchable(),
-            Column::action('Action'),
+            Column::make('Medida', 'measure.name')
+                ->sortable()
+                ->searchable(),
+            Column::make('Producto base', 'productBase.name')
+                ->sortable()
+                ->searchable(),
+            Column::make('Stock mínimo', 'min_stock')
+                ->sortable()
+                ->searchable(),
+            Column::make('Stock actual', 'stock')
+                ->sortable()
+                ->searchable(),
+            Column::make('Creado el', 'created_at')
+                ->sortable()
+                ->searchable(),
+            Column::action('Acciónes'),
         ];
     }
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
     public function edit(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js('alert(' . $rowId . ')');
     }
 
     #[\Livewire\Attributes\On('delete')]
     public function delete(string $rowId): void
     {
         Product::find($rowId)?->delete();
-        $this->emit('pg:eventRefresh-'.$this->tableName);
+        $this->emit('pg:eventRefresh-' . $this->tableName);
+    }
+
+    #[\Livewire\Attributes\On('priceupdate')]
+    public function priceupdate(string $rowId): void
+    {
+        $this->js("Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esta acción no se puede deshacer.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });");
     }
 
     public function actions(Product $product): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$product->id)
+                ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $product->id]),
+            Button::add('priceupdate')
+                ->slot('Actualizar precio')
+                ->id()
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('updateprice', ['productId' => $product->id]),
             Button::add('delete')
-                ->slot('Delete: '.$product->id)
+                ->slot('Eliminar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('delete', ['rowId' => $product->id]),

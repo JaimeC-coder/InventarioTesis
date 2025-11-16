@@ -41,7 +41,9 @@ final class CategoryTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('name')
-            ->add('description')
+            ->add('description', function ($dish): string {
+                return '<div title="' . e($dish->description) . '" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' . e($dish->description) . '</div>';
+            })
             ->add('uuid')
             ->add('created_at');
     }
@@ -49,21 +51,21 @@ final class CategoryTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Name', 'name')
+            Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Description', 'description')
+            Column::make('Descripción', 'description')
                 ->sortable()
                 ->searchable(),
-            Column::make('Uuid', 'uuid')
+            // Column::make('Uuid', 'uuid')
+            //     ->sortable()
+            //     ->searchable(),
+            // Column::make('Created at', 'created_at_formatted', 'created_at')
+            //     ->sortable(),
+            Column::make('Creado el', 'created_at')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
-            Column::action('Action'),
+            Column::action('Acciónes'),
         ];
     }
 
@@ -134,7 +136,7 @@ final class CategoryTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('editCategory', ['categoryId' => $category->id  ]),
+                ->dispatch('editCategory', ['categoryId' => $category->id]),
             Button::add('delete')
                 ->slot('delete')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
