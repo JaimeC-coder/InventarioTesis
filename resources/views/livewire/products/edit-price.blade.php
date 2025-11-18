@@ -1,5 +1,5 @@
 <div>
-    @if ($productId)
+    @if ($productuuid)
         <div x-data="{ open: @entangle('showModal') }">
             <div x-show="open" class="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center">
                 <div class="bg-white p-6 rounded shadow-lg w-96">

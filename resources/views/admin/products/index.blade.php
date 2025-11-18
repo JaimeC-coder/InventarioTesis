@@ -11,6 +11,7 @@
 
 
     <livewire:products.edit-price />
+    <livewire:products.edit-product />
 
     @push('scripts')
         <script>

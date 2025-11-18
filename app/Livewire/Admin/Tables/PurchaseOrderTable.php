@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\PurchaseOrder;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -48,7 +49,8 @@ final class PurchaseOrderTable extends PowerGridComponent
             ->add('total')
             ->add('observation')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -80,9 +82,7 @@ final class PurchaseOrderTable extends PowerGridComponent
             Column::make('Uuid', 'uuid')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),

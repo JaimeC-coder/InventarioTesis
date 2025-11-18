@@ -8,7 +8,7 @@
     </x-slot>
 
     <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-        @livewire('admin.product-create')
+     
     </div>
 
 

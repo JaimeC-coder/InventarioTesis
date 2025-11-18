@@ -208,4 +208,19 @@ Route::post('measures', function (Request $request) {
     return response()->json($brands);
 })->name('admin.measures');
 
+Route::post('baseProducts', function (Request $request) {
+    $brands = \App\Models\Product::select('uuid', 'name')
+        ->whereNull('productBase_id')
+        ->when($request->search, function ($query) use ($request): void {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        })
+        ->when(
+            $request->exists('selected'),
+            fn($query) => $query->whereIn('uuid', $request->input('selected')),
+            fn($query) => $query->limit(10)
+        )
+        ->get();
+    return response()->json($brands);
+})->name('admin.baseProducts');
+
 Route::POST('masive-products', [ProductController::class, 'massiveProducts'])->name('admin.massive-products');

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -35,7 +36,12 @@ final class ProductTable extends PowerGridComponent
 
     public function relationSearch(): array
     {
-        return [];
+        return [
+            'category' => ['name'],
+            'unit' => ['name'],
+            'measure' => ['name'],
+            'productBase' => ['name'],
+        ];
     }
 
     public function fields(): PowerGridFields
@@ -52,13 +58,14 @@ final class ProductTable extends PowerGridComponent
             })
             ->add('price_purchase')
             ->add('price_sale')
-            ->add('category.name')
-            ->add('unit.name')
-            ->add('measure.name')
-            ->add('productBase.name')
+            ->add('category_name', fn(Product $product) => $product->category?->name)
+            ->add('unit_name', fn(Product $product) => $product->unit?->name)
+            ->add('measure_name', fn(Product $product) => $product->measure?->name)
+            ->add('productBase_name', fn(Product $product) => $product->productBase?->name)
             ->add('stock')
             ->add('min_stock')
-            ->add('created_at');
+            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -82,16 +89,16 @@ final class ProductTable extends PowerGridComponent
             // Column::make('Uuid', 'uuid')
             //     ->sortable()
             //     ->searchable(),
-            Column::make('Category', 'category.name')
+            Column::make('Category', 'category_name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Unidad', 'unit.name')
+            Column::make('Unidad', 'unit_name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Medida', 'measure.name')
+            Column::make('Medida', 'measure_name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Producto base', 'productBase.name')
+            Column::make('Producto base', 'productBase_name')
                 ->sortable()
                 ->searchable(),
             Column::make('Stock mínimo', 'min_stock')
@@ -100,7 +107,7 @@ final class ProductTable extends PowerGridComponent
             Column::make('Stock actual', 'stock')
                 ->sortable()
                 ->searchable(),
-            Column::make('Creado el', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Acciónes'),
@@ -149,12 +156,12 @@ final class ProductTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $product->id]),
+                ->dispatch('editProduct', ['productuuid' => $product->uuid]),
             Button::add('priceupdate')
                 ->slot('Actualizar precio')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('updateprice', ['productId' => $product->id]),
+                ->dispatch('updateprice', ['productuuid' => $product->uuid]),
             Button::add('delete')
                 ->slot('Eliminar')
                 ->id()

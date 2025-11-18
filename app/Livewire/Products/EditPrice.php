@@ -7,7 +7,7 @@ use Livewire\Component;
 
 class EditPrice extends Component
 {
-    public $productId;
+    public $productuuid;
 
     public $name;
 
@@ -18,11 +18,11 @@ class EditPrice extends Component
     public $showModal = false;
 
     #[\Livewire\Attributes\On('updateprice')]
-    public function loadProduct($productId): void
+    public function loadProduct($productuuid): void
     {
-        $product = Product::find($productId);
+        $product = Product::where('uuid', $productuuid)->first();
         if ($product) {
-            $this->productId = $product->id;
+            $this->productuuid = $product->uuid;
             $this->name = $product->name;
             $this->price_sale = $product->price_sale;
             $this->price_purchase = $product->price_purchase;
@@ -36,7 +36,7 @@ class EditPrice extends Component
             'price_sale' => 'nullable|numeric|min:1',
             'price_purchase' => 'nullable|numeric|min:1',
         ]);
-        $product = Product::find($this->productId);
+        $product = Product::where('uuid', $this->productuuid)->first();
         if ($product) {
             $product->update([
                 'price_sale' => $this->price_sale,

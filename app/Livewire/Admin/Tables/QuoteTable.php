@@ -3,8 +3,8 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Quote;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -50,7 +50,8 @@ final class QuoteTable extends PowerGridComponent
             ->add('observation')
             ->add('customer.name')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -79,9 +80,7 @@ final class QuoteTable extends PowerGridComponent
             Column::make('Uuid', 'uuid')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),
