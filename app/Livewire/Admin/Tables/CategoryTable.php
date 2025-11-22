@@ -47,7 +47,7 @@ final class CategoryTable extends PowerGridComponent
             })
             ->add('uuid')
             ->add('created_at')
-            ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+            ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i'));
     }
 
     public function columns(): array

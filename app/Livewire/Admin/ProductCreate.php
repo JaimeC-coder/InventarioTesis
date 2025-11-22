@@ -29,7 +29,13 @@ class ProductCreate extends Component
 
     public $description;
 
-    public $price;
+    public $locked = false;
+
+    public $price_sale;
+
+    public $price_purchase;
+
+    public $productBaseName = '';
 
     public $stock;
 
@@ -46,6 +52,7 @@ class ProductCreate extends Component
     public function addProduct(): void
     {
         $this->validate([
+            'category_uuid' => 'required|exists:categories,uuid',
             'category_code' => 'required',
             'code' => 'required',
             'name' => 'required',
@@ -59,15 +66,18 @@ class ProductCreate extends Component
         foreach ($units as $unit) {
             foreach ($measures as $measure) {
                 // Concatenado: códigoUsuario-códigoUnidad-códigoMedida
-                $codigoConcatenado = sprintf('%s-%s-%s-%s', $this->category_code, $this->code, $unit->code, $measure->code);
+                $codigoConcatenado = sprintf('%s%s%s%s', $this->category_code, $this->code, $unit->code, $measure->code);
                 // Nombre: base + unidad + medida
                 $nombreFinal = sprintf('%s %s por %s de %s', $this->name, $this->name_specific, $unit->name, $measure->name);
+                $this->productBaseName = $this->name . ' ' . $this->name_specific;
                 $this->products[] = [
                     'id' => $id++,
                     'codigo'        => $codigoConcatenado,
                     'name'          => $nombreFinal,
-                    'precio'        => 0, // Inicialmente en 0, se puede editar en la tabla
-                    'uuid'    => $unit->uuid . '-' . $measure->uuid, // Concatenado para identificar
+                    'price_sale'        => 0, // Inicialmente en 0, se puede editar en la tabla
+                    'price_purchase'    => 0,
+                    'unituuid'    => $unit->uuid, // Concatenado para identificar
+                    'measureuuid' => $measure->uuid,
                     'unit' => $unit->name,
                     'measure' => $measure->name,
                 ];
@@ -75,7 +85,45 @@ class ProductCreate extends Component
         }
 
         Log::info('Productos a crear', $this->products);
-        $this->reset(['code', 'name', 'name_specific', 'units_uuid', 'measures_uuid', 'price']);
+        $this->locked = true;
+        $this->reset([ 'name', 'name_specific', 'units_uuid', 'measures_uuid']);
+    }
+
+    public function removeProduct($id): void
+    {
+        $this->products = array_filter($this->products, fn(array $product): bool => $product['id'] !== $id);
+        // Reindexar el array para evitar problemas con los IDs
+        $this->products = array_values($this->products);
+    }
+
+    public function saveProducts(): void
+    {
+        // dd($this);
+        // Primero vamos a validar el array de productos
+        $this->validate([
+            'category_code' => 'required',
+            'code' => 'required',
+            'description' => 'nullable|string',
+            'products' => 'required|array|min:1',
+            'products.*.codigo' => 'required|string|distinct|unique:products,barcode',
+            'products.*.name' => 'required|string',
+            'products.*.unituuid' => 'required|exists:units,uuid',
+            'products.*.measureuuid' => 'required|exists:measures,uuid',
+            'products.*.price_sale' => 'required|numeric|min:0',
+            'products.*.price_purchase' => 'required|numeric|min:0',
+            'category_uuid' => 'required|exists:categories,uuid',
+            'stock_min' => 'nullable|integer|min:0',
+            'productBaseName' => 'required|string',
+        ]);
+        /*
+
+        name ,category_code ,code ,category_uuid , description
+
+        // para registrar un producto dependiente seria ya necesario
+        // name ,category_code ,code ,barcode, description,category_uuid, unituuid, measureuuid, price_sale, price_purchase, stock, min_stock , product_base_id
+        */
+        Log::info('Guardando productos', $this->products);
+        $this->products = [];
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

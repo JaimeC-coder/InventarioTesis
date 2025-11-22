@@ -13,9 +13,19 @@
             <x-forms.textarea label="Descripción" name="description" value=""
                 placeholder="Ingrese una descripción" />
 
-            <x-button type="submit" class="mt-4">
+            <div class="flex justify-between items-center">
+                <x-button type="submit" class="mt-4">
                 Crear Categoria
             </x-button>
+
+            <a href="{{ route('admin.categories.index') }}" class="ml-2">
+                <x-button type="button" variant="secondary" class="mt-4">
+                    Volver
+                </x-button>
+
+            </a>
+
+            </div>
 
         </form>
     </div>
