@@ -2,22 +2,20 @@
 
 namespace App\Livewire\Admin\Tables;
 
+use App\Exports\GenericExport;
 use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use Livewire\Attributes\On;
-use App\Exports\GenericExport;
-use Maatwebsite\Excel\Facades\Excel;
 
 final class CategoryTable extends PowerGridComponent
 {
-
-
     public string $primaryKey = 'uuid';
 
     public string $sortField = 'categories.created_at';
@@ -29,7 +27,6 @@ final class CategoryTable extends PowerGridComponent
         $this->showCheckBox('uuid');
 
         return [
-
             PowerGrid::header()
                 ->showSearchInput(),
             PowerGrid::footer()
@@ -91,7 +88,6 @@ final class CategoryTable extends PowerGridComponent
                 ->sortable()
                 ->hidden()
                 ->searchable(),
-
             Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
@@ -159,8 +155,6 @@ final class CategoryTable extends PowerGridComponent
         }
     }
 
-
-
     #[On('bulkDelete.{tableName}')]
     public function bulkDelete(): void
     {
@@ -173,22 +167,19 @@ final class CategoryTable extends PowerGridComponent
             'icon' => 'success',
         ]);
         //
-
-
     }
+
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
-
         $data = Category::whereIn('uuid', $this->checkboxValues)->get();
-
         $headers = ['ID', 'name'];
 
         return Excel::download(
             new GenericExport(
                 data: $data,
                 headers: $headers,
-                mapping: function ($category) {
+                mapping: function ($category): array {
                     return [
                         $category->id,
                         $category->name,
@@ -198,21 +189,19 @@ final class CategoryTable extends PowerGridComponent
             'categories.xlsx'
         );
     }
+
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
         $uuids = $this->checkboxValues;
         $model = Category::class;
-
         $payload = [
             'model' => $model,
             'uuids' => $uuids,
         ];
-
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $payload);
     }
-
 
     public function actions(Category $category): array
     {

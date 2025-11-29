@@ -2,25 +2,24 @@
 
 namespace App\Livewire\Admin\Tables;
 
+use App\Exports\GenericExport;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use Livewire\Attributes\On;
-use App\Exports\GenericExport;
-use Maatwebsite\Excel\Facades\Excel;
 
 final class ProductTable extends PowerGridComponent
 {
-
-
     public string $primaryKey = 'uuid';
+
     public string $sortField = 'products.created_at';
+
     public string $tableName = 'product-table-dwonrg-table';
 
     public function setUp(): array
@@ -28,7 +27,6 @@ final class ProductTable extends PowerGridComponent
         $this->showCheckBox('uuid');
 
         return [
-
             PowerGrid::header()
                 ->showToggleColumns()
                 ->showSearchInput(),
@@ -37,7 +35,6 @@ final class ProductTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
-
 
     public function header(): array
     {
@@ -56,7 +53,6 @@ final class ProductTable extends PowerGridComponent
                 ->dispatch('exportExcel.' . $this->tableName, []),
         ];
     }
-
 
     public function datasource(): Builder
     {
@@ -94,7 +90,8 @@ final class ProductTable extends PowerGridComponent
             ->add('productBase_name', fn(Product $product) => $product->productBase?->name)
             ->add('stock')
             ->add('min_stock')
-            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));;
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -178,19 +175,12 @@ final class ProductTable extends PowerGridComponent
                     });");
     }
 
-
-
-
-
-
-
     #[On('bulkDelete.{tableName}')]
     public function bulkDelete(): void
     {
         Product::whereIn('uuid', $this->checkboxValues)->delete();
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
         $this->resetPage();
-
         $this->dispatch('swal:success', [
             'title' => 'Eliminado',
             'text' => 'Las categorías seleccionadas se eliminaron correctamente.',
@@ -198,22 +188,19 @@ final class ProductTable extends PowerGridComponent
         ]);
         // regresamos al inicio de la tabla
         //
-
-
     }
+
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
-
         $data = Product::whereIn('uuid', $this->checkboxValues)->get();
-
         $headers = ['ID', 'name'];
 
         return Excel::download(
             new GenericExport(
                 data: $data,
                 headers: $headers,
-                mapping: function ($category) {
+                mapping: function ($category): array {
                     return [
                         $category->id,
                         $category->name,
@@ -223,24 +210,19 @@ final class ProductTable extends PowerGridComponent
             'categories.xlsx'
         );
     }
+
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
-
         $uuids = $this->checkboxValues;
         $model = Product::class;
-
         $payload = [
             'model' => $model,
             'uuids' => $uuids,
         ];
-
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $payload);
     }
-
-
-
 
     public function actions(Product $product): array
     {

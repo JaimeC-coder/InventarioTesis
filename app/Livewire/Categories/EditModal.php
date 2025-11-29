@@ -19,7 +19,6 @@ class EditModal extends Component
     public function loadCategory($categoryId): void
     {
         $category = Category::where('uuid', $categoryId)->first();
-       
         if ($category) {
             $this->categoryId = $category->id;
             $this->name = $category->name;
