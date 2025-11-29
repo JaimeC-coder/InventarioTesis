@@ -12,6 +12,8 @@
 
     <livewire:categories.edit-modal />
 
+    <livewire:export.pdf />
+
 
     @push('scripts')
         <script>

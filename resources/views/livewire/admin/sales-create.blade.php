@@ -62,8 +62,7 @@
                     <template x-for="(product, index) in products" :key="product.id">
                         <tr class="border-b dark:border-gray-700  dark:bg-gray-500 dark:text-gray-50">
                             <td class="py-1 px-4" x-text="product.name"></td>
-                            <td class="py-1 px-4"><x-forms.input type="number" class="w-20" x-model="product.price"
-                                    step="0.01" /></td>
+                            <td class="py-1 px-4" x-text="product.price"></td>
                             <td class="py-1 px-4">
                                 <x-forms.input type="number" class="w-20" x-model="product.quantity" />
                             </td>

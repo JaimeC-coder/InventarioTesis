@@ -89,7 +89,7 @@ class PurchaseOrderCreate extends Component
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => 0,
+            'price' => $product->price_purchase,
             'subtotal' => 0,
         ];
         $this->reset('product_uuid');

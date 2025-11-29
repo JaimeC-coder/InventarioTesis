@@ -10,6 +10,7 @@ use App\Models\Reason;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::post('suppliers', function (Request $request) {
@@ -29,9 +30,12 @@ Route::post('suppliers', function (Request $request) {
 
 Route::post('products', function (Request $request) {
     $product = Product::select('uuid', 'name')
+        ->whereNotNull('productBase_id')
         ->when($request->search, function ($query) use ($request): void {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('sku', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request): void {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('barcode', 'like', '%' . $request->search . '%');
+            });
         })
         ->when(
             $request->exists('selected'),
@@ -39,6 +43,7 @@ Route::post('products', function (Request $request) {
             fn($query) => $query->limit(10)
         )
         ->get();
+    Log::info('Productos encontrados: ' . $product->count());
     return response()->json($product);
 })->name('admin.products');
 

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\Sale;
 use App\Models\Warehouse;
+use App\Services\KardexServices;
 use Livewire\Component;
 
 class SalesCreate extends Component
@@ -61,20 +62,13 @@ class SalesCreate extends Component
                     'text' => $html,
                 ]);
             }
-
-            // $validator->after(function ($validator) {
-            //     $total = 0;
-            //     foreach ($this->products as $product) {
-            //         $total += $product['quantity'] * $product['price'];
-            //     }
-            //     $this->total = $total;
-            // });
         });
     }
 
     public function mount(): void
     {
-        $this->correlativo = Quote::where('serie', $this->serie)->max('correlativo') + 1;
+        $this->correlativo = Sale::where('serie', $this->serie)->max('correlativo') + 1;
+        $this->serie =  sprintf('OC-%04d', $this->correlativo);
         $this->date = now()->format('Y-m-d');
     }
 
@@ -121,7 +115,7 @@ class SalesCreate extends Component
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => $product->price,
+            'price' => $product->price_sale,
             'subtotal' => 0,
         ];
         $this->reset('product_uuid');
@@ -188,28 +182,29 @@ class SalesCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
-            $lastrecortd = Inventorie::where('product_id', $product_id)
-                ->where('warehouse_id', $this->warehouse_id)
-                ->latest()
-                ->first();
-            $lastQuantity = $lastrecortd ? $lastrecortd->quantity_balance : 0;
-            $lastTotal = $lastrecortd ? $lastrecortd->total_balance : 0;
-            $lastcostBalance = $lastrecortd ? $lastrecortd->cost_balance : 0;
-            $newQuantity = $lastQuantity - $product['quantity'];
-            $newTotal = $lastTotal - ($product['quantity'] * $lastcostBalance);
-            //$costBalance = $newQuantity > 0 ? $newTotal / $newQuantity : 0;
-            $costBalance = $newTotal / ($newQuantity ?: 1);
-            $Sale->inventories()->create([
-                'detail' => 'Venta ID: ' . $Sale->id,
-                'cost_out' => $lastcostBalance,
-                'total_out' => $product['quantity'] * $lastcostBalance,
-                'quantity_out' => $product['quantity'],
-                'quantity_balance' => $newQuantity,
-                'cost_balance' => $costBalance,
-                'total_balance' => $newTotal,
-                'product_id' => $product_id,
-                'warehouse_id' => $this->warehouse_id,
-            ]);
+            KardexServices::registerExit($Sale, $product, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
+            // $lastrecortd = Inventorie::where('product_id', $product_id)
+            //     ->where('warehouse_id', $this->warehouse_id)
+            //     ->latest()
+            //     ->first();
+            // $lastQuantity = $lastrecortd ? $lastrecortd->quantity_balance : 0;
+            // $lastTotal = $lastrecortd ? $lastrecortd->total_balance : 0;
+            // $lastcostBalance = $lastrecortd ? $lastrecortd->cost_balance : 0;
+            // $newQuantity = $lastQuantity - $product['quantity'];
+            // $newTotal = $lastTotal - ($product['quantity'] * $lastcostBalance);
+            // //$costBalance = $newQuantity > 0 ? $newTotal / $newQuantity : 0;
+            // $costBalance = $newTotal / ($newQuantity ?: 1);
+            // $Sale->inventories()->create([
+            //     'detail' => 'Venta ID: ' . $Sale->id,
+            //     'cost_out' => $lastcostBalance,
+            //     'total_out' => $product['quantity'] * $lastcostBalance,
+            //     'quantity_out' => $product['quantity'],
+            //     'quantity_balance' => $newQuantity,
+            //     'cost_balance' => $costBalance,
+            //     'total_balance' => $newTotal,
+            //     'product_id' => $product_id,
+            //     'warehouse_id' => $this->warehouse_id,
+            // ]);
         }
 
         session()->flash('swal', [

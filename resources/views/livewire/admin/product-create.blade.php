@@ -3,32 +3,17 @@
     removeProduct(index) { this.products.splice(index, 1); },
 
 }">
+    @error('products.*')
+        <x-forms.alert title="Error en la lista de productos!" negative>
 
-    @error('products.*.codigo')
-        <div id="alert-border-2"
-            class="flex sm:items-center p-4 mb-4 text-sm text-fg-danger-strong bg-danger-soft border-t-4 border-danger-subtle"
-            role="alert">
-            <svg class="w-4 h-4 shrink-0 mt-0.5 md:mt-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            <span class="sr-only">Info</span>
-            <div class="ms-2 text-sm ">
-                A simple info alert with an <a href="#" class="font-medium underline hover:no-underline">example
-                    link</a>. Give it a click if you like.
-            </div>
-            <button type="button"
-                class="ms-auto -mx-1.5 -my-1.5 bg-danger-soft text-fg-danger-strong rounded focus:ring-2 focus:ring-danger-medium p-1.5 hover:bg-danger-medium inline-flex items-center justify-center h-8 w-8 shrink-0"
-                data-dismiss-target="#alert-border-2" aria-label="Close">
-                <span class="sr-only">Close</span>
-                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18 17.94 6M18 18 6.06 6" />
-                </svg>
-            </button>
-        </div>
+            <x-slot name="slot">
+                <ul class="mt-2 list-disc list-outside space-y-1 ps-2.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </x-slot>
+        </x-forms.alert>
     @enderror
     <form wire:submit='saveProducts' class="space-y-4">
 
@@ -148,3 +133,5 @@
 
     </form>
 </div>
+
+

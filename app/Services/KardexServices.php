@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Inventorie;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class KardexServices
 {
@@ -27,7 +28,8 @@ class KardexServices
         $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
         $newQuantity = $lastRecord['quantity_balance'] + $product['quantity'];
         $newTotal = $lastRecord['total_balance'] + ($product['quantity'] * $product['price']);
-        $costBalance = $newTotal / $newQuantity;
+        // si el tanto el newQuantity es 0, evitar division por cero
+        $costBalance = $newTotal / ($newQuantity ?? 1);
         $newregister = [
             'detail' => $detail,
             'quantity_in' => $product['quantity'],
@@ -48,7 +50,7 @@ class KardexServices
         $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
         $newQuantity = $lastRecord['quantity_balance'] - $product['quantity'];
         $newTotal = $lastRecord['total_balance'] - ($product['quantity'] * $lastRecord['cost_balance']);
-        $costBalance = $newTotal / ($newQuantity ?: 1);
+        $costBalance = $newTotal / ($newQuantity ?? 1);
         $newregister = [
             'detail' => $detail,
             'cost_out' => $lastRecord['cost_balance'],
@@ -74,7 +76,7 @@ class KardexServices
         } elseif ($type == 2) { // Exit
             $newQuantity = $lastRecord['quantity_balance'] - $product['quantity'];
             $newTotal = $lastRecord['total_balance'] - ($product['quantity'] * $lastRecord['cost_balance']);
-            $costBalance = $newTotal / ($newQuantity ?: 1);
+            $costBalance = $newTotal / ($newQuantity ?? 1);
         }
 
         $newregister = [
@@ -93,23 +95,24 @@ class KardexServices
 
     protected static function registerData($model, array $data)
     {
+        Log::info('Registering inventory movement', $data);
         $model->inventories()->create([
-            'detail' => $data['detail'] ?: '',
-            'quantity_in' => $data['quantity_in'] ?: 0,
-            'cost_in' => $data['cost_in'] ?: 0,
-            'total_in' => $data['total_in'] ?: 0,
-            'quantity_out' => $data['quantity_out'] ?: 0,
-            'cost_out' => $data['cost_out'] ?: 0,
-            'total_out' => $data['total_out'] ?: 0,
-            'quantity_balance' => $data['quantity_balance'] ?: 0,
-            'cost_balance' => $data['cost_balance'] ?: 0,
-            'total_balance' => $data['total_balance'] ?: 0,
-            'product_id' => $data['product_id'] ?: 0,
-            'warehouse_id' => $data['warehouse_id'] ?: 0,
+            'detail' => $data['detail'] ?? '',
+            'quantity_in' => $data['quantity_in'] ?? 0,
+            'cost_in' => $data['cost_in'] ?? 0,
+            'total_in' => $data['total_in'] ?? 0,
+            'quantity_out' => $data['quantity_out'] ?? 0,
+            'cost_out' => $data['cost_out'] ?? 0,
+            'total_out' => $data['total_out'] ?? 0,
+            'quantity_balance' => $data['quantity_balance'] ?? 0,
+            'cost_balance' => $data['cost_balance'] ?? 0,
+            'total_balance' => $data['total_balance'] ?? 0,
+            'product_id' => $data['product_id'] ?? 0,
+            'warehouse_id' => $data['warehouse_id'] ?? 0,
         ]);
     }
 
-    public function updateProductStock($productId, $quantity, $operation): void
+    public static function updateProductStock($productId, $quantity, $operation): void
     {
         $product = Product::find($productId);
         if ($product) {

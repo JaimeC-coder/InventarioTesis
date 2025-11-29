@@ -9,4 +9,23 @@
         @livewire('admin.product-create')
     </div>
 
+
+
+    @push('scripts')
+        <script>
+            window.addEventListener('swal:success', event => {
+                const data = event.detail[0];
+                Swal.fire({
+                    title: data.title,
+                    text: data.text,
+                    icon: data.icon,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
+        </script>
+        
+    @endpush
+
+
 </x-admin-layout>

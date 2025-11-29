@@ -10,21 +10,49 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use Livewire\Attributes\On;
+use App\Exports\GenericExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 final class CategoryTable extends PowerGridComponent
 {
+
+
+    public string $primaryKey = 'uuid';
+
+    public string $sortField = 'categories.created_at';
+
     public string $tableName = 'category-table-oc8dnv-table';
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+        $this->showCheckBox('uuid');
 
         return [
+
             PowerGrid::header()
                 ->showSearchInput(),
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
+        ];
+    }
+
+    public function header(): array
+    {
+        return [
+            Button::add('bulk-delete')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('bulkDelete.' . $this->tableName, []),
+            Button::add('pdf-export')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('exportPdf.' . $this->tableName, []),
+            Button::add('excel-export')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('exportExcel.' . $this->tableName, []),
         ];
     }
 
@@ -59,11 +87,11 @@ final class CategoryTable extends PowerGridComponent
             Column::make('Descripción', 'description')
                 ->sortable()
                 ->searchable(),
-            // Column::make('Uuid', 'uuid')
-            //     ->sortable()
-            //     ->searchable(),
-            // Column::make('Created at', 'created_at_formatted', 'created_at')
-            //     ->sortable(),
+            Column::make('Uuid', 'uuid')
+                ->sortable()
+                ->hidden()
+                ->searchable(),
+
             Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
@@ -102,7 +130,7 @@ final class CategoryTable extends PowerGridComponent
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
-    public function confirmDelete(int $params): void
+    public function confirmDelete(string $params): void
     {
         //   dd($params);
         //  $categoryId = $params['categoryId'] ?? null;
@@ -119,7 +147,7 @@ final class CategoryTable extends PowerGridComponent
 
     public function delete($categoryId): void
     {
-        $category = Category::find($categoryId);
+        $category = Category::where('uuid', $categoryId)->first();
         if ($category) {
             $category->delete();
             $this->dispatch('pg:eventRefresh-' . $this->tableName);
@@ -131,6 +159,61 @@ final class CategoryTable extends PowerGridComponent
         }
     }
 
+
+
+    #[On('bulkDelete.{tableName}')]
+    public function bulkDelete(): void
+    {
+        Category::whereIn('uuid', $this->checkboxValues)->delete();
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+        $this->resetPage();
+        $this->dispatch('swal:success', [
+            'title' => 'Eliminado',
+            'text' => 'Las categorías seleccionadas se eliminaron correctamente.',
+            'icon' => 'success',
+        ]);
+        //
+
+
+    }
+    #[On('exportExcel.{tableName}')]
+    public function exportExcel()
+    {
+
+        $data = Category::whereIn('uuid', $this->checkboxValues)->get();
+
+        $headers = ['ID', 'name'];
+
+        return Excel::download(
+            new GenericExport(
+                data: $data,
+                headers: $headers,
+                mapping: function ($category) {
+                    return [
+                        $category->id,
+                        $category->name,
+                    ];
+                }
+            ),
+            'categories.xlsx'
+        );
+    }
+    #[On('exportPdf.{tableName}')]
+    public function exportPdf(): void
+    {
+        $uuids = $this->checkboxValues;
+        $model = Category::class;
+
+        $payload = [
+            'model' => $model,
+            'uuids' => $uuids,
+        ];
+
+        // Enviar al componente PDF
+        $this->dispatch('openPdfExport', $payload);
+    }
+
+
     public function actions(Category $category): array
     {
         return [
@@ -138,11 +221,11 @@ final class CategoryTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('editCategory', ['categoryId' => $category->id]),
+                ->dispatch('editCategory', ['categoryId' => $category->uuid]),
             Button::add('delete')
                 ->slot('delete')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('confirmDelete', ['params' => $category->id]),
+                ->dispatch('confirmDelete', ['params' => $category->uuid]),
         ];
     }
 
