@@ -145,34 +145,40 @@ final class ProductTable extends PowerGridComponent
         return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    protected function getListeners()
     {
-        $this->js('alert(' . $rowId . ')');
+        return [
+            'confirmDelete',
+            'deleteConfirmed' => 'delete', // Evento que se lanza desde JS cuando el usuario confirma
+        ];
     }
 
-    #[\Livewire\Attributes\On('delete')]
-    public function delete(string $rowId): void
+    #[\Livewire\Attributes\On('confirmDelete')]
+    public function confirmDelete(string $params): void
     {
-        Product::find($rowId)?->delete();
-        $this->emit('pg:eventRefresh-' . $this->tableName);
+        $this->dispatch('swal:confirmDelete', [
+            'title' => '¿Estás seguro?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'icon' => 'warning',
+            'confirmButtonText' => 'Sí, eliminar',
+            'cancelButtonText' => 'Cancelar',
+            'productId' => $params,
+        ]);
     }
 
-    #[\Livewire\Attributes\On('priceupdate')]
-    public function priceupdate(string $rowId): void
+    public function delete($productId): void
     {
-        $this->js("Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Esta acción no se puede deshacer.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });");
+        $product = Product::where('uuid', $productId)->first();
+        if ($product) {
+            $product->delete();
+            $this->dispatch('pg:eventRefresh-' . $this->tableName);
+            $this->resetPage();
+            $this->dispatch('swal:success', [
+                'title' => 'Eliminado',
+                'text' => 'El producto se eliminó correctamente.',
+                'icon' => 'success',
+            ]);
+        }
     }
 
     #[On('bulkDelete.{tableName}')]
@@ -183,7 +189,7 @@ final class ProductTable extends PowerGridComponent
         $this->resetPage();
         $this->dispatch('swal:success', [
             'title' => 'Eliminado',
-            'text' => 'Las categorías seleccionadas se eliminaron correctamente.',
+            'text' => 'Los productos seleccionados se eliminaron correctamente.',
             'icon' => 'success',
         ]);
         // regresamos al inicio de la tabla
@@ -239,9 +245,8 @@ final class ProductTable extends PowerGridComponent
                 ->dispatch('updateprice', ['productuuid' => $product->uuid]),
             Button::add('delete')
                 ->slot('Eliminar')
-                ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('delete', ['rowId' => $product->id]),
+                ->dispatch('confirmDelete', ['params' => $product->uuid]),
         ];
     }
 

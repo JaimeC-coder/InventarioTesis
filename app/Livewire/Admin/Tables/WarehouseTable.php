@@ -2,8 +2,12 @@
 
 namespace App\Livewire\Admin\Tables;
 
+use App\Exports\GenericExport;
 use App\Models\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -12,11 +16,15 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 
 final class WarehouseTable extends PowerGridComponent
 {
+    public string $primaryKey = 'uuid';
+
+    public string $sortField = 'warehouses.created_at';
+
     public string $tableName = 'warehouse-table-itbilq-table';
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+        $this->showCheckBox('uuid');
 
         return [
             PowerGrid::header()
@@ -24,6 +32,24 @@ final class WarehouseTable extends PowerGridComponent
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
+        ];
+    }
+
+    public function header(): array
+    {
+        return [
+            Button::add('bulk-delete')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('bulkDelete.' . $this->tableName, []),
+            Button::add('pdf-export')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('exportPdf.' . $this->tableName, []),
+            Button::add('excel-export')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('exportExcel.' . $this->tableName, []),
         ];
     }
 
@@ -43,24 +69,24 @@ final class WarehouseTable extends PowerGridComponent
             ->add('name')
             ->add('location')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at')
+            ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i'));
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Name', 'name')
+            Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Location', 'location')
+            Column::make('Ubicación', 'location')
                 ->sortable()
                 ->searchable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()
+                ->hidden()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),
@@ -69,36 +95,105 @@ final class WarehouseTable extends PowerGridComponent
 
     public function filters(): array
     {
+        return [];
+    }
+
+    protected function getListeners()
+    {
         return [
+            'confirmDelete',
+            'deleteConfirmed' => 'delete', // Evento que se lanza desde JS cuando el usuario confirma
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('confirmDelete')]
+    public function confirmDelete(string $params): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->dispatch('swal:confirmDelete', [
+            'title' => '¿Estás seguro?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'icon' => 'warning',
+            'confirmButtonText' => 'Sí, eliminar',
+            'cancelButtonText' => 'Cancelar',
+            'warehouseId' => $params,
+        ]);
+    }
+
+    public function delete($warehouseId): void
+    {
+        $warehouse = Warehouse::where('uuid', $warehouseId)->first();
+        if ($warehouse) {
+            $warehouse->delete();
+            $this->dispatch('pg:eventRefresh-' . $this->tableName);
+            $this->dispatch('swal:success', [
+                'title' => 'Eliminado',
+                'text' => 'El almacén se eliminó correctamente.',
+                'icon' => 'success',
+            ]);
+        }
+    }
+
+    #[On('bulkDelete.{tableName}')]
+    public function bulkDelete(): void
+    {
+        Warehouse::whereIn('uuid', $this->checkboxValues)->delete();
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+        $this->resetPage();
+        $this->dispatch('swal:success', [
+            'title' => 'Eliminado',
+            'text' => 'Las categorías seleccionadas se eliminaron correctamente.',
+            'icon' => 'success',
+        ]);
+        //
+    }
+
+    #[On('exportExcel.{tableName}')]
+    public function exportExcel()
+    {
+        $data = Warehouse::whereIn('uuid', $this->checkboxValues)->get();
+        $headers = ['ID', 'name', 'location'];
+
+        return Excel::download(
+            new GenericExport(
+                data: $data,
+                headers: $headers,
+                mapping: function ($warehouse): array {
+                    return [
+                        $warehouse->id,
+                        $warehouse->name,
+                        $warehouse->location,
+                    ];
+                }
+            ),
+            'almacenes.xlsx'
+        );
+    }
+
+    #[On('exportPdf.{tableName}')]
+    public function exportPdf(): void
+    {
+        $uuids = $this->checkboxValues;
+        $model = Warehouse::class;
+        $payload = [
+            'model' => $model,
+            'uuids' => $uuids,
+        ];
+        // Enviar al componente PDF
+        $this->dispatch('openPdfExport', $payload);
     }
 
     public function actions(Warehouse $warehouse): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$warehouse->id)
+                ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $warehouse->id]),
+                ->dispatch('editWarehouse', ['warehouseId' => $warehouse->uuid]),
+            Button::add('delete')
+                ->slot('Eliminar')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('confirmDelete', ['params' => $warehouse->uuid]),
         ];
     }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

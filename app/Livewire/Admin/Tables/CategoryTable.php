@@ -100,23 +100,6 @@ final class CategoryTable extends PowerGridComponent
         return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
-    {
-        $this->js("Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Esta acción no se puede deshacer.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });");
-    }
-
     protected function getListeners()
     {
         return [
@@ -212,7 +195,7 @@ final class CategoryTable extends PowerGridComponent
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('editCategory', ['categoryId' => $category->uuid]),
             Button::add('delete')
-                ->slot('delete')
+                ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('confirmDelete', ['params' => $category->uuid]),
         ];

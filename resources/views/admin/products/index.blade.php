@@ -29,7 +29,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Livewire.dispatch('deleteConfirmed', {
-                            categoryId: data.categoryId
+                            productId: data.productId
                         });
                     }
                 });
