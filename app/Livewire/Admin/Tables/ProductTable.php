@@ -99,39 +99,50 @@ final class ProductTable extends PowerGridComponent
         return [
             Column::make('Código', 'barcode')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Nombre', 'name')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Código de barras', 'code')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Precio de compra', 'price_purchase')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Precio de venta', 'price_sale')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             // Column::make('Uuid', 'uuid')
             //     ->sortable()
             //
             Column::make('Category', 'category_name')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Unidad', 'unit_name')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Medida', 'measure_name')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Producto base', 'productBase_name')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Stock mínimo', 'min_stock')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Stock actual', 'stock')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(visible: true),
             Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()

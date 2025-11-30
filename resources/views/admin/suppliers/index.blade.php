@@ -8,27 +8,40 @@
 
     <livewire:admin.tables.supplier-table />
 
+    <livewire:export.pdf />
     @push('scripts')
         <script>
-            let formEliminar = document.querySelectorAll('.delete-form');
+            // Escucha del evento Livewire
+            window.addEventListener('swal:confirmDelete', event => {
 
-            formEliminar.forEach(form => {
-                form.addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Esta acción no se puede deshacer.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
+                const data = event.detail[0];
+                Swal.fire({
+                    title: data.title,
+                    text: data.text,
+                    icon: data.icon,
+                    showCancelButton: true,
+                    confirmButtonText: data.confirmButtonText,
+                    cancelButtonText: data.cancelButtonText,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Livewire.dispatch('deleteConfirmed', {
+                            supplierId: data.supplierId
+                        });
+                    }
+                });
+            });
+
+            window.addEventListener('swal:success', event => {
+                const data = event.detail[0];
+                Swal.fire({
+                    title: data.title,
+                    text: data.text,
+                    icon: data.icon,
+                    timer: 2000,
+                    showConfirmButton: false
                 });
             });
         </script>
     @endpush
+
 </x-admin-layout>
