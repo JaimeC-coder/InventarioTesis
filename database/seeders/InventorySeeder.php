@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
 
 class InventorySeeder extends Seeder
 {
@@ -20,16 +19,14 @@ class InventorySeeder extends Seeder
         // Todos como si fueran una sola compra inicial
         $products = \App\Models\Product::where('stock', '>', 0)->get();
         $warehouses = \App\Models\Warehouse::all();
-        $quotes = \App\Models\Quote::latest()->first() ?? 0 ;
-        $correlativo =  \App\Models\Quote::where('serie', $quotes)->max('correlativo') ?? 0;
-        // Log::info($correlativo);
-        // die();
-        $sale = \App\Models\Sale::create([
+        $quotes = \App\Models\Purchase::latest()->first() ?? 0 ;
+        $correlativo =  \App\Models\Purchase::where('serie', $quotes)->max('correlativo') ?? 0;
+        $purchases = \App\Models\Purchase::create([
             'voucher_type' => 1,
             'serie' => 'OC-00000',
             'correlativo' =>  $correlativo + 1,
             'date' => now(),
-            'customer_id' => \App\Models\Customer::first()->id,
+            'supplier_id' => \App\Models\Supplier::first()->id,
             'warehouse_id' => \App\Models\Warehouse::first()->id,
             'total' => 0,
             'observation' => 'Initial stock seeder sale',
@@ -37,7 +34,7 @@ class InventorySeeder extends Seeder
         foreach ($products as $product) {
             foreach ($warehouses as $warehouse) {
                 // Crear un registro de inventario
-                $sale->products()->attach($product->id, [
+                $purchases->products()->attach($product->id, [
                     'quantity' => $product->stock,
                     'price' => $product->price_purchase,
                     'subtotal' => $product->stock * $product->price_purchase,
@@ -49,12 +46,12 @@ class InventorySeeder extends Seeder
                 $lastQuantity = $lastrecortd ? $lastrecortd->quantity_balance : 0;
                 $lastTotal = $lastrecortd ? $lastrecortd->total_balance : 0;
                 $lastcostBalance = $lastrecortd ? $lastrecortd->cost_balance : 0;
-                $newQuantity = $lastQuantity - $product['stock'];
-                $newTotal = $lastTotal - ($product['stock'] * $lastcostBalance);
+                $newQuantity = $lastQuantity + $product['stock'];
+                $newTotal = $lastTotal + ($product['stock'] * $lastcostBalance);
                 //$costBalance = $newQuantity > 0 ? $newTotal / $newQuantity : 0;
                 $costBalance = $newTotal / ($newQuantity ?: 1);
-                $sale->inventories()->create([
-                    'detail' => 'Venta ID: ' . $sale->id,
+                $purchases->inventories()->create([
+                    'detail' => 'Compra ID: ' . $purchases->id,
                     'cost_out' => $lastcostBalance,
                     'total_out' => $product['stock'] * $lastcostBalance,
                     'quantity_out' => $product['stock'],

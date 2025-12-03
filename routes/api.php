@@ -141,7 +141,7 @@ Route::post('quotes', function (Request $request) {
 })->name('admin.quotes');
 
 Route::post('customers', function (Request $request) {
-    $customer = Customer::select('uuid', 'name')
+    $customer = Customer::select('customers.uuid', 'customers.name', 'customers.type')
         ->when($request->search, function ($query) use ($request): void {
             $query->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('document_number', 'like', '%' . $request->search . '%');

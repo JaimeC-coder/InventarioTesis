@@ -90,7 +90,7 @@ final class QuoteTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datepicker('date'),
+            
         ];
     }
 

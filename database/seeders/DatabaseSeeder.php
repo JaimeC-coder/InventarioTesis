@@ -24,14 +24,32 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('admin123'),
         ]);
         TypeCustomer::create(
-            ['type' => 'Regular', 'porcentage_discount' => 0.00000]
+            ['type' => 'GENERAL', 'porcentage_discount' => 0.00000]
         );
         TypeCustomer::create(
-            ['type' => 'Premium', 'porcentage_discount' => 0.500000]
+            ['type' => 'A1', 'porcentage_discount' => 0.500000]
         );
+        \App\Models\Identity::create([
+            'name' => 'Sin Identidad',
+        ]);
+        \App\Models\Identity::create([
+            'name' => 'DNI',
+        ]);
+        \App\Models\Identity::create([
+            'name' => 'RUC',
+        ]);
+        \App\Models\Identity::create([
+            'name' => 'Pasaporte',
+        ]);
+        \App\Models\Identity::create([
+            'name' => 'Carnet de extranjería',
+        ]);
+        Customer::factory(100)->create();
+        Supplier::factory(100)->create();
+        Product::factory(100)->create();
         $this->call([
             CategorySeeder::class,
-            IdentitySeeder::class,
+            // IdentitySeeder::class,
             WarehouseSeeder::class,
             ReasonSeeder::class,
             UnitSeeder::class,
@@ -39,8 +57,5 @@ class DatabaseSeeder extends Seeder
             InventorySeeder::class,
             // Add other seeders here as needed
         ]);
-        Product::factory(100)->create();
-        Customer::factory(100)->create();
-        Supplier::factory(100)->create();
     }
 }

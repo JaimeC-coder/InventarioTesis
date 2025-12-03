@@ -13,7 +13,7 @@ class Customer extends BaseModel
         'email',
         'phone',
         'address',
-        'type_customer_id',
+        'type',
         'uuid',
     ];
 
@@ -35,9 +35,9 @@ class Customer extends BaseModel
         return $this->hasMany(Quote::class);
     }
 
-    //relacion con tipo de cliente
-    public function typeCustomer()
-    {
-        return $this->belongsTo(TypeCustomer::class); //relacion uno a muchos inversa
-    }
+    // //relacion con tipo de cliente
+    // public function typeCustomer()
+    // {
+    //     return $this->belongsTo(TypeCustomer::class); //relacion uno a muchos inversa
+    // }
 }

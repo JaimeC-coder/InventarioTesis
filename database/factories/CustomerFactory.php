@@ -25,6 +25,7 @@ class CustomerFactory extends Factory
             'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
             'type_customer_id' => \App\Models\TypeCustomer::all()->random()->id,
+            'type' => $this->faker->randomElement(['A1', 'GENERAL']),
         ];
     }
 }

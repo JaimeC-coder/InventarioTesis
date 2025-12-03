@@ -19,7 +19,9 @@ class EditProduct extends Component
 
     public $description;
 
-    public $price_sale;
+    public $price_sale_regular;
+
+    public $price_sale_a1;
 
     public $price_purchase;
 
@@ -54,7 +56,8 @@ class EditProduct extends Component
             $this->category_code = $product->category_code;
             $this->barcode = $product->barcode;
             $this->description = $product->description;
-            $this->price_sale = $product->price_sale;
+            $this->price_sale_regular = $product->price_sale_regular;
+            $this->price_sale_a1 = $product->price_sale_a1;
             $this->price_purchase = $product->price_purchase;
             $this->stock = $product->stock;
             $this->min_stock = $product->min_stock;
@@ -76,7 +79,8 @@ class EditProduct extends Component
             'category_code' => 'nullable|string|max:255',
             'barcode' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price_sale' => 'required|numeric|min:0',
+            'price_sale_regular' => 'required|numeric|min:0',
+            'price_sale_a1' => 'required|numeric|min:0',
             'price_purchase' => 'required|numeric|min:0',
             'category_uuid' => 'required|exists:categories,uuid',
             'unit_uuid' => 'required|exists:units,uuid',
@@ -90,7 +94,8 @@ class EditProduct extends Component
         $baseData = [
             'name'              => $this->name,
             'description'       => $this->description,
-            'price_sale'        => $this->price_sale,
+            'price_sale_regular'        => $this->price_sale_regular,
+            'price_sale_a1'        => $this->price_sale_a1,
             'price_purchase'    => $this->price_purchase,
             'min_stock'         => $this->min_stock,
             'category_id'       => $category->id,

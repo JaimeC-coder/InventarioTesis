@@ -17,7 +17,8 @@ return new class() extends Migration {
             $blueprint->string('code')->nullable()->description('Código del producto osea el CODIGO');
             $blueprint->string('barcode')->unique()->nullable();
             $blueprint->text('description')->nullable();
-            $blueprint->decimal('price_sale', 10, 6)->default(0.000000);
+            $blueprint->decimal('price_sale_regular', 10, 6)->default(0.000000);
+            $blueprint->decimal('price_sale_a1', 10, 6)->default(0.000000);
             $blueprint->decimal('price_purchase', 10, 6)->default(0.000000);
             $blueprint->uuid('uuid')->unique();
             $blueprint->foreignId('category_id')->nullable()->constrained('categories')->onDelete('cascade');

@@ -83,7 +83,8 @@ final class ProductTable extends PowerGridComponent
                 );
             })
             ->add('price_purchase')
-            ->add('price_sale')
+            ->add('price_sale_regular')
+            ->add('price_sale_a1')
             ->add('category_name', fn(Product $product) => $product->category?->name)
             ->add('unit_name', fn(Product $product) => $product->unit?->name)
             ->add('measure_name', fn(Product $product) => $product->measure?->name)
@@ -113,7 +114,11 @@ final class ProductTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(visible: true),
-            Column::make('Precio de venta', 'price_sale')
+            Column::make('Precio de general', 'price_sale_regular')
+                ->sortable()
+                ->searchable()
+                ->visibleInExport(visible: true),
+            Column::make('Precio de A1', 'price_sale_a1')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(visible: true),

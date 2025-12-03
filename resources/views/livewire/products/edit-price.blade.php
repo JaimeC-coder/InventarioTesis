@@ -15,9 +15,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label>Precio de venta</label>
-                            <input type="text" wire:model.defer="price_sale" class="w-full border p-2 rounded">
-                            @error('price_sale')
+                            <label>Precio de venta general</label>
+                            <input type="text" wire:model.defer="price_sale_regular" class="w-full border p-2 rounded">
+                            @error('price_sale_regular')
+                                <span class="text-red-500">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label>Precio de venta A1</label>
+                            <input type="text" wire:model.defer="price_sale_a1" class="w-full border p-2 rounded">
+                            @error('price_sale_a1')
                                 <span class="text-red-500">{{ $message }}</span>
                             @enderror
                         </div>

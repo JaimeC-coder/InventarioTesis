@@ -13,6 +13,7 @@ return new class() extends Migration {
         Schema::create('productables', function (Blueprint $blueprint): void {
             $blueprint->id();
             $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $blueprint->enum('price_type', ['A1', 'GENERAL', 'QUOTE','NONE','MANUAL'])->default('NONE');
             $blueprint->integer('quantity');
             $blueprint->decimal('price', 10, 2);
             $blueprint->decimal('subtotal', 10, 2);

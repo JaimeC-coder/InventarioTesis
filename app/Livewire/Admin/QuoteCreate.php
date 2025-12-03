@@ -4,7 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Customer;
 use App\Models\Product;
-use App\Models\Purchase;
+use Illuminate\Support\Facades\DB;
 use App\Models\Quote;
 use Livewire\Component;
 
@@ -64,9 +64,26 @@ class QuoteCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Purchase::where('serie', $this->serie)->max('correlativo') + 1;
+
+
+        $this->correlativo = Quote::max('correlativo') + 1;
+        $this->serie =  sprintf('OC-%04d', $this->correlativo);
         $this->date = now()->format('Y-m-d');
     }
+
+    protected function recalculateTotalFromProducts(): void
+    {
+        $sum = 0;
+        foreach ($this->products as $product) {
+            $qty = isset($product['quantity']) ? (int)$product['quantity'] : 0;
+            $price = isset($product['price']) ? (float)$product['price'] : 0.0;
+            $sum += $qty * $price;
+        }
+
+        // mantener 2 decimales
+        $this->total = (float) number_format($sum, 2, '.', '');
+    }
+
 
     public function addProduct(): void
     {
@@ -74,6 +91,15 @@ class QuoteCreate extends Component
             'product_uuid' => 'required|exists:products,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
+        if (!$product) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Producto no encontrado.',
+            ]);
+            $this->reset('product_uuid');
+            return;
+        }
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -85,14 +111,32 @@ class QuoteCreate extends Component
             return;
         }
 
+        $priceA = (float) $product->price_sale_regular;
+        $priceB = (float) $product->price_sale_a1;
+
+        $priceType = 'GENERAL';
+        $price = $priceA;
+        if (!empty($this->customer_uuid)) {
+            $customer = Customer::where('uuid', $this->customer_uuid)->first();
+
+            if ($customer && isset($customer->type) && strtoupper($customer->type) === 'A1') {
+                $priceType = 'A1';
+                $price = $priceB;
+            }
+        }
+
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => 0,
-            'subtotal' => 0,
+            'price' => $price,
+            'price_a' => $priceA,
+            'price_b' => $priceB,
+            'price_type' => $priceType,
+            'subtotal' => $price,
         ];
         $this->reset('product_uuid');
+        $this->recalculateTotalFromProducts();
     }
 
     public function save()
@@ -101,7 +145,8 @@ class QuoteCreate extends Component
             $customerId = Customer::where('uuid', $this->customer_uuid)->value('id');
             $this->customer_id = $customerId; // ✅ asignas directo a la propiedad
         }
-
+        // recalcular total en backend por seguridad
+        $this->recalculateTotalFromProducts();
         $this->validate([
             'voucher_type' => 'required|in:1,2',
             'serie' => 'required|string|max:20',
@@ -126,32 +171,50 @@ class QuoteCreate extends Component
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
         ]);
-        //quiero que esto se tenga en una transacción
-        $PurchaseOrder = Quote::create([
-            'voucher_type' => $this->voucher_type,
-            'serie' => $this->serie,
-            'correlativo' => $this->correlativo,
-            'date' => $this->date,
-            'customer_id' => $this->customer_id,
-            'total' => $this->total,
-            'observation' => $this->observation,
-        ]);
-        foreach ($this->products as $product) {
-            $product_id = Product::where('id', $product['id'])->value('id');
-            $PurchaseOrder->products()->attach($product_id, [
-                'quantity' => $product['quantity'],
-                'price' => $product['price'],
-                'subtotal' => $product['quantity'] * $product['price'],
+
+
+        DB::beginTransaction();
+
+        try {
+            //quiero que esto se tenga en una transacción
+            $PurchaseOrder = Quote::create([
+                'voucher_type' => $this->voucher_type,
+                'serie' => $this->serie,
+                'correlativo' => $this->correlativo,
+                'date' => $this->date,
+                'customer_id' => $this->customer_id,
+                'total' => $this->total,
+                'observation' => $this->observation,
             ]);
+            foreach ($this->products as $product) {
+                $product_id = Product::where('id', $product['id'])->value('id');
+                $PurchaseOrder->products()->attach($product_id, [
+                    'quantity' => $product['quantity'],
+                    'price' => $product['price'],
+                    'price_type' => 'QUOTE',
+                    'subtotal' => $product['quantity'] * $product['price'],
+                ]);
+            }
+
+            DB::commit();
+            session()->flash('swal', [
+                'icon' => 'success',
+                'title' => 'Cotización creada',
+                'text' => 'La cotización se ha creado exitosamente.',
+            ]);
+
+            return redirect()->route('admin.quotes.index');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            // dispatch error
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error al crear la venta',
+                'text' => $th->getMessage(),
+            ]);
+            // opcional: log error
+            throw $th;
         }
-
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Cotización creada',
-            'text' => 'La cotización se ha creado exitosamente.',
-        ]);
-
-        return redirect()->route('admin.quotes.index');
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

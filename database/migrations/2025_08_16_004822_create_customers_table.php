@@ -19,6 +19,7 @@ return new class() extends Migration {
             $blueprint->string('email')->nullable();
             $blueprint->string('phone')->nullable();
             $blueprint->foreignId('type_customer_id')->constrained('type_customers')->onDelete('cascade');
+            $blueprint->enum('type', ['A1', 'GENERAL'])->default('GENERAL');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
