@@ -91,12 +91,10 @@ class SalesCreate extends Component
                         // usar exactamente el precio que vino en la cotización (inmutable)
                         'price' => (float) $product->pivot->price,
                         'subtotal' => $product->pivot->quantity * $product->pivot->price,
-
                         'price_type' => 'QUOTE',
                     ];
                 })->toArray();
                 // actualizar total
-
                 // dd($this->products);
                 $this->recalculateTotalFromProducts();
             }
@@ -157,13 +155,11 @@ class SalesCreate extends Component
         $price = $priceA;
         if (!empty($this->customer_uuid)) {
             $customer = Customer::where('uuid', $this->customer_uuid)->first();
-
             if ($customer && isset($customer->type) && strtoupper($customer->type) === 'A1') {
                 $priceType = 'A1';
                 $price = $priceB;
             }
         }
-
 
         // agregar producto con estructura extendida
         $this->products[] = [

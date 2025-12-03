@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
@@ -90,7 +89,6 @@ final class QuoteTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            
         ];
     }
 

@@ -41,7 +41,7 @@ class Purchase extends BaseModel
     {
         return $this->morphToMany(Product::class, 'productable', 'productables', 'productable_id', 'product_id')
             ->using(Productable::class)
-            ->withPivot('quantity', 'price', 'subtotal','price_type')
+            ->withPivot('quantity', 'price', 'subtotal', 'price_type')
             ->withTimestamps();
     }
 

@@ -4,8 +4,8 @@ namespace App\Livewire\Admin;
 
 use App\Models\Customer;
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
 use App\Models\Quote;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class QuoteCreate extends Component
@@ -64,8 +64,6 @@ class QuoteCreate extends Component
 
     public function mount(): void
     {
-
-
         $this->correlativo = Quote::max('correlativo') + 1;
         $this->serie =  sprintf('OC-%04d', $this->correlativo);
         $this->date = now()->format('Y-m-d');
@@ -84,7 +82,6 @@ class QuoteCreate extends Component
         $this->total = (float) number_format($sum, 2, '.', '');
     }
 
-
     public function addProduct(): void
     {
         $this->validate([
@@ -100,6 +97,7 @@ class QuoteCreate extends Component
             $this->reset('product_uuid');
             return;
         }
+
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -113,12 +111,10 @@ class QuoteCreate extends Component
 
         $priceA = (float) $product->price_sale_regular;
         $priceB = (float) $product->price_sale_a1;
-
         $priceType = 'GENERAL';
         $price = $priceA;
         if (!empty($this->customer_uuid)) {
             $customer = Customer::where('uuid', $this->customer_uuid)->first();
-
             if ($customer && isset($customer->type) && strtoupper($customer->type) === 'A1') {
                 $priceType = 'A1';
                 $price = $priceB;
@@ -145,6 +141,7 @@ class QuoteCreate extends Component
             $customerId = Customer::where('uuid', $this->customer_uuid)->value('id');
             $this->customer_id = $customerId; // ✅ asignas directo a la propiedad
         }
+
         // recalcular total en backend por seguridad
         $this->recalculateTotalFromProducts();
         $this->validate([
@@ -171,10 +168,7 @@ class QuoteCreate extends Component
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
         ]);
-
-
         DB::beginTransaction();
-
         try {
             //quiero que esto se tenga en una transacción
             $PurchaseOrder = Quote::create([
@@ -204,16 +198,16 @@ class QuoteCreate extends Component
             ]);
 
             return redirect()->route('admin.quotes.index');
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollBack();
             // dispatch error
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error al crear la venta',
-                'text' => $th->getMessage(),
+                'text' => $throwable->getMessage(),
             ]);
             // opcional: log error
-            throw $th;
+            throw $throwable;
         }
     }
 
