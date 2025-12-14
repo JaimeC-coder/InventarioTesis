@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Customer;
-use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\TypeCustomer;
 use App\Models\User;
@@ -46,10 +45,8 @@ class DatabaseSeeder extends Seeder
         ]);
         Customer::factory(100)->create();
         Supplier::factory(100)->create();
-        Product::factory(100)->create();
         $this->call([
             CategorySeeder::class,
-            // IdentitySeeder::class,
             WarehouseSeeder::class,
             ReasonSeeder::class,
             UnitSeeder::class,

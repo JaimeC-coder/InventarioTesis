@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
+            // Mobile routes
+            Route::middleware('api')
+                ->prefix('mobile')
+                ->name('mobile.')
+                ->group(base_path('routes/mobile.php'));
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
