@@ -190,6 +190,7 @@ class SalesCreate extends Component
         if (!empty($this->warehouse_uuid)) {
             $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
         }
+
         // recalcular total en backend por seguridad
         $this->recalculateTotalFromProducts();
         // validaciones
@@ -270,7 +271,7 @@ class SalesCreate extends Component
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error al crear la venta',
-                'text' => "Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.",
+                'text' => 'Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.',
             ]);
             // opcional: log error
             Log::error('Error al crear la venta: ' . $throwable->getMessage());

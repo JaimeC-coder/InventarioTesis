@@ -26,14 +26,13 @@ class ClientController extends Controller
 
     public function show(string $id)
     {
-        $customer = Customer::where('uuid', $id)->with('identity','sales')->firstOrFail();
+        $customer = Customer::where('uuid', $id)->with('identity', 'sales')->firstOrFail();
         // $anonymousResource = new \App\Http\Resources\Customer($customer);
         return JsonResponse::success([
             'customer' => $customer,
             // 'customer' => $anonymousResource,
         ], 'Client details retrieved successfully');
     }
-
 
     public function update(Request $request, $id)
     {

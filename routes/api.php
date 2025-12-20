@@ -10,9 +10,8 @@ use App\Models\Reason;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 
 Route::post('suppliers', function (Request $request) {
     $supplier = Supplier::select('uuid', 'name')
@@ -35,7 +34,7 @@ Route::post('products', function (Request $request) {
         $query = Product::select('uuid', 'name')
             ->whereNotNull('productBase_id');
         if ($search = $request->search) {
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('name', 'like', $search . '%')
                     ->orWhere('barcode', 'like', $search . '%');
             });
@@ -56,7 +55,7 @@ Route::post('warehouses', function (Request $request) {
     return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
         $query = Warehouse::select('uuid', 'name');
         if ($search = $request->search) {
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('name', 'like', $search . '%')
                     ->orWhere('sku', 'like', $search . '%');
             });
@@ -180,6 +179,7 @@ Route::post('reasons', function (Request $request) {
         } else {
             $query->limit(10);
         }
+
         return response()->json($query->get());
     });
 })->name('admin.reasons');
