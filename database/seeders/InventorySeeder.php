@@ -23,7 +23,7 @@ class InventorySeeder extends Seeder
         $correlativo =  \App\Models\Purchase::where('serie', $quotes)->max('correlativo') ?? 0;
         $purchases = \App\Models\Purchase::create([
             'voucher_type' => 1,
-            'serie' => 'OC-00000',
+            'serie' => 'OC-00001',
             'correlativo' =>  $correlativo + 1,
             'date' => now(),
             'supplier_id' => \App\Models\Supplier::first()->id,

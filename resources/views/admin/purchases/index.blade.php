@@ -7,6 +7,7 @@
 
 
     <livewire:admin.tables.purchase-table />
+    <livewire:export.specific-pdf />
 
     @push('scripts')
         <script>

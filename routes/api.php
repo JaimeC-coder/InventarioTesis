@@ -12,6 +12,7 @@ use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Cache;
 
 Route::post('suppliers', function (Request $request) {
     $supplier = Supplier::select('uuid', 'name')
@@ -29,37 +30,46 @@ Route::post('suppliers', function (Request $request) {
 })->name('admin.suppliers');
 
 Route::post('products', function (Request $request) {
-    $product = Product::select('uuid', 'name')
-        ->whereNotNull('productBase_id')
-        ->when($request->search, function ($query) use ($request): void {
-            $query->where(function ($q) use ($request): void {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('barcode', 'like', '%' . $request->search . '%');
+    $cacheKey = 'products_' . md5(json_encode($request->all()));
+    return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
+        $query = Product::select('uuid', 'name')
+            ->whereNotNull('productBase_id');
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', $search . '%')
+                    ->orWhere('barcode', 'like', $search . '%');
             });
-        })
-        ->when(
-            $request->exists('selected'),
-            fn($query) => $query->whereIn('uuid', $request->input('selected')),
-            fn($query) => $query->limit(10)
-        )
-        ->get();
-    Log::info('Productos encontrados: ' . $product->count());
-    return response()->json($product);
+        }
+
+        if ($request->has('selected') && !empty($request->selected)) {
+            $query->whereIn('uuid', $request->selected);
+        } else {
+            $query->limit(10);
+        }
+
+        return response()->json($query->get());
+    });
 })->name('admin.products');
 
 Route::post('warehouses', function (Request $request) {
-    $warehouse = Warehouse::select('uuid', 'name')
-        ->when($request->search, function ($query) use ($request): void {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('sku', 'like', '%' . $request->search . '%');
-        })
-        ->when(
-            $request->exists('selected'),
-            fn($query) => $query->whereIn('uuid', $request->input('selected')),
-            fn($query) => $query->limit(10)
-        )
-        ->get();
-    return response()->json($warehouse);
+    $cacheKey = 'warehouses_' . md5(json_encode($request->all()));
+    return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
+        $query = Warehouse::select('uuid', 'name');
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', $search . '%')
+                    ->orWhere('sku', 'like', $search . '%');
+            });
+        }
+
+        if ($request->has('selected') && !empty($request->selected)) {
+            $query->whereIn('uuid', $request->selected);
+        } else {
+            $query->limit(10);
+        }
+
+        return response()->json($query->get());
+    });
 })->name('admin.warehouses');
 
 Route::post('purchases-orders', function (Request $request) {
@@ -141,33 +151,37 @@ Route::post('quotes', function (Request $request) {
 })->name('admin.quotes');
 
 Route::post('customers', function (Request $request) {
-    $customer = Customer::select('customers.uuid', 'customers.name', 'customers.type')
-        ->when($request->search, function ($query) use ($request): void {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('document_number', 'like', '%' . $request->search . '%');
-        })
-        ->when(
-            $request->exists('selected'),
-            fn($query) => $query->whereIn('uuid', $request->input('selected')),
-            fn($query) => $query->limit(10)
-        )
-        ->get();
-    return response()->json($customer);
+    $cacheKey = 'customers_' . md5(json_encode($request->all()));
+    return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
+        $query = Customer::select('uuid', 'name', 'type')
+            ->when($request->search, function ($query) use ($request): void {
+                $query->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('document_number', 'like', '%' . $request->search . '%');
+            });
+        if ($request->has('selected') && !empty($request->selected)) {
+            $query->whereIn('uuid', $request->selected);
+        } else {
+            $query->limit(10);
+        }
+
+        return response()->json($query->get());
+    });
 })->name('admin.customers');
 
 Route::post('reasons', function (Request $request) {
-    $reason = Reason::select('uuid', 'name')
-        ->when($request->search, function ($query) use ($request): void {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        })
-        ->when(
-            $request->exists('selected'),
-            fn($query) => $query->whereIn('uuid', $request->input('selected')),
-            fn($query) => $query->limit(10)
-        )
-        ->where('type', $request->input('type', '')) // 1 ingreso, 2 salida
-        ->get();
-    return response()->json($reason);
+    $cacheKey = 'reasons_' . md5(json_encode($request->all()));
+    return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
+        $query = Reason::select('uuid', 'name')
+            ->when($request->search, function ($query) use ($request): void {
+                $query->where('name', 'like', '%' . $request->search . '%');
+            })->where('type', $request->input('type', '')); // 1 ingreso, 2 salida
+        if ($request->has('selected') && !empty($request->selected)) {
+            $query->whereIn('uuid', $request->selected);
+        } else {
+            $query->limit(10);
+        }
+        return response()->json($query->get());
+    });
 })->name('admin.reasons');
 
 //Productos Create

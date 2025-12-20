@@ -19,6 +19,18 @@
         });
     }
 }">
+    @error('products.*')
+        <x-forms.alert title="Error en la lista de productos!" negative>
+
+            <x-slot name="slot">
+                <ul class="mt-2 list-disc list-outside space-y-1 ps-2.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </x-slot>
+        </x-forms.alert>
+    @enderror
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
             <x-forms.native-select label="Tipo de Comprobante" wire:model="voucher_type" dark>
@@ -43,14 +55,14 @@
             <x-forms.select label="Cliente" placeholder="Escribe el nombre o documento..."
                 wire:model.live="customer_uuid" :async-data="['api' => route('admin.customers'), 'method' => 'POST']" option-label="name" option-value="uuid"
                 option-description="type" />
-            <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST']"
-                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0" />
+            <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST', 'params' => ['limit' => 10]]"
+                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0" :min-term-length="3" :delay="500" />
         </div>
 
 
         <div class="lg:flex lg:gap-4">
-            <x-forms.select label="Producto" placeholder="Buscar productos..." :async-data="['api' => route('admin.products'), 'method' => 'POST']" option-label="name"
-                option-value="uuid" wire:model="product_uuid" />
+            <x-forms.select label="Producto" placeholder="Buscar productos..." :async-data="['api' => route('admin.products'), 'method' => 'POST', 'params' => ['limit' => 10]]" option-label="name"
+                option-value="uuid" wire:model="product_uuid" :min-term-length="3" :delay="500" />
             <div class="">
                 <x-forms.button type="button" class="w-full mt-4 lg:mt-7" spinner="addProduct"
                     wire:click="addProduct">Agregar</x-forms.button>
@@ -75,8 +87,7 @@
                             <td class="py-1 px-4" x-text="product.name"></td>
                             <td class="py-1 px-4">
                                 <select x-model="product.price_type" :disabled="product.price_type === 'QUOTE'"
-                                    @change="updatePrice(product)"
-                                    class="border rounded px-2 py-1 text-sm">
+                                    @change="updatePrice(product)" class="border rounded px-2 py-1 text-sm">
                                     <option value="GENERAL">General</option>
                                     <option value="A1">A1</option>
                                     <option value="MANUAL">Manual</option>

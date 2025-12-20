@@ -42,9 +42,11 @@ final class SaleTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('voucher_type')
+            ->add('voucher_type_formatted', fn($user): string => ($user->voucher_type === '1' ? 'Factura' : ($user->voucher_type === '2' ? 'Boleta' : 'Otros')))
             ->add('serie')
             ->add('correlativo')
             ->add('date')
+            ->add('date_formatted', fn($user): string => Carbon::parse($user->date)->format('d/m/Y'))
             ->add('quote.serie')
             ->add('customer.name')
             ->add('warehouse.name')
@@ -58,7 +60,7 @@ final class SaleTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Voucher type', 'voucher_type')
+            Column::make('Tipo de comprobante', 'voucher_type_formatted', 'voucher_type')
                 ->sortable()
                 ->searchable(),
             Column::make('Serie', 'serie')
@@ -67,18 +69,15 @@ final class SaleTable extends PowerGridComponent
             Column::make('Correlativo', 'correlativo')
                 ->sortable()
                 ->searchable(),
-            Column::make('Date', 'date_formatted', 'date')
+            Column::make('Fecha', 'date_formatted', 'date')
                 ->sortable(),
-            Column::make('Date', 'date')
+            Column::make('Cotización', 'quote.serie')
                 ->sortable()
                 ->searchable(),
-            Column::make('Quote id', 'quote.serie')
+            Column::make('Cliente', 'customer.name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Customer id', 'customer.name')
-                ->sortable()
-                ->searchable(),
-            Column::make('Warehouse id', 'warehouse.name')
+            Column::make('Almacén', 'warehouse.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')
@@ -89,6 +88,7 @@ final class SaleTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()
+                ->hidden()
                 ->searchable(),
             Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()

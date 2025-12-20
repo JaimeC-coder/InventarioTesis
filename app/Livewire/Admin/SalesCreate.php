@@ -190,7 +190,6 @@ class SalesCreate extends Component
         if (!empty($this->warehouse_uuid)) {
             $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
         }
-
         // recalcular total en backend por seguridad
         $this->recalculateTotalFromProducts();
         // validaciones
@@ -208,7 +207,7 @@ class SalesCreate extends Component
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
             'products.*.price' => 'required|numeric|min:0',
-            'products.*.price_type' => 'nullable|in:A,B',
+            'products.*.price_type' => 'nullable|in:GENERAL,A1,QUOTE',
         ], [], [
             'voucher_type' => 'Tipo de comprobante',
             'warehouse_id' => 'ID del almacén',
@@ -222,6 +221,7 @@ class SalesCreate extends Component
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
+            'products.*.price_type' => 'Tipo de precio del producto',
         ]);
         DB::beginTransaction();
         try {
@@ -236,6 +236,7 @@ class SalesCreate extends Component
                 'total' => $this->total,
                 'observation' => $this->observation,
             ]);
+            Log::info('Venta creada con ID: ' . $Sale->id);
             foreach ($this->products as $product) {
                 $product_id = Product::where('id', $product['id'])->value('id');
                 // precio final utilizado (si from_quote es true, ya está el precio del pivot)
@@ -265,12 +266,14 @@ class SalesCreate extends Component
         } catch (\Throwable $throwable) {
             DB::rollBack();
             // dispatch error
+            Log::error('Error al crear la venta: ' . $throwable->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error al crear la venta',
-                'text' => $throwable->getMessage(),
+                'text' => "Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.",
             ]);
             // opcional: log error
+            Log::error('Error al crear la venta: ' . $throwable->getMessage());
             throw $throwable;
         }
     }

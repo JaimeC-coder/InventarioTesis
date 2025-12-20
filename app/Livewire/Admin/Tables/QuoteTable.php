@@ -42,6 +42,7 @@ final class QuoteTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('voucher_type')
+            ->add('voucher_type_formatted', fn($user): string => ($user->voucher_type === '1' ? 'Factura' : ($user->voucher_type === '2' ? 'Boleta' : 'Otros')))
             ->add('serie')
             ->add('correlativo')
             ->add('date_formatted', fn(Quote $quote): string => Carbon::parse($quote->date)->format('d/m/Y'))
@@ -56,7 +57,7 @@ final class QuoteTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Voucher type', 'voucher_type')
+            Column::make('Tipo de comprobante', 'voucher_type_formatted', 'voucher_type')
                 ->sortable()
                 ->searchable(),
             Column::make('Serie', 'serie')
@@ -65,7 +66,7 @@ final class QuoteTable extends PowerGridComponent
             Column::make('Correlativo', 'correlativo')
                 ->sortable()
                 ->searchable(),
-            Column::make('Date', 'date_formatted', 'date')
+            Column::make('Fecha', 'date_formatted', 'date')
                 ->sortable(),
             Column::make('Total', 'total')
                 ->sortable()
@@ -73,11 +74,12 @@ final class QuoteTable extends PowerGridComponent
             Column::make('Observation', 'observation')
                 ->sortable()
                 ->searchable(),
-            Column::make('Customer id', 'customer.name')
+            Column::make('Cliente', 'customer.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()
+                ->hidden()
                 ->searchable(),
             Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
