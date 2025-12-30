@@ -11,7 +11,6 @@ use App\Services\FileServices;
 use App\Services\KardexServices;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Laravel\Pail\File;
 use Livewire\Component;
 
 class PurchasesCreate extends Component
@@ -111,7 +110,7 @@ class PurchasesCreate extends Component
             'warehouse_uuid' => 'required|exists:warehouses,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
-        $warehouse = Warehouse::where('uuid', $this->warehouse_uuid)->first();
+        Warehouse::where('uuid', $this->warehouse_uuid)->first();
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -176,13 +175,8 @@ class PurchasesCreate extends Component
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
         ]);
-
-
         DB::beginTransaction();
         try {
-
-
-
             $Purchase = Purchase::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
@@ -209,14 +203,9 @@ class PurchasesCreate extends Component
             }
 
             $fileDirection = FileServices::generatePdfNow(['model' => Purchase::class, 'uuids' => $Purchase->uuid]);
-
             // $Purchase->update(['file_path' => $fileDirection]);
-
             // $Purchase->save();
-
             Log::info('File generated at: ' . $fileDirection);
-
-
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -224,20 +213,19 @@ class PurchasesCreate extends Component
                 'text' => 'La compra se ha creado exitosamente.',
             ]);
             return redirect()->route('admin.purchases.index');
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error creating purchase: ' . $e->getMessage());
+            Log::error('Error creating purchase: ' . $throwable->getMessage());
             session()->flash('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Ocurrió un error al crear la compra.',
             ]);
-            throw $e;
+            throw $throwable;
         }
     }
 
-
-    protected  function totalEnLetras($monto, $moneda = 'SOLES'): string
+    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
     {
         $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
         $entero = floor($monto);
