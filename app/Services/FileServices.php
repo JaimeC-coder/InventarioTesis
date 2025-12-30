@@ -64,6 +64,7 @@ class FileServices
         } else {
             throw new \InvalidArgumentException('Modelo no soportado para generar nombre de archivo');
         }
+
         return 'Reporte_'
             . $items . '_'
             . self::replacename($client) . '_'
