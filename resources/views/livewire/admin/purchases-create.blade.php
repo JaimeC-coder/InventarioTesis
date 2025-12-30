@@ -31,10 +31,12 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <x-forms.select label="Proveedor" placeholder="Escribe el nombre o documento..." wire:model.live="supplier_uuid" :async-data="['api' => route('admin.suppliers'), 'method' => 'POST']"
-                option-label="name" option-value="uuid"  />
-            <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST']"
-                option-label="name" option-value="uuid" wire:model="warehouse_uuid" :disabled="count($products) === 0" />
+            <x-forms.select label="Proveedor" placeholder="Escribe el nombre o documento..."
+                wire:model.live="supplier_uuid" :async-data="['api' => route('admin.suppliers'), 'method' => 'POST']" option-label="name" option-value="uuid" />
+
+            <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST', 'params' => ['limit' => 10]]"
+                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0"
+                :min-term-length="3" :delay="500" />
         </div>
 
 

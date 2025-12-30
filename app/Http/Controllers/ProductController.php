@@ -220,8 +220,9 @@ class ProductController extends Controller
     protected function arrayinfo(array $unitarry, array $measurearry, array $data, int $productBase): array
     {
         $products = []; // Inicializa el array ANTES del foreach
-        $price_sale = 150;
-        $price_purchase = 100;
+        $price_sale_regular = rand(70, 200);
+        $price_sale = rand(50, 160);
+        $price_purchase = rand(70, 200);
         $units = Unit::whereIn('id', $unitarry)->get();
         $measures = Measure::whereIn('id', $measurearry)->get();
         foreach ($units as $unit) {
@@ -231,6 +232,7 @@ class ProductController extends Controller
                 $products[] = [
                     'barcode'        => $codigoConcatenado,
                     'name'          => strtoupper($nombreFinal),
+                    'price_sale_regular' => $price_sale_regular,
                     'price_sale' => $price_sale,
                     'price_purchase' => $price_purchase,
                     'category_id' => 1,

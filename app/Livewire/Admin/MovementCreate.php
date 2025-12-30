@@ -19,7 +19,7 @@ class MovementCreate extends Component
 
     public $date = '';
 
-    public $observaciones = '';
+    public $observation = '';
 
     public $total = 0.00;
 
@@ -131,7 +131,7 @@ class MovementCreate extends Component
             'warehouse_id' => 'required|exists:warehouses,id',
             'reason_id' => 'nullable|exists:reasons,id',
             'total' => 'required|numeric|min:0.01',
-            'observaciones' => 'nullable|string|max:500',
+            'observation' => 'nullable|string|max:500',
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
@@ -143,7 +143,7 @@ class MovementCreate extends Component
             'date' => 'Fecha',
             'warehouse_id' => 'Almacén',
             'total' => 'Total',
-            'observaciones' => 'Observaciones',
+            'observation' => 'observation',
             'reason_id' => 'ID del motivo',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
@@ -157,7 +157,7 @@ class MovementCreate extends Component
             'date' => $this->date,
             'warehouse_id' => $this->warehouse_id,
             'total' => $this->total,
-            'observaciones' => $this->observaciones,
+            'observation' => $this->observation,
             'reason_id' => $this->reason_id,
         ]);
         foreach ($this->products as $product) {

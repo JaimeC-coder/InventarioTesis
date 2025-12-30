@@ -19,7 +19,16 @@ return new class() extends Migration {
             $blueprint->foreignId('quote_id')->nullable()->constrained('quotes')->onDelete('cascade');
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $blueprint->decimal('total', 10, 2);
+            // agregar un estado de la venta (pendiente, pagado, cancelado,Por entregar)
+            // subtotal ,igv,total_string
+            $blueprint->string('status');
+            $blueprint->decimal('subtotal', 10, 2);
+            $blueprint->decimal('igv', 10, 2);
+            $blueprint->decimal('total', 10, 2)->default(0.00);
+            $blueprint->string('total_string');
+            $blueprint->string('currency')->default('SOLES');
+            $blueprint->string('file_path')->nullable();
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->string('observation')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();

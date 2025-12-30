@@ -16,8 +16,15 @@ return new class() extends Migration {
             $blueprint->string('serie');
             $blueprint->string('correlativo');
             $blueprint->date('date');
-            $blueprint->decimal('total', 10, 2)->default(0.00);
+            $blueprint->string('status')->nullable();
+            $blueprint->decimal('subtotal', 10, 2)->nullable();
+            $blueprint->decimal('igv', 10, 2)->nullable();
+            $blueprint->decimal('total', 10, 2)->nullable();
+            $blueprint->string('total_string')->nullable();
+            $blueprint->string('currency')->default('SOLES');
+            $blueprint->string('file_path')->nullable();
             $blueprint->string('observation')->nullable();
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();

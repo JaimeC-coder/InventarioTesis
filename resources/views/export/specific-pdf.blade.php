@@ -142,16 +142,16 @@
             <tr>
                 <td width="70%">
                     <div class="company">
-                        {{ $empresa->nombre ?? 'INVERSIÓNES ISABEL' }}
-                        <small>{{ $empresa->direccion ?? 'ANCÓN - LIMA' }}</small>
-                        <small>RUC: {{ $empresa->ruc ?? '10192555685' }}</small>
+                        {{ $propietario['name'] ?? 'INVERSIÓNES ISABEL' }}
+                        <small>{{ $propietario['address_specific'] ?? 'ANCÓN - LIMA' }}</small>
+                        <small>RUC: {{ $propietario['document_number'] ?? '10192555685' }}</small>
                     </div>
                 </td>
                 <td width="30%">
                     <div class="invoice-box">
                         <strong>FACTURA ELECTRÓNICA</strong><br>
-                        RUC: {{ $empresa->ruc ?? '10192555685' }}<br>
-                        {{ $serie ?? 'E001' }} - {{ $numero ?? '1572' }}
+                        RUC: {{ $propietario['document_number'] ?? '10192555685' }}<br>
+                        {{ $description_general['serie'] ?? 'E001' }} - {{ $description_general['correlativo'] ?? '1572' }}
                     </div>
                 </td>
             </tr>
@@ -163,20 +163,20 @@
         <table>
             <tr>
                 <td class="label">Cliente:</td>
-                <td>{{ $items->supplier->name ?? 'INVERSIÓNES MODROM´S S.A.C' }}</td>
+                <td>{{ $client['name'] ?? 'INVERSIÓNES MODROM´S S.A.C' }}</td>
 
                 <td class="label">Fecha:</td>
-                <td>{{ $items->date ?? date('d/m/Y') }}</td>
+                <td>{{ $description_general['date'] ?? date('d/m/Y') }}</td>
             </tr>
             <tr>
-                <td class="label">RUC:</td>
-                <td>{{ $items->supplier->document_number ?? '20545856660' }}</td>
+                <td class="label">{{ $client['identity'] ?? '' }}:</td>
+                <td>{{ $client['document_number'] ?? '20545856660' }}</td>
                 <td class="label">Moneda:</td>
                 <td>SOLES</td>
             </tr>
             <tr>
                 <td class="label">Dirección:</td>
-                <td colspan="3">{{ $items->supplier->address ?? 'SAN JUAN DE MIRAFLORES - LIMA' }}</td>
+                <td colspan="3">{{ $client['address'] ?? 'SAN JUAN DE MIRAFLORES - LIMA' }}</td>
             </tr>
         </table>
     </div>
@@ -186,22 +186,26 @@
         <thead>
         <tr>
             <th>#</th>
-            <th>Unidad</th>
-            <th>Descripción</th>
             <th>Cantidad</th>
+            <th>Unidad</th>
+            <th>Código</th>
+            <th>Descripción</th>
             <th>V. Unitario</th>
             <th>Total</th>
+            <th>ICBPER</th>
         </tr>
         </thead>
         <tbody>
         @foreach ($products as $i => $value)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $value->unit->name ?? 'UND' }}</td>
-                <td class="description">{{ $value->name ?? '---' }}</td>
                 <td>{{ number_format($value->pivot->quantity ?? 0, 2) }}</td>
+                <td>{{ $value->unit->name ?? 'UND' }}</td>
+                <td>{{ $value->barcode ?? '---' }}</td>
+                <td class="description">{{ $value->name ?? '---' }}</td>
                 <td>{{ number_format($value->pivot->price ?? 0, 2) }}</td>
                 <td>{{ number_format($value->pivot->subtotal ?? 0, 2) }}</td>
+                <td>0.00</td>
             </tr>
         @endforeach
         </tbody>
@@ -212,15 +216,15 @@
         <table>
             <tr>
                 <td class="label">Sub Total</td>
-                <td class="amount">S/ {{ number_format($subtotal ?? 0, 2) }}</td>
+                <td class="amount">S/ {{ number_format($description_general['subtotal'] ?? 0, 2) }}</td>
             </tr>
             <tr>
                 <td class="label">IGV (18%)</td>
-                <td class="amount">S/ {{ number_format($igv ?? 0, 2) }}</td>
+                <td class="amount">S/ {{ number_format($description_general['igv'] ?? 0, 2) }}</td>
             </tr>
             <tr>
                 <td class="label">Importe Total</td>
-                <td class="amount"><strong>S/ {{ number_format($total ?? 0, 2) }}</strong></td>
+                <td class="amount"><strong>S/ {{ number_format($description_general['total'] ?? 0, 2) }}</strong></td>
             </tr>
         </table>
     </div>
@@ -229,7 +233,7 @@
 
     <!-- MONTO EN LETRAS -->
     <div class="amount-text">
-        SON: {{ $total_letras ?? 'OCHO MIL DOSCIENTOS SETENTA Y NUEVE Y 50/100 SOLES' }}
+        SON: {{ $description_general['total_string'] ?? 'OCHO MIL DOSCIENTOS SETENTA Y NUEVE Y 50/100 SOLES' }}
     </div>
 
     <!-- PIE -->

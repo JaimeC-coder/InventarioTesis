@@ -121,7 +121,7 @@ class PurchaseOrderCreate extends Component
             'date' => 'Fecha',
             'supplier_id' => 'Proveedor',
             'total' => 'Total',
-            'observation' => 'Observaciones',
+            'observation' => 'observation',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',

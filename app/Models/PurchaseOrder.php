@@ -12,7 +12,12 @@ class PurchaseOrder extends BaseModel
         'correlativo',
         'date',
         'supplier_id',
+        'status',
+        'subtotal',
+        'igv',
         'total',
+        'total_string',
+        'user_id',
         'observation',
         'uuid',
     ];
@@ -27,6 +32,12 @@ class PurchaseOrder extends BaseModel
     public function purchaseOrders()
     {
         return $this->hasMany(PurchaseOrder::class); //relacion uno a muchos
+    }
+
+    // Relación con usuarios
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     //Relacion muchos a muchos polimorfica

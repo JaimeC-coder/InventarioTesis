@@ -81,8 +81,8 @@
 
 
         <div class="flex item-center space-x-4">
-            <x-forms.input label="Observaciones" name="observaciones" type="text" placeholder="Observaciones"
-                wire:model="observaciones" class="flex-1" />
+            <x-forms.input label="Observaciones" name="observation" type="text" placeholder="Observaciones"
+               observation class="flex-1" />
         </div>
         <div class="flex items-end pt-4 justify-end text-2xl">
             Total: S/. <span x-text="total"></span>

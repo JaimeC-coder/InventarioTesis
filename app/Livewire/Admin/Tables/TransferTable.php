@@ -46,7 +46,7 @@ final class TransferTable extends PowerGridComponent
             ->add('correlativo')
             ->add('date')
             ->add('total')
-            ->add('observaciones')
+            ->add('observation')
             ->add('originWarehouse.name')
             ->add('destinationWarehouse.name')
             ->add('uuid')
@@ -74,7 +74,7 @@ final class TransferTable extends PowerGridComponent
             Column::make('Total', 'total')
                 ->sortable()
                 ->searchable(),
-            Column::make('Observaciones', 'observaciones')
+            Column::make('observation', 'observation')
                 ->sortable()
                 ->searchable(),
             Column::make('Origin warehouse id', 'originWarehouse.name')

@@ -7,7 +7,11 @@ use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Warehouse;
+use App\Services\FileServices;
 use App\Services\KardexServices;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Laravel\Pail\File;
 use Livewire\Component;
 
 class PurchasesCreate extends Component
@@ -119,13 +123,13 @@ class PurchasesCreate extends Component
             return;
         }
 
-        $kardex = KardexServices::getLastRecord($product->id, $warehouse->id);
+        // $kardex = KardexServices::getLastRecord($product->id, $warehouse->id);
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => $kardex['cost_balance'],
-            'subtotal' => $kardex['cost_balance'],
+            'price' => $product->price_purchase,
+            'subtotal' => $product->price_purchase,
         ];
         $this->reset('product_uuid');
     }
@@ -167,40 +171,81 @@ class PurchasesCreate extends Component
             'date' => 'Fecha',
             'supplier_id' => 'Proveedor',
             'total' => 'Total',
-            'observation' => 'Observaciones',
+            'observation' => 'observation',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
         ]);
-        //quiero que esto se tenga en una transacción
-        $Purchase = Purchase::create([
-            'voucher_type' => $this->voucher_type,
-            'serie' => $this->serie,
-            'purchase_order_id' => $this->purchase_order_id,
-            'correlativo' => $this->correlativo,
-            'date' => $this->date,
-            'warehouse_id' => $this->warehouse_id,
-            'supplier_id' => $this->supplier_id,
-            'total' => $this->total,
-            'observation' => $this->observation,
-        ]);
-        foreach ($this->products as $product) {
-            $product_id = Product::where('id', $product['id'])->value('id');
-            $Purchase->products()->attach($product_id, [
-                'quantity' => $product['quantity'],
-                'price' => $product['price'],
-                'subtotal' => $product['quantity'] * $product['price'],
+
+
+        DB::beginTransaction();
+        try {
+
+
+
+            $Purchase = Purchase::create([
+                'voucher_type' => $this->voucher_type,
+                'serie' => $this->serie,
+                'purchase_order_id' => $this->purchase_order_id,
+                'correlativo' => $this->correlativo,
+                'date' => $this->date,
+                'warehouse_id' => $this->warehouse_id,
+                'supplier_id' => $this->supplier_id,
+                'subtotal' => $this->total,
+                'igv' => $this->total * 0.18,
+                'total' => $this->total * 1.18,
+                'total_string' => $this->totalEnLetras($this->total * 1.18),
+                'user_id' => auth()->id(),
+                'observation' => $this->observation,
             ]);
-            KardexServices::registerEntry($Purchase, $product, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
+            foreach ($this->products as $product) {
+                $product_id = Product::where('id', $product['id'])->value('id');
+                $Purchase->products()->attach($product_id, [
+                    'quantity' => $product['quantity'],
+                    'price' => $product['price'],
+                    'subtotal' => $product['quantity'] * $product['price'],
+                ]);
+                KardexServices::registerEntry($Purchase, $product, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
+            }
+
+            $fileDirection = FileServices::generatePdfNow(['model' => Purchase::class, 'uuids' => $Purchase->uuid]);
+
+            // $Purchase->update(['file_path' => $fileDirection]);
+
+            // $Purchase->save();
+
+            Log::info('File generated at: ' . $fileDirection);
+
+
+            DB::commit();
+            session()->flash('swal', [
+                'icon' => 'success',
+                'title' => 'Compra creada',
+                'text' => 'La compra se ha creado exitosamente.',
+            ]);
+            return redirect()->route('admin.purchases.index');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Error creating purchase: ' . $e->getMessage());
+            session()->flash('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al crear la compra.',
+            ]);
+            throw $e;
         }
+    }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Compra creada',
-            'text' => 'La compra se ha creado exitosamente.',
-        ]);
 
-        return redirect()->route('admin.purchases.index');
+    protected  function totalEnLetras($monto, $moneda = 'SOLES'): string
+    {
+        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $entero = floor($monto);
+        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
+
+        return mb_strtoupper(
+            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
+        );
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

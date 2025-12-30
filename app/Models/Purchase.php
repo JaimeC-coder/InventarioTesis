@@ -14,7 +14,12 @@ class Purchase extends BaseModel
         'date',
         'supplier_id',
         'warehouse_id',
+        'status',
+        'subtotal',
+        'igv',
         'total',
+        'total_string',
+        'user_id',
         'observation',
         'uuid',
     ];
@@ -34,6 +39,12 @@ class Purchase extends BaseModel
     public function purchaseOrder()
     {
         return $this->belongsTo(PurchaseOrder::class); //relacion uno a muchos inversa
+    }
+
+    // Relación con usuarios
+    public function user()
+    {
+        return $this->belongsTo(User::class); //relacion uno a muchos inversa
     }
 
     //Relacion muchos a muchos polimorfica

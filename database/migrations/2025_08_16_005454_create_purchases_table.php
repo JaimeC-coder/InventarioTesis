@@ -19,7 +19,14 @@ return new class() extends Migration {
             $blueprint->foreignId('purchase_order_id')->nullable()->constrained('purchase_orders')->onDelete('cascade');
             $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $blueprint->decimal('total', 10, 2)->default(0.00);
+            $blueprint->string('status')->nullable();
+            $blueprint->decimal('subtotal', 10, 2)->nullable();
+            $blueprint->decimal('igv', 10, 2)->nullable();
+            $blueprint->decimal('total', 10, 2)->nullable();
+            $blueprint->string('total_string')->nullable();
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $blueprint->string('currency')->default('SOLES');
+            $blueprint->string('file_path')->nullable();
             $blueprint->string('observation')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();

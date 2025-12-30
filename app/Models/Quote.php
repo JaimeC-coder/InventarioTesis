@@ -14,6 +14,12 @@ class Quote extends BaseModel
         'total',
         'observation',
         'customer_id',
+        'user_id',
+        'status',
+        'subtotal',
+        'igv',
+        'total',
+        'total_string',
         'uuid',
     ];
 

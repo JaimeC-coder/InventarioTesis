@@ -163,7 +163,7 @@ class QuoteCreate extends Component
             'date' => 'Fecha',
             'customer_id' => 'Cliente',
             'total' => 'Total',
-            'observation' => 'Observaciones',
+            'observation' => 'observation',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',

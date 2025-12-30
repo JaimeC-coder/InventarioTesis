@@ -19,7 +19,7 @@ class TransferCreate extends Component
 
     public $date = '';
 
-    public $observaciones = '';
+    public $observation = '';
 
     public $total = 0.00;
 
@@ -126,7 +126,7 @@ class TransferCreate extends Component
             'origin_warehouse_id' => 'required|exists:warehouses,id',
             'destination_warehouse_id' => 'required|exists:warehouses,id|different:origin_warehouse_id',
             'total' => 'required|numeric|min:0.01',
-            'observaciones' => 'nullable|string|max:500',
+            'observation' => 'nullable|string|max:500',
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
@@ -139,7 +139,7 @@ class TransferCreate extends Component
             'origin_warehouse_id' => 'Almacén de origen',
             'destination_warehouse_id' => 'Almacén de destino',
             'total' => 'Total',
-            'observaciones' => 'Observaciones',
+            'observation' => 'observation',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
@@ -153,7 +153,7 @@ class TransferCreate extends Component
             'origin_warehouse_id' => $this->origin_warehouse_id,
             'destination_warehouse_id' => $this->destination_warehouse_id,
             'total' => $this->total,
-            'observaciones' => $this->observaciones,
+            'observation' => $this->observation,
         ]);
         foreach ($this->products as $product) {
             $product_id = Product::where('id', $product['id'])->value('id');

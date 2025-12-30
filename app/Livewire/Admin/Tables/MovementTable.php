@@ -45,7 +45,7 @@ final class MovementTable extends PowerGridComponent
             ->add('serie')
             ->add('correlativo')
             ->add('date')
-            ->add('observaciones')
+            ->add('observation')
             ->add('total')
             ->add('warehouse.name')
             ->add('reason.name')
@@ -71,7 +71,7 @@ final class MovementTable extends PowerGridComponent
             Column::make('Date', 'date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Observaciones', 'observaciones')
+            Column::make('observation', 'observation')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')

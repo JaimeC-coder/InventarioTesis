@@ -17,7 +17,13 @@ return new class() extends Migration {
             $blueprint->integer('correlativo');
             $blueprint->timestamp('date');
             $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
-            $blueprint->decimal('total', 10, 2)->default(0.00);
+            $blueprint->string('status')->nullable();
+            $blueprint->decimal('subtotal', 10, 2)->nullable();
+            $blueprint->decimal('igv', 10, 2)->nullable();
+            $blueprint->decimal('total', 10, 2)->nullable();
+            $blueprint->string('total_string')->nullable();
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $blueprint->string('currency')->default('SOLES');
             $blueprint->string('observation')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
