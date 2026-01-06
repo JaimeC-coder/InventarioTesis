@@ -35,8 +35,20 @@ class FileServices
         // Guardar el PDF
         Storage::disk('public')->put($path, $pdf->output());
         // Retornar la URL pública
-        return Storage::disk('public')->url($path);
+        return $path;
     }
+
+
+    public static function url(string $path): string
+    {
+        return Storage::disk(self::disk())->url($path);
+    }
+
+    protected static function disk(): string
+    {
+        return config('filesystems.default'); // o 'public'
+    }
+
 
     protected static function replacename($name): string|array
     {
@@ -51,21 +63,21 @@ class FileServices
     {
         if ($model instanceof Purchase) {
             $items = 'Compra';
-            $client = $model->supplier->name;
+            $client = $model->supplier->document_number;
         } elseif ($model instanceof PurchaseOrder) {
             $items = 'Orden_de_Compra';
-            $client = $model->supplier->name;
+            $client = $model->supplier->document_number;
         } elseif ($model instanceof Quote) {
             $items = 'Cotizacion';
-            $client = $model->customer->name;
+            $client = $model->customer->document_number;
         } elseif ($model instanceof Sale) {
             $items = 'Venta';
-            $client = $model->customer->name;
+            $client = $model->customer->document_number;
         } else {
             throw new \InvalidArgumentException('Modelo no soportado para generar nombre de archivo');
         }
 
-        return 'Reporte_'
+        return $items.'/Reporte_'
             . $items . '_'
             . self::replacename($client) . '_'
             . Carbon::parse($model->date)->format('Y-m-d')
@@ -83,7 +95,7 @@ class FileServices
         );
     }
 
-    private static function descripcion_general($items): array
+    protected static function descripcion_general($items): array
     {
         $data = [];
         if (isset($items->observation) && !empty($items->observation)) {

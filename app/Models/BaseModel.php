@@ -19,7 +19,7 @@ class BaseModel extends Model
 
     public $incrementing = true;
 
-    protected $hidden = ['id','updated_at', 'deleted_at'];
+    protected $hidden = ['id', 'updated_at', 'deleted_at'];
 
     public function getRouteKeyName(): string
     {
@@ -33,5 +33,10 @@ class BaseModel extends Model
                 $model->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    public function scopeWhereUuid($query, $uuid)
+    {
+        return $query->where('uuid', $uuid);
     }
 }

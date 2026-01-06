@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Purchase;
+use App\Services\FileServices;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -54,8 +56,7 @@ final class PurchaseTable extends PowerGridComponent
             ->add('total')
             ->add('observation')
             ->add('uuid')
-            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
-        ;
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));;
     }
 
     public function columns(): array
@@ -106,13 +107,24 @@ final class PurchaseTable extends PowerGridComponent
     #[\Livewire\Attributes\On('pdf')]
     public function pdf(string $rowId): void
     {
-        $model = Purchase::class;
-        $payload = [
-            'model' => $model,
-            'uuids' => $rowId,
-        ];
-        // Enviar al componente PDF
-        $this->dispatch('openPdfExport-specific', $payload);
+        $purchase = Purchase::whereUuid($rowId)->first();
+        if (is_null($purchase->file_path)) {
+            $model = Purchase::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            $routeFile = $file;
+        } else {
+            $routeFile = $purchase->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(Purchase $purchase): array
