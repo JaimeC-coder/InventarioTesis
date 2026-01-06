@@ -38,7 +38,6 @@ class FileServices
         return $path;
     }
 
-
     public static function url(string $path): string
     {
         return Storage::disk(self::disk())->url($path);
@@ -48,7 +47,6 @@ class FileServices
     {
         return config('filesystems.default'); // o 'public'
     }
-
 
     protected static function replacename($name): string|array
     {
