@@ -16,7 +16,7 @@ return new class() extends Migration {
             $blueprint->integer('type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
-            $blueprint->timestamp('date');
+            $blueprint->date('date');
             $blueprint->string('status')->nullable();
             $blueprint->decimal('subtotal', 10, 2)->nullable();
             $blueprint->decimal('igv', 10, 2)->nullable();

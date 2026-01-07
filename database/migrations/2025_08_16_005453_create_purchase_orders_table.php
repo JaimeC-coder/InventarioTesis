@@ -15,7 +15,7 @@ return new class() extends Migration {
             $blueprint->integer('voucher_type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
-            $blueprint->timestamp('date');
+            $blueprint->date('date');
             $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $blueprint->string('status')->nullable();
             $blueprint->decimal('subtotal', 10, 2)->nullable();

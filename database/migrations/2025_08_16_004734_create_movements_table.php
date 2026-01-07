@@ -15,7 +15,7 @@ return new class() extends Migration {
             $blueprint->string('type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
-            $blueprint->timestamp('date');
+            $blueprint->date('date');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->string('status')->nullable();
             $blueprint->decimal('subtotal', 10, 2)->nullable();
