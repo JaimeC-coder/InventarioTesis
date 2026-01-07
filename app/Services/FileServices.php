@@ -8,6 +8,7 @@ use App\Models\Quote;
 use App\Models\Sale;
 use Barryvdh\DomPDF\Facade\Pdf as DomPdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class FileServices
@@ -32,6 +33,7 @@ class FileServices
             'description_general'    => self::descripcion_general($items),
             'products' => $items->products,
         ])->setPaper('a4');
+        Log::info('GENERANDO PDF EN SERVICIO DE ARCHIVOS PARA: ', [self::descripcion_general($items)]);
         // Guardar el PDF
         Storage::disk('public')->put($path, $pdf->output());
         // Retornar la URL pública
@@ -75,7 +77,7 @@ class FileServices
             throw new \InvalidArgumentException('Modelo no soportado para generar nombre de archivo');
         }
 
-        return $items.'/Reporte_'
+        return $items . '/Reporte_'
             . $items . '_'
             . self::replacename($client) . '_'
             . Carbon::parse($model->date)->format('Y-m-d')
@@ -96,6 +98,11 @@ class FileServices
     protected static function descripcion_general($items): array
     {
         $data = [];
+        if (isset($items->voucher_type) && !empty($items->voucher_type)) {
+            Log::info('TIPO DE COMPROBANTE: ' . $items->voucher_type);
+            $data['voucher_type'] = $items->voucher_type == 1 ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
+        }
+
         if (isset($items->observation) && !empty($items->observation)) {
             $data['observacion'] = $items->observation;
         }
@@ -168,7 +175,7 @@ class FileServices
             'name' => 'Inversiones Isabel',
             'duenio' => 'Malca Goicochea Segundo Manuel',
             'document_number' => '10192555685',
-            'address' => 'Av. Principal 123, Ciudad',
+            'address' => 'ASC POPULAR LAS LOMAS DE ANCO MZA 78 LOTE 18 COLEGIO NACIONAL VILLAS DE ANCON',
             'address_specific' => 'ANCÓN - LIMA - LIMA',
         ];
     }

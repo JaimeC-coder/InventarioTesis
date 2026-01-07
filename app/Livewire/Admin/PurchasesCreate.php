@@ -203,8 +203,8 @@ class PurchasesCreate extends Component
             }
 
             $fileDirection = FileServices::generatePdfNow(['model' => Purchase::class, 'uuids' => $Purchase->uuid]);
-            // $Purchase->update(['file_path' => $fileDirection]);
-            // $Purchase->save();
+            $Purchase->update(['file_path' => $fileDirection]);
+            $Purchase->save();
             Log::info('File generated at: ' . $fileDirection);
             DB::commit();
             session()->flash('swal', [

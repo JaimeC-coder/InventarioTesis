@@ -227,8 +227,8 @@ class ProductController extends Controller
         $measures = Measure::whereIn('id', $measurearry)->get();
         foreach ($units as $unit) {
             foreach ($measures as $measure) {
-                $codigoConcatenado = sprintf('%s%s%s%s', $data['CP'], $data['CODIGO'], $unit->code, $measure->code);
-                $nombreFinal = sprintf('%s por %s de %s', $this->clearName($data['PRODUCTO'], $data['CODIGO']), $unit->name, $measure->description_for_product);
+                $codigoConcatenado = sprintf('%s%s%s%s', $data['CP'], $data['CODIGO'], $measure->code, $unit->code);
+                $nombreFinal = sprintf('%s por %s de %s', $this->clearName($data['PRODUCTO'], $data['CODIGO']), $measure->description_for_product, $unit->name);
                 $products[] = [
                     'barcode'        => $codigoConcatenado,
                     'name'          => strtoupper($nombreFinal),

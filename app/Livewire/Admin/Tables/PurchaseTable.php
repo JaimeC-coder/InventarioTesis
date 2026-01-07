@@ -6,6 +6,7 @@ use App\Models\Purchase;
 use App\Services\FileServices;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -108,14 +109,18 @@ final class PurchaseTable extends PowerGridComponent
     public function pdf(string $rowId): void
     {
         $purchase = Purchase::whereUuid($rowId)->first();
-        if (is_null($purchase->file_path)) {
+        Log::info('GENERANDO PDF EN TABLA DE COMPRAS PARA: ', [$purchase]);
+        if (is_null($purchase->file_path) || $purchase->file_path === '') {
             $model = Purchase::class;
             $payload = [
                 'model' => $model,
                 'uuids' => $rowId,
             ];
             $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE COMPRAS: ' . $file);
             $routeFile = $file;
+            $purchase->file_path = $routeFile;
+            $purchase->save();
         } else {
             $routeFile = $purchase->file_path;
         }

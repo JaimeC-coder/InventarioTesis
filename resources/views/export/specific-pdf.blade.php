@@ -149,7 +149,7 @@
                 </td>
                 <td width="30%">
                     <div class="invoice-box">
-                        <strong>FACTURA ELECTRÓNICA</strong><br>
+                        <strong>{{ $description_general['voucher_type'] ?? 'FACTURA ELECTRÓNICA' }}</strong><br>
                         RUC: {{ $propietario['document_number'] ?? '10192555685' }}<br>
                         {{ $description_general['serie'] ?? 'E001' }} - {{ $description_general['correlativo'] ?? '1572' }}
                     </div>
