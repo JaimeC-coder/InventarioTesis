@@ -224,8 +224,6 @@ class MovementCreate extends Component
         return redirect()->route('admin.movements.index');
     }
 
-
-
     protected function totalEnLetras($monto, $moneda = 'SOLES'): string
     {
         $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);

@@ -260,10 +260,10 @@ class SalesCreate extends Component
                 // Si necesitas almacenar inventario como antes, puedes reusar tu lógica aquí
                 // (he dejado comentada tu lógica previa por si quieres activarla)
             }
+
             $fileDirection = FileServices::generatePdfNow(['model' => Sale::class, 'uuids' => $Sale->uuid]);
             $Sale->update(['file_path' => $fileDirection]);
             $Sale->save();
-
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',

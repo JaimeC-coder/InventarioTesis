@@ -194,10 +194,10 @@ class QuoteCreate extends Component
                     'subtotal' => $product['quantity'] * $product['price'],
                 ]);
             }
+
             $fileDirection = FileServices::generatePdfNow(['model' => Quote::class, 'uuids' => $PurchaseOrder->uuid]);
             $PurchaseOrder->update(['file_path' => $fileDirection]);
             $PurchaseOrder->save();
-
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',

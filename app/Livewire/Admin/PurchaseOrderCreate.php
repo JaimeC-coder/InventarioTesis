@@ -149,6 +149,7 @@ class PurchaseOrderCreate extends Component
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
         }
+
         $fileDirection = FileServices::generatePdfNow(['model' => PurchaseOrder::class, 'uuids' => $PurchaseOrder->uuid]);
         $PurchaseOrder->update(['file_path' => $fileDirection]);
         $PurchaseOrder->save();
