@@ -21,7 +21,7 @@ return new class() extends Migration {
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             // agregar un estado de la venta (pendiente, pagado, cancelado,Por entregar)
             // subtotal ,igv,total_string
-            $blueprint->string('status');
+            $blueprint->string('status')->nullable();
             $blueprint->decimal('subtotal', 10, 2);
             $blueprint->decimal('igv', 10, 2);
             $blueprint->decimal('total', 10, 2)->default(0.00);

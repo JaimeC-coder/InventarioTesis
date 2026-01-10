@@ -7,6 +7,7 @@ use App\Models\Movement;
 use App\Models\Product;
 use App\Models\Reason;
 use App\Models\Warehouse;
+use App\Services\FileServices;
 use Livewire\Component;
 
 class MovementCreate extends Component
@@ -156,8 +157,12 @@ class MovementCreate extends Component
             'correlativo' => $this->correlativo,
             'date' => $this->date,
             'warehouse_id' => $this->warehouse_id,
-            'total' => $this->total,
+            'subtotal' => $this->total,
+            'igv' => $this->total * 0.18,
+            'total' => $this->total * 1.18,
+            'total_string' => $this->totalEnLetras($this->total * 1.18),
             'observation' => $this->observation,
+            'user_id' => auth()->id(),
             'reason_id' => $this->reason_id,
         ]);
         foreach ($this->products as $product) {
@@ -178,7 +183,7 @@ class MovementCreate extends Component
                 $newTotal = $lastTotal + ($product['quantity'] * $product['price']);
                 $costBalance = $newTotal / $newQuantity;
                 $Movement->inventories()->create([
-                    'detail' => 'Movimiento de '.($this->type == 1 ? 'entrada' : 'salida'),
+                    'detail' => 'Movimiento de ' . ($this->type == 1 ? 'entrada' : 'salida'),
                     'quantity_in' => $product['quantity'],
                     'cost_in' => $product['price'],
                     'total_in' => $product['quantity'] * $product['price'],
@@ -193,7 +198,7 @@ class MovementCreate extends Component
                 $newTotal = $lastTotal - ($product['quantity'] * $product['price']);
                 $costBalance = $newTotal / ($newQuantity ?: 1);
                 $Movement->inventories()->create([
-                    'detail' => 'Movimiento de '.($this->type == 1 ? 'entrada' : 'salida'),
+                    'detail' => 'Movimiento de ' . ($this->type == 1 ? 'entrada' : 'salida'),
                     'quantity_out' => $product['quantity'],
                     'cost_out' => $product['price'],
                     'total_out' => $product['quantity'] * $product['price'],
@@ -206,6 +211,10 @@ class MovementCreate extends Component
             }
         }
 
+        $fileDirection = FileServices::generatePdfNow(['model' => Movement::class, 'uuids' => $Movement->uuid]);
+        $Movement->update(['file_path' => $fileDirection]);
+        $Movement->save();
+
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Movimiento creado',
@@ -213,6 +222,19 @@ class MovementCreate extends Component
         ]);
 
         return redirect()->route('admin.movements.index');
+    }
+
+
+
+    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
+    {
+        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $entero = floor($monto);
+        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
+
+        return mb_strtoupper(
+            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
+        );
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

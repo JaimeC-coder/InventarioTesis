@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\Sale;
 use App\Models\Warehouse;
+use App\Services\FileServices;
 use App\Services\KardexServices;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class SalesCreate extends Component
 {
     public $voucher_type = 2;
 
-    public $serie = 'OC-00001';
+    public $serie = 'OV-00001';
 
     public $correlativo;
 
@@ -69,7 +70,7 @@ class SalesCreate extends Component
     public function mount(): void
     {
         $this->correlativo = Sale::max('correlativo') + 1;
-        $this->serie =  sprintf('OC-%04d', $this->correlativo);
+        // $this->serie =  sprintf('OV-%04d', $this->correlativo);
         $this->date = now()->format('Y-m-d');
     }
 
@@ -206,9 +207,9 @@ class SalesCreate extends Component
             'observation' => 'nullable|string|max:500',
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
+            'products.*.quantity' => 'required|numeric|min:0.0001',
             'products.*.price' => 'required|numeric|min:0',
-            'products.*.price_type' => 'nullable|in:GENERAL,A1,QUOTE',
+            'products.*.price_type' => 'nullable|in:GENERAL,A1,QUOTE,MANUAL',
         ], [], [
             'voucher_type' => 'Tipo de comprobante',
             'warehouse_id' => 'ID del almacén',
@@ -234,8 +235,12 @@ class SalesCreate extends Component
                 'date' => $this->date,
                 'warehouse_id' => $this->warehouse_id,
                 'customer_id' => $this->customer_id,
-                'total' => $this->total,
+                'subtotal' => $this->total,
+                'igv' => $this->total * 0.18,
+                'total' => $this->total * 1.18,
+                'total_string' => $this->totalEnLetras($this->total * 1.18),
                 'observation' => $this->observation,
+                'user_id' => auth()->id(),
             ]);
             Log::info('Venta creada con ID: ' . $Sale->id);
             foreach ($this->products as $product) {
@@ -255,6 +260,9 @@ class SalesCreate extends Component
                 // Si necesitas almacenar inventario como antes, puedes reusar tu lógica aquí
                 // (he dejado comentada tu lógica previa por si quieres activarla)
             }
+            $fileDirection = FileServices::generatePdfNow(['model' => Sale::class, 'uuids' => $Sale->uuid]);
+            $Sale->update(['file_path' => $fileDirection]);
+            $Sale->save();
 
             DB::commit();
             session()->flash('swal', [
@@ -277,6 +285,17 @@ class SalesCreate extends Component
             Log::error('Error al crear la venta: ' . $throwable->getMessage());
             throw $throwable;
         }
+    }
+
+    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
+    {
+        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $entero = floor($monto);
+        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
+
+        return mb_strtoupper(
+            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
+        );
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

@@ -19,6 +19,10 @@ class EditPrice extends Component
 
     public $showModal = false;
 
+    public $price_sale_a1_final;
+
+    public $price_sale_regular_final;
+
     #[\Livewire\Attributes\On('updateprice')]
     public function loadProduct($productuuid): void
     {
@@ -50,6 +54,22 @@ class EditPrice extends Component
             $this->showModal = false;
             $this->dispatch('pg:eventRefresh-product-table-dwonrg-table'); // refresca tabla PowerGrid
         }
+    }
+
+    public function editPrice(): void
+    {
+        // 1.18;
+        //si corrijo el numero osea borro el numero quiero que se cambie a 0
+        if (empty($this->price_sale_a1_final)) {
+            $this->price_sale_a1_final = 0;
+        }
+
+        if (empty($this->price_sale_regular_final)) {
+            $this->price_sale_regular_final = 0;
+        }
+
+        $this->price_sale_a1 = round($this->price_sale_a1_final / 1.18, 6);
+        $this->price_sale_regular = round($this->price_sale_regular_final / 1.18, 6);
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

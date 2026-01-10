@@ -95,12 +95,12 @@
                                 </select>
                             </td>
                             <td class="py-1 px-4">
-                                <input type="number" step="0.01" class="w-28 border rounded px-2 py-1 text-sm"
+                                <input type="number" step="0.00000001" class="w-28 border rounded px-2 py-1 text-sm"
                                     x-model.number="product.price" :disabled="product.price_type === 'QUOTE'"
                                     @input="product.price_type = 'MANUAL'" />
                             </td>
                             <td class="py-1 px-4">
-                                <x-forms.input type="number" class="w-20" x-model="product.quantity" />
+                                <x-forms.input type="number" class="w-20" x-model="product.quantity" step="0.0001" />
                             </td>
                             <td class="py-1 px-4" x-text="(product.quantity * product.price).toFixed(2)"></td>
                             <td class="py-1 px-4">

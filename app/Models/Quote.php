@@ -20,6 +20,7 @@ class Quote extends BaseModel
         'igv',
         'total',
         'total_string',
+        'file_path',
         'uuid',
     ];
 

@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
+use App\Services\FileServices;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -177,8 +178,12 @@ class QuoteCreate extends Component
                 'correlativo' => $this->correlativo,
                 'date' => $this->date,
                 'customer_id' => $this->customer_id,
-                'total' => $this->total,
+                'subtotal' => $this->total,
+                'igv' => $this->total * 0.18,
+                'total' => $this->total * 1.18,
+                'total_string' => $this->totalEnLetras($this->total * 1.18),
                 'observation' => $this->observation,
+                'user_id' => auth()->id(),
             ]);
             foreach ($this->products as $product) {
                 $product_id = Product::where('id', $product['id'])->value('id');
@@ -189,6 +194,9 @@ class QuoteCreate extends Component
                     'subtotal' => $product['quantity'] * $product['price'],
                 ]);
             }
+            $fileDirection = FileServices::generatePdfNow(['model' => Quote::class, 'uuids' => $PurchaseOrder->uuid]);
+            $PurchaseOrder->update(['file_path' => $fileDirection]);
+            $PurchaseOrder->save();
 
             DB::commit();
             session()->flash('swal', [
@@ -209,6 +217,17 @@ class QuoteCreate extends Component
             // opcional: log error
             throw $throwable;
         }
+    }
+
+    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
+    {
+        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $entero = floor($monto);
+        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
+
+        return mb_strtoupper(
+            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
+        );
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

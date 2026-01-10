@@ -21,6 +21,7 @@ return new class() extends Migration {
             $blueprint->decimal('subtotal', 10, 2)->nullable();
             $blueprint->decimal('igv', 10, 2)->nullable();
             $blueprint->decimal('total', 10, 2)->nullable();
+            $blueprint->string('file_path')->nullable();
             $blueprint->string('total_string')->nullable();
             $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->string('currency')->default('SOLES');

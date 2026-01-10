@@ -22,32 +22,66 @@
                                  <x-forms.input label="Codigo" name="name" type="text"
                                      placeholder="Ingrese el codigo" required wire:model="code" />
                                  <x-forms.select label="Unidades del producto" placeholder="Cambiar unidades..."
-                                     :async-data="['api' => route('admin.units'), 'method' => 'POST']" option-label="name" option-value="uuid" wire:model="unit_uuid"  x-indicator />
+                                     :async-data="['api' => route('admin.units'), 'method' => 'POST']" option-label="name" option-value="uuid" wire:model="unit_uuid"
+                                     x-indicator />
                                  <x-forms.select label="Medida del producto" placeholder="Cambiar medida..."
-                                     :async-data="['api' => route('admin.measures'), 'method' => 'POST']" option-label="name" option-value="uuid"
-                                     wire:model="measure_uuid"  x-indicator />
+                                     :async-data="['api' => route('admin.measures'), 'method' => 'POST']" option-label="name" option-value="uuid" wire:model="measure_uuid"
+                                     x-indicator />
 
                              </div>
                              <div class="grid lg:grid-cols-2 gap-4">
                                  <x-forms.select label="Categoria del producto" placeholder="Cambiar categoria..."
                                      :async-data="['api' => route('admin.categories'), 'method' => 'POST']" option-label="name" option-value="uuid"
-                                     wire:model="category_uuid"  x-indicator />
+                                     wire:model="category_uuid" x-indicator />
                                  <x-forms.select label="Producto base" placeholder="Cambiar producto base..."
                                      :async-data="['api' => route('admin.baseProducts'), 'method' => 'POST']" option-label="name" option-value="uuid"
-                                     wire:model="productBase_uuid"  x-indicator />
+                                     wire:model="productBase_uuid" x-indicator />
                              </div>
                              <x-forms.input label="Nombre del producto" name="name" type="text"
                                  placeholder="Nombre del producto" required wire:model="name" />
                          </div>
-                         <div class="grid lg:grid-cols-2 gap-4">
-                             <div class="mb-3">
-                                 <label>Precio de venta:</label>
-                                 <input type="text" wire:model.defer="price_sale" class="w-full border p-2 rounded">
-                                 @error('price_sale')
+                         <div class="grid lg:grid-cols-1 gap-4">
+                             <div class="grid lg:grid-cols-1 gap-2 border-black p-2 rounded dark:border-white border">
+                                 <label>Precio de venta general:</label>
+                                 <div class="grid grid-cols-3 gap-2">
+                                     <div class="mb-3">
+                                         <label for="">Precio final</label>
+                                         <input type="text" wire:keydown="editPrice" wire:model.defer="price_sale_regular_final"
+                                             class="w-full border p-2 rounded">
+                                     </div>
+                                     <div class="mb-3">
+                                         <span>Precio de uso</span>
+                                         <input type="text" wire:keydown="editPrice" wire:model.defer="price_sale_regular"
+                                             class="w-full border p-2 rounded" disabled>
+
+                                     </div>
+                                 </div>
+
+
+                                 @error('price_sale_regular')
                                      <span class="text-red-500">{{ $message }}</span>
                                  @enderror
                              </div>
-                             <div class="mb-3">
+                             <div class="grid lg:grid-cols-1 gap-2 border-black p-2 rounded dark:border-white border">
+                                 <label>Precio de venta A1:</label>
+                                 <div class="grid grid-cols-3 gap-2">
+                                     <div class="mb-3">
+                                         <label for="">Precio final</label>
+                                         <input type="text" wire:keydown="editPrice" wire:model.defer="price_sale_a1_final"
+                                             class="w-full border p-2 rounded">
+                                     </div>
+                                     <div class="mb-3">
+                                         <span>Precio de uso</span>
+                                         <input type="text" wire:keydown="editPrice" wire:model.defer="price_sale_a1"
+                                             class="w-full border p-2 rounded" disabled>
+
+                                     </div>
+                                 </div>
+                                 @error('price_sale_a1')
+                                     <span class="text-red-500">{{ $message }}</span>
+                                 @enderror
+                             </div>
+                             <div class="grid lg:grid-cols-1 gap-2 border-black p-2 rounded dark:border-white border">
                                  <label>Precio de compra:</label>
                                  <input type="text" wire:model.defer="price_purchase"
                                      class="w-full border p-2 rounded">

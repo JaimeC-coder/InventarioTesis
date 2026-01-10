@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Products;
 
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class EditProduct extends Component
@@ -42,6 +41,10 @@ class EditProduct extends Component
     public $measure_uuid;
 
     public $showModalProduct = false;
+
+    public $price_sale_a1_final;
+
+    public $price_sale_regular_final;
 
     #[\Livewire\Attributes\On('editProduct')]
     public function loadProduct($productuuid): void
@@ -144,8 +147,21 @@ class EditProduct extends Component
         $name = str_ireplace($codigo, '', $name);
         // elimina espacios en blanco al inicio y al final
         $name = trim($name);
-        Log::info('Nombre limpiado: ' . $name);
         return $name;
+    }
+
+    public function editPrice(): void
+    {
+        if (empty($this->price_sale_a1_final)) {
+            $this->price_sale_a1_final = 0;
+        }
+
+        if (empty($this->price_sale_regular_final)) {
+            $this->price_sale_regular_final = 0;
+        }
+
+        $this->price_sale_a1 = round($this->price_sale_a1_final / 1.18, 6);
+        $this->price_sale_regular = round($this->price_sale_regular_final / 1.18, 6);
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use App\Models\Transfer;
 use App\Models\Warehouse;
+use App\Services\FileServices;
 use App\Services\KardexServices;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -152,8 +153,11 @@ class TransferCreate extends Component
             'date' => $this->date,
             'origin_warehouse_id' => $this->origin_warehouse_id,
             'destination_warehouse_id' => $this->destination_warehouse_id,
-            'total' => $this->total,
+            'igv' => $this->total * 0.18,
+            'total' => $this->total * 1.18,
+            'total_string' => $this->totalEnLetras($this->total * 1.18),
             'observation' => $this->observation,
+            'user_id' => auth()->id(),
         ]);
         foreach ($this->products as $product) {
             $product_id = Product::where('id', $product['id'])->value('id');
@@ -164,6 +168,9 @@ class TransferCreate extends Component
             ]);
             KardexServices::registerExit($Movement, $product, $this->origin_warehouse_id, sprintf('Salida de almacen %s al %s', $this->origin_warehouse_id, $this->destination_warehouse_id));
             KardexServices::registerEntry($Movement, $product, $this->destination_warehouse_id, sprintf('Entrada de almacen %s desde %s', $this->destination_warehouse_id, $this->origin_warehouse_id));
+            $fileDirection = FileServices::generatePdfNow(['model' => Transfer::class, 'uuids' => $Movement->uuid]);
+            $Movement->update(['file_path' => $fileDirection]);
+            $Movement->save();
         }
 
         session()->flash('swal', [

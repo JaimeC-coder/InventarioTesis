@@ -18,6 +18,7 @@ class Movement extends BaseModel
         'total',
         'total_string',
         'user_id',
+        'file_path',
         'warehouse_id',
         'reason_id',
         'uuid',

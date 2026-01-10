@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
+use App\Services\FileServices;
 use Livewire\Component;
 
 class PurchaseOrderCreate extends Component
@@ -133,8 +134,12 @@ class PurchaseOrderCreate extends Component
             'correlativo' => $this->correlativo,
             'date' => $this->date,
             'supplier_id' => $this->supplier_id,
-            'total' => $this->total,
+            'subtotal' => $this->total,
+            'igv' => $this->total * 0.18,
+            'total' => $this->total * 1.18,
+            'total_string' => $this->totalEnLetras($this->total * 1.18),
             'observation' => $this->observation,
+            'user_id' => auth()->id(),
         ]);
         foreach ($this->products as $product) {
             $product_id = Product::where('id', $product['id'])->value('id');
@@ -144,6 +149,9 @@ class PurchaseOrderCreate extends Component
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
         }
+        $fileDirection = FileServices::generatePdfNow(['model' => PurchaseOrder::class, 'uuids' => $PurchaseOrder->uuid]);
+        $PurchaseOrder->update(['file_path' => $fileDirection]);
+        $PurchaseOrder->save();
 
         session()->flash('swal', [
             'icon' => 'success',
@@ -152,6 +160,17 @@ class PurchaseOrderCreate extends Component
         ]);
 
         return redirect()->route('admin.purchases-orders.index');
+    }
+
+    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
+    {
+        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $entero = floor($monto);
+        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
+
+        return mb_strtoupper(
+            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
+        );
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

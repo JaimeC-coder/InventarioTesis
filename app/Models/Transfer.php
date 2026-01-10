@@ -20,6 +20,7 @@ class Transfer extends BaseModel
         'observation',
         'origin_warehouse_id',
         'destination_warehouse_id',
+        'file_path',
         'uuid',
     ];
 

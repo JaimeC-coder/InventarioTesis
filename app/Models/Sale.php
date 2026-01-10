@@ -17,6 +17,7 @@ class Sale extends BaseModel
         'status',
         'subtotal',
         'igv',
+        'file_path',
         'total',
         'total_string',
         'user_id',

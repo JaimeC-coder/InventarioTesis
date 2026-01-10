@@ -191,6 +191,7 @@ class PurchasesCreate extends Component
                 'total_string' => $this->totalEnLetras($this->total * 1.18),
                 'user_id' => auth()->id(),
                 'observation' => $this->observation,
+
             ]);
             foreach ($this->products as $product) {
                 $product_id = Product::where('id', $product['id'])->value('id');

@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Sale;
+use App\Services\FileServices;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -53,7 +55,7 @@ final class SaleTable extends PowerGridComponent
             ->add('total')
             ->add('observation')
             ->add('uuid')
-            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
         ;
     }
 
@@ -99,24 +101,43 @@ final class SaleTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('pdf')]
+    public function pdf(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $sale = Sale::whereUuid($rowId)->first();
+        Log::info('GENERANDO PDF EN TABLA DE VENTAS PARA: ', [$sale]);
+        if (is_null($sale->file_path) || $sale->file_path === '') {
+            $model = Sale::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE VENTAS: ' . $file);
+            $routeFile = $file;
+            $sale->file_path = $routeFile;
+            $sale->save();
+        } else {
+            $routeFile = $sale->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(Sale $sale): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$sale->id)
-                ->id()
+            Button::add('pdf')
+                ->slot('PDF: ' . $sale->serie)
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $sale->id]),
+                ->dispatch('pdf', ['rowId' => $sale->uuid]),
         ];
     }
 

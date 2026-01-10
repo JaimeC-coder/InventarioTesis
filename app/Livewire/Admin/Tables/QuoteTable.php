@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Quote;
+use App\Services\FileServices;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -94,20 +96,40 @@ final class QuoteTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('pdf')]
+    public function pdf(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $quote = Quote::whereUuid($rowId)->first();
+        Log::info('GENERANDO PDF EN TABLA DE VENTAS PARA: ', [$quote]);
+        if (is_null($quote->file_path) || $quote->file_path === '') {
+            $model = Quote::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE VENTAS: ' . $file);
+            $routeFile = $file;
+            $quote->file_path = $routeFile;
+            $quote->save();
+        } else {
+            $routeFile = $quote->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(Quote $quote): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$quote->id)
-                ->id()
+            Button::add('pdf')
+                ->slot('PDF: ' . $quote->serie)
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $quote->id]),
+                ->dispatch('pdf', ['rowId' => $quote->uuid]),
         ];
     }
 
