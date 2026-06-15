@@ -13,6 +13,7 @@ return new class() extends Migration {
         Schema::create('units', function (Blueprint $blueprint): void {
             $blueprint->id();
             $blueprint->string('name')->unique();
+            $blueprint->string('abbreviation')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->string('code')->nullable();
             $blueprint->timestamps();

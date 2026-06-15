@@ -7,7 +7,7 @@ class Supplier extends BaseModel
     protected $table = 'suppliers';
 
     protected $fillable = [
-        'identity_id',
+        'identity',
         'document_number',
         'name',
         'email',
@@ -22,11 +22,11 @@ class Supplier extends BaseModel
         return $this->hasMany(PurchaseOrder::class);
     }
 
-    // Relación con identidades
-    public function identity()
-    {
-        return $this->belongsTo(Identity::class); //relacion uno a muchos
-    }
+    // // Relación con identidades
+    // public function identity()
+    // {
+    //     return $this->belongsTo(Identity::class); //relacion uno a muchos
+    // }
 
     // Relacion con compras
     public function purchases()

@@ -22,27 +22,16 @@ class Database2Seeder extends Seeder
             'email' => 'centurionjaime@gmail.com',
             'password' => bcrypt('admin123'),
         ]);
-        TypeCustomer::create(
-            ['type' => 'GENERAL', 'porcentage_discount' => 0.00000]
-        );
-        TypeCustomer::create(
-            ['type' => 'A1', 'porcentage_discount' => 0.500000]
-        );
-        \App\Models\Identity::create([
-            'name' => 'Sin Identidad',
+
+        \App\Models\Supplier::create([
+            'document_number'=>'20108832887',
+            'identity'=>'RUC',
+            'name'=>'Fratello S.A.C.',
+            'email'=>'email@example.com',
+            'phone'=>'981268897',
+            'address'=>'Jr. Jorge Chavez Nro. 351 (Mcdo de Breña)',
         ]);
-        \App\Models\Identity::create([
-            'name' => 'DNI',
-        ]);
-        \App\Models\Identity::create([
-            'name' => 'RUC',
-        ]);
-        \App\Models\Identity::create([
-            'name' => 'Pasaporte',
-        ]);
-        \App\Models\Identity::create([
-            'name' => 'Carnet de extranjería',
-        ]);
+
         Customer::factory(100)->create();
         Supplier::factory(100)->create();
         $this->call([

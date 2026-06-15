@@ -8,7 +8,7 @@ class Customer extends BaseModel
 
     protected $fillable = [
         'document_number',
-        'identity_id',
+        'identity',
         'name',
         'email',
         'phone',
@@ -17,11 +17,11 @@ class Customer extends BaseModel
         'uuid',
     ];
 
-    //relacion con identidad
-    public function identity()
-    {
-        return $this->belongsTo(Identity::class); //relacion uno a muchos
-    }
+    // //relacion con identidad
+    // public function identity()
+    // {
+    //     return $this->belongsTo(Identity::class); //relacion uno a muchos
+    // }
 
     // Relación con ventas
     public function sales()

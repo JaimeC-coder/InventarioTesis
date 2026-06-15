@@ -43,6 +43,10 @@ class PurchasesCreate extends Component
 
     public $warehouse_id;
 
+    public $payment_method = 'EFECTIVO';
+
+    public $payment_type = 'CONTADO';
+
     public $products = [];
 
     public function boot(): void
@@ -170,7 +174,7 @@ class PurchasesCreate extends Component
             'date' => 'Fecha',
             'supplier_id' => 'Proveedor',
             'total' => 'Total',
-            'observation' => 'observation',
+            'observation' => 'Observación',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
@@ -191,6 +195,8 @@ class PurchasesCreate extends Component
                 'total_string' => $this->totalEnLetras($this->total * 1.18),
                 'user_id' => auth()->id(),
                 'observation' => $this->observation,
+                'payment_method' => $this->payment_method,
+                'payment_type' => $this->payment_type,
             ]);
             foreach ($this->products as $product) {
                 $product_id = Product::where('id', $product['id'])->value('id');
@@ -238,6 +244,22 @@ class PurchasesCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.purchases-create');
+        $comprobante = [
+            ['id' => 1, 'name' => 'Factura'],
+            ['id' => 2, 'name' => 'Boleta'],
+        ];
+        $metodo_pago = [
+            ['id' => 'EFECTIVO', 'name' => 'Efectivo'],
+            ['id' => 'TARJETA', 'name' => 'Tarjeta'],
+            ['id' => 'TRANSFERENCIA', 'name' => 'Transferencia'],
+            ['id' => 'YAPE', 'name' => 'Yape'],
+            ['id' => 'PLIN', 'name' => 'Plin'],
+        ];
+        $tipo_pago = [
+            ['id' => 'CONTADO', 'name' => 'Contado'],
+            ['id' => 'CREDITO', 'name' => 'Crédito'],
+        ];
+
+        return view('livewire.admin.purchases-create', ['comprobante' => $comprobante, 'metodo_pago' => $metodo_pago, 'tipo_pago' => $tipo_pago]);
     }
 }

@@ -97,49 +97,7 @@ class FileServices
 
     protected static function descripcion_general($items): array
     {
-        $data = [];
-        if (isset($items->voucher_type) && !empty($items->voucher_type)) {
-            Log::info('TIPO DE COMPROBANTE: ' . $items->voucher_type);
-            $data['voucher_type'] = $items->voucher_type == 1 ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
-        }
-
-        if (isset($items->observation) && !empty($items->observation)) {
-            $data['observacion'] = $items->observation;
-        }
-
-        if (isset($items->serie) && !empty($items->serie)) {
-            $data['serie'] = $items->serie;
-        }
-
-        if (isset($items->correlativo) && !empty($items->correlativo)) {
-            $data['correlativo'] = $items->correlativo;
-        }
-
-        if (isset($items->date) && !empty($items->date)) {
-            $data['fecha'] = Carbon::parse($items->date)->format('d/m/Y');
-        }
-
-        if (isset($items->currency) && !empty($items->currency)) {
-            $data['currency'] = $items->currency ?? 'SOLES';
-        }
-
-        if (isset($items->total_string) && !empty($items->total_string)) {
-            $data['total_string'] = $items->total_string ?? self::totalEnLetras($items->total);
-        }
-
-        if (isset($items->subtotal) && !empty($items->subtotal)) {
-            $data['subtotal'] = $items->subtotal ?? 0;
-        }
-
-        if (isset($items->igv) && !empty($items->igv)) {
-            $data['igv'] = $items->igv ?? 0;
-        }
-
-        if (isset($items->total) && !empty($items->total)) {
-            $data['total'] = $items->total ?? 0;
-        }
-
-        return $data;
+        return ['voucher_type' => $items->voucher_type == 1 ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA', 'observacion' => $items->observation ? $items->observation : 'SIN OBSERVACIÓN', 'serie' => $items->serie ? $items->serie : '000', 'correlativo' => $items->correlativo ? $items->correlativo : '00000000', 'fecha' => $items->date ? Carbon::parse($items->date)->format('d/m/Y') : date('d/m/Y'), 'currency' => $items->currency ? $items->currency : 'SOLES', 'total_string' => $items->total_string ? $items->total_string : self::totalEnLetras($items->total), 'subtotal' => $items->subtotal ? $items->subtotal : 0, 'igv' => $items->igv ? $items->igv : 0, 'total' => $items->total ? $items->total : 0, 'forma_pago' => $items->payment_method ? $items->payment_method : 'ESPECIE'];
     }
 
     /**
@@ -153,7 +111,7 @@ class FileServices
             $data['identity'] = $modal->supplier->identity ? $modal->supplier->identity->name : 'DNI';
             $data['document_number'] = $modal->supplier ? $modal->supplier->document_number : '00000000';
             $data['name'] = $modal->supplier ? $modal->supplier->name : '-------';
-            $data['address']  = $modal->supplier ? $modal->supplier->document_number : '------';
+            $data['address']  = $modal->supplier ? $modal->supplier->address : '------';
             return $data;
         }
 
@@ -162,7 +120,7 @@ class FileServices
             $data['identity'] = $modal->customer->identity ? $modal->customer->identity->name : 'DNI';
             $data['document_number'] = $modal->customer ? $modal->customer->document_number : '00000000';
             $data['name'] = $modal->customer ? $modal->customer->name : '-------';
-            $data['address']  = $modal->customer ? $modal->customer->document_number : '------';
+            $data['address']  = $modal->customer ? $modal->customer->address : '------';
             return $data;
         }
 
@@ -172,10 +130,10 @@ class FileServices
     protected static function userInfo(): array
     {
         return [
-            'name' => 'Inversiones Isabel',
+            'name' => 'Inversiones Isabel <br>',
             'duenio' => 'Malca Goicochea Segundo Manuel',
             'document_number' => '10192555685',
-            'address' => 'ASC POPULAR LAS LOMAS DE ANCO MZA 78 LOTE 18 COLEGIO NACIONAL VILLAS DE ANCON',
+            'address' => 'ASC POPULAR LAS LOMAS DE ANCO MZA 78 LOTE 18 <br>COLEGIO  NACIONAL VILLAS DE ANCON',
             'address_specific' => 'ANCÓN - LIMA - LIMA',
         ];
     }

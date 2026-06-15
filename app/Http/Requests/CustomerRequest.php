@@ -67,7 +67,7 @@ class CustomerRequest extends FormRequest
     protected function sharedRules(): array
     {
         return [
-            'identity_uuid' => 'required|exists:identities,uuid',
+            'identity_uuid' => 'required',
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'phone' => 'required|string|max:20',

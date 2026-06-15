@@ -21,6 +21,9 @@ class Purchase extends BaseModel
         'total_string',
         'user_id',
         'observation',
+        'currency',
+        'payment_method',
+        'payment_type',
         'file_path',
         'uuid',
     ];

@@ -19,12 +19,11 @@ class CustomerFactory extends Factory
 
         return [
             'document_number' => $this->faker->unique()->numerify('##########'),
-            'identity_id' => \App\Models\Identity::all()->random()->id,
+            'identity' => $this->faker->randomElement(\App\Enum\DocumentEnum::cases())->value,
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
-            'type_customer_id' => \App\Models\TypeCustomer::all()->random()->id,
             'type' => $this->faker->randomElement(['A1', 'GENERAL']),
         ];
     }

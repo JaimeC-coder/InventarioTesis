@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\SaleController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/admin');
@@ -14,6 +14,4 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::post('prueba', function (Request $request): \Illuminate\Http\Request {
-    return $request;
-})->name('prueba');
+Route::get('prueba', [SaleController::class, 'showPDF'])->name('prueba');

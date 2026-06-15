@@ -10,10 +10,14 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::create('type_customers', function (Blueprint $blueprint): void {
+        Schema::create('suppliers', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('type')->unique();
-            $blueprint->decimal('porcentage_discount', 5, 2)->default(0.00);
+            $blueprint->string('identity');
+            $blueprint->string('document_number')->unique();
+            $blueprint->string('name');
+            $blueprint->string('address')->nullable();
+            $blueprint->string('email')->nullable();
+            $blueprint->string('phone')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
@@ -25,6 +29,6 @@ return new class() extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('type_customers');
+        Schema::dropIfExists('suppliers');
     }
 };

@@ -20,7 +20,8 @@
 
         .header {
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
         }
 
         .header table {
@@ -31,6 +32,7 @@
         .company {
             font-size: 12px;
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         .company small {
@@ -38,15 +40,20 @@
             display: block;
             margin-top: 3px;
         }
+        .company .space {
+            margin-top: 10px;
+           margin-bottom: 5px;
+        }
 
         .invoice-box {
-            border: 1px solid #000;
+            border: 2px solid #000;
             text-align: center;
+            text-transform: uppercase;
             padding: 8px;
         }
 
-        .invoice-box strong {
-            font-size: 13px;
+        .invoice-box b {
+            font-size: 14px;
         }
 
         .info {
@@ -134,113 +141,135 @@
 </head>
 
 <body>
-<div class="container">
+    <div class="container">
 
-    <!-- ENCABEZADO -->
-    <div class="header">
-        <table>
-            <tr>
-                <td width="70%">
-                    <div class="company">
-                        {{ $propietario['name'] ?? 'INVERSIÓNES ISABEL' }}
-                        <small>{{ $propietario['address_specific'] ?? 'ANCÓN - LIMA' }}</small>
-                        <small>RUC: {{ $propietario['document_number'] ?? '10192555685' }}</small>
-                    </div>
-                </td>
-                <td width="30%">
-                    <div class="invoice-box">
-                        <strong>{{ $description_general['voucher_type'] ?? 'FACTURA ELECTRÓNICA' }}</strong><br>
-                        RUC: {{ $propietario['document_number'] ?? '10192555685' }}<br>
-                        {{ $description_general['serie'] ?? 'E001' }} - {{ $description_general['correlativo'] ?? '1572' }}
-                    </div>
-                </td>
-            </tr>
+        <!-- ENCABEZADO -->
+        <div class="header">
+            <table>
+                <tr>
+                    <td width="70%">
+                        <div class="company">
+                            <b class="space"> {!! $propietario['name'] ?? 'INVERSIÓNES ISABEL' !!}</b>
+
+                            <b class="space"> {{ $propietario['duenio'] ?? 'MALCA GOICOCHEA SEGUNDO MANUEL' }}</b>
+                            <small class="space">{!! $propietario['address'] ?? '' !!}</small>
+                            <small class="space">{{ $propietario['address_specific'] ?? 'ANCÓN - LIMA - LIMA' }}</small>
+                        </div>
+                    </td>
+                    <td width="30%">
+                        <div class="invoice-box">
+                            <b >{{ $description_general['voucher_type'] ?? 'FACTURA ELECTRÓNICA' }}</b><br>
+                            <b >RUC: {{ $propietario['document_number'] ?? '10192555685' }}</b>
+                            <br>
+                            <b>  {{ $description_general['serie'] ?? 'E001' }} -
+                                {{ $description_general['correlativo'] ?? '1572' }}</b>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- DATOS CLIENTE -->
+        <div class="info">
+            <table>
+                <tr>
+                    <td class="label">Fecha de Emisión:</td>
+                    <td colspan="4">{{ $description_general['date'] ?? date('d/m/Y') }}</td>
+
+                    <td class="label">Forma de Pago:</td>
+                    <td>{{ $description_general['forma_pago'] ?? 'ESPECIE' }}</td>
+
+                </tr>
+                <tr>
+
+                    <td class="label">Señor(es):</td>
+                    <td>{{ $client['name'] ?? 'INVERSIÓNES MODROM´S S.A.C' }}</td>
+
+                </tr>
+                <tr>
+                    <td class="label">{{ $client['identity'] ?? '' }}:</td>
+                    <td>{{ $client['document_number'] ?? '20545856660' }}</td>
+
+                </tr>
+                <tr>
+                    <td class="label">Dirección:</td>
+                    <td colspan="3">{{ $client['address'] ?? 'SAN JUAN DE MIRAFLORES - LIMA' }}</td>
+
+                </tr>
+                <tr>
+                    <td class="label">Tipo de Moneda:</td>
+                    <td colspan="3">{{ $description_general['currency'] ?? 'SOLES1' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Observación:</td>
+                    <td colspan="3">{{ $description_general['observacion'] ?? 'SIN OBSERVACIÓN1' }}</td>
+                </tr>
+            </table>
+
+        </div>
+
+        <!-- DETALLE -->
+        <table class="details">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>V. Unitario</th>
+                    <th>Total</th>
+                    <th>ICBPER</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($products as $i => $value)
+                    <tr>
+                        <td>{{ $i + 1 }}</td>
+                        <td>{{ number_format($value->pivot->quantity ?? 0, 2) }}</td>
+                        <td>{{ $value->unit->name ?? 'UND' }}</td>
+                        <td>{{ $value->barcode ?? '---' }}</td>
+                        <td class="description">{{ $value->name ?? '---' }}</td>
+                        <td>{{ number_format($value->pivot->price ?? 0, 2) }}</td>
+                        <td>{{ number_format($value->pivot->subtotal ?? 0, 2) }}</td>
+                        <td>0.00</td>
+                    </tr>
+                @endforeach
+            </tbody>
         </table>
+
+        <!-- TOTALES -->
+        <div class="totals">
+            <table>
+                <tr>
+                    <td class="label">Sub Total</td>
+                    <td class="amount">S/ {{ number_format($description_general['subtotal'] ?? 0, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">IGV (18%)</td>
+                    <td class="amount">S/ {{ number_format($description_general['igv'] ?? 0, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Importe Total</td>
+                    <td class="amount"><strong>S/ {{ number_format($description_general['total'] ?? 0, 2) }}</strong>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="clear: both;"></div>
+
+        <!-- MONTO EN LETRAS -->
+        <div class="amount-text">
+            SON: {{ $description_general['total_string'] ?? 'OCHO MIL DOSCIENTOS SETENTA Y NUEVE Y 50/100 SOLES' }}
+        </div>
+
+        <!-- PIE -->
+        <div class="footer">
+            Esta es una representación impresa de la factura electrónica, generada en el sistema de SUNAT.
+        </div>
+
     </div>
-
-    <!-- DATOS CLIENTE -->
-    <div class="info">
-        <table>
-            <tr>
-                <td class="label">Cliente:</td>
-                <td>{{ $client['name'] ?? 'INVERSIÓNES MODROM´S S.A.C' }}</td>
-
-                <td class="label">Fecha:</td>
-                <td>{{ $description_general['date'] ?? date('d/m/Y') }}</td>
-            </tr>
-            <tr>
-                <td class="label">{{ $client['identity'] ?? '' }}:</td>
-                <td>{{ $client['document_number'] ?? '20545856660' }}</td>
-                <td class="label">Moneda:</td>
-                <td>SOLES</td>
-            </tr>
-            <tr>
-                <td class="label">Dirección:</td>
-                <td colspan="3">{{ $client['address'] ?? 'SAN JUAN DE MIRAFLORES - LIMA' }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- DETALLE -->
-    <table class="details">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Cantidad</th>
-            <th>Unidad</th>
-            <th>Código</th>
-            <th>Descripción</th>
-            <th>V. Unitario</th>
-            <th>Total</th>
-            <th>ICBPER</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach ($products as $i => $value)
-            <tr>
-                <td>{{ $i + 1 }}</td>
-                <td>{{ number_format($value->pivot->quantity ?? 0, 2) }}</td>
-                <td>{{ $value->unit->name ?? 'UND' }}</td>
-                <td>{{ $value->barcode ?? '---' }}</td>
-                <td class="description">{{ $value->name ?? '---' }}</td>
-                <td>{{ number_format($value->pivot->price ?? 0, 2) }}</td>
-                <td>{{ number_format($value->pivot->subtotal ?? 0, 2) }}</td>
-                <td>0.00</td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
-
-    <!-- TOTALES -->
-    <div class="totals">
-        <table>
-            <tr>
-                <td class="label">Sub Total</td>
-                <td class="amount">S/ {{ number_format($description_general['subtotal'] ?? 0, 2) }}</td>
-            </tr>
-            <tr>
-                <td class="label">IGV (18%)</td>
-                <td class="amount">S/ {{ number_format($description_general['igv'] ?? 0, 2) }}</td>
-            </tr>
-            <tr>
-                <td class="label">Importe Total</td>
-                <td class="amount"><strong>S/ {{ number_format($description_general['total'] ?? 0, 2) }}</strong></td>
-            </tr>
-        </table>
-    </div>
-
-    <div style="clear: both;"></div>
-
-    <!-- MONTO EN LETRAS -->
-    <div class="amount-text">
-        SON: {{ $description_general['total_string'] ?? 'OCHO MIL DOSCIENTOS SETENTA Y NUEVE Y 50/100 SOLES' }}
-    </div>
-
-    <!-- PIE -->
-    <div class="footer">
-        Esta es una representación impresa de la factura electrónica, generada en el sistema de SUNAT.
-    </div>
-
-</div>
 </body>
+
 </html>

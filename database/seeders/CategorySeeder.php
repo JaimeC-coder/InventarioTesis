@@ -14,25 +14,85 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'ESCENCIAS',
-                'description' => 'ESCENCIAS BASE , SOLUBLES y TURBIA',
+                'name' => 'ESCENCIAS BASES',
+                'codigo' => '10',
+                'description' => 'ESC. BASE',
             ],
             [
-                'name' => 'COLORANTES',
-                'description' => 'LIQUIDOS , GEL , A LA GRASA ,POLVO PARA PETALOS ,NACARADOS ,COLORANTE EX-A,COLORANTE EX-C',
+                'name' => 'ESCENCIAS SOLUBLES',
+                'codigo' => ' 20',
+                'description' => 'ESC. SOLUBLES',
+            ],
+            [
+                'name' => 'ESCENCIAS TURBIAS',
+                'codigo' => ' 30',
+                'description' => 'ESC. TURBIAS',
+            ],
+            [
+                'name' => 'COLORANTES LIQUIDOS',
+                'codigo' => '40',
+                'description' => 'COL. LIQUIDOS',
+            ],
+            [
+                'name' => 'COLORANTES A LA GRASA',
+                'codigo' => '50',
+                'description' => 'COL. A LA GRASA',
+            ],
+            [
+                'name' => 'COLORANTES EX-A',
+                'codigo' => '60',
+                'description' => 'COL. EX-A',
+            ],
+            [
+                'name' => 'COLORANTES EX-B',
+                'codigo' => '61',
+                'description' => 'COL. EX-B',
+            ],
+            [
+                'name' => 'COLORANTES EX-C',
+                'codigo' => '62',
+                'description' => 'COL. EX-C',
+            ],
+            [
+                'name' => 'COLORANTES DE PETALOS',
+                'codigo' => '70',
+                'description' => 'COL. DE PETALOS',
+            ],
+            [
+                'name' => 'NACARADOS',
+                'codigo' => '80',
+                'description' => 'NACARADOS',
+            ],
+            [
+                'name' => 'COLORANTES EN GEL',
+                'codigo' => '90',
+                'description' => 'COL. EN GEL',
+            ],
+            [
+                'name' => 'COLORANTES EN PASTA',
+                'codigo' => '91',
+                'description' => 'COL. EN PASTA',
             ],
             [
                 'name' => 'MASAS',
-                'description' => 'ELASTICA, FONDANT,DE COLORES,PASTA DE GOMA',
+                'codigo' => '100',
+                'description' => 'MASAS ELASTICAS ,PASTA DE GOMA Y MASA FONDANT',
             ],
             [
-                'name' => 'PRODUCTOS QUIMICOS',
+                'name' => 'PRODUCUTOS QUIMICOS 1',
+                'codigo' => '101',
+                'description' => 'AZUCAR IMPALPABLE , POLVO PARA HORNO, COLOREX',
+            ],
+            [
+                'name' => 'PRODUCUTOS QUIMICOS 2',
+                'codigo' => '102',
                 'description' => 'CARAMELINA,GLICERINA,GLUCOSA ,MANTENCA VEGETAL HIDROGENA , ETC',
             ],
         ];
         foreach ($categories as $category) {
             Category::create([
                 'name' => $category['name'],
+                'codigo' => $category['codigo'],
                 'description' => $category['description'],
             ]);
         }

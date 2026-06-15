@@ -33,11 +33,10 @@
     @enderror
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
-            <x-forms.native-select label="Tipo de Comprobante" wire:model="voucher_type" dark>
-                <option value="">Seleccione Tipo de Comprobante</option>
-                <option value="1" @if ($voucher_type === 1) selected @endif>Factura</option>
-                <option value="2" @if ($voucher_type === 2) selected @endif>Boleta</option>
-            </x-forms.native-select>
+
+            <x-forms.select label="Tipo de Comprobante" wire:model="voucher_type" dark :options="$comprobante"
+                option-label="name" option-value="id" />
+
             <div class="grid lg:grid-cols-2 gap-2">
                 <x-forms.input label="Serie" name="serie" type="text" placeholder="Ingrese el numero " required
                     wire:model="serie" disabled dark class="" />
@@ -52,13 +51,20 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
+            <x-forms.select label="Metodo de pago" wire:model="payment_method" dark :options="$metodo_pago"
+                option-label="name" option-value="id" />
+            <x-forms.select label="Tipo de pago" wire:model="payment_type" dark :options="$tipo_pago" option-label="name"
+                option-value="id" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
             <x-forms.select label="Cliente" placeholder="Escribe el nombre o documento..."
                 wire:model.live="customer_uuid" :async-data="['api' => route('admin.customers'), 'method' => 'POST']" option-label="name" option-value="uuid"
                 option-description="type" />
             <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST', 'params' => ['limit' => 10]]"
-                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0" :min-term-length="3" :delay="500" />
+                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0"
+                :min-term-length="3" :delay="500" />
         </div>
-
 
         <div class="lg:flex lg:gap-4">
             <x-forms.select label="Producto" placeholder="Buscar productos..." :async-data="['api' => route('admin.products'), 'method' => 'POST', 'params' => ['limit' => 10]]" option-label="name"
@@ -100,7 +106,8 @@
                                     @input="product.price_type = 'MANUAL'" />
                             </td>
                             <td class="py-1 px-4">
-                                <x-forms.input type="number" class="w-20" x-model="product.quantity" step="0.0001" />
+                                <x-forms.input type="number" class="w-20" x-model="product.quantity"
+                                    step="0.0001" />
                             </td>
                             <td class="py-1 px-4" x-text="(product.quantity * product.price).toFixed(2)"></td>
                             <td class="py-1 px-4">

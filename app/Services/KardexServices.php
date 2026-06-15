@@ -4,22 +4,24 @@ namespace App\Services;
 
 use App\Models\Inventorie;
 use App\Models\Product;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 class KardexServices
 {
     public static function getLastRecord($product_id, $warehouse_id): array
     {
-        $lastRecort = Inventorie::where('product_id', $product_id)
+        $lastRecord = Inventorie::where('product_id', $product_id)
             ->where('warehouse_id', $warehouse_id)
+           // ->lockForUpdate()
             ->latest()
             ->first();
 
         return [
-            'quantity_balance' => $lastRecort?->quantity_balance ?? 0,
-            'total_balance' => $lastRecort?->total_balance ?? 0,
-            'cost_balance' => $lastRecort?->cost_balance ?? 0,
-            'date' => $lastRecort?->created_at ?? null,
+            'quantity_balance' => $lastRecord?->quantity_balance ?? 0,
+            'total_balance' => $lastRecord?->total_balance ?? 0,
+            'cost_balance' => $lastRecord?->cost_balance ?? 0,
+            'date' => $lastRecord?->created_at ?? null,
         ];
     }
 
@@ -48,9 +50,14 @@ class KardexServices
     public static function registerExit($model, array $product, $warehouse_id, $detail): void
     {
         $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
+        // if ($lastRecord['quantity_balance'] < $product['quantity']) {
+        //     throw new Exception('Stock insuficiente');
+        // }
         $newQuantity = $lastRecord['quantity_balance'] - $product['quantity'];
         $newTotal = $lastRecord['total_balance'] - ($product['quantity'] * $lastRecord['cost_balance']);
-        $costBalance = $newTotal / ($newQuantity ?? 1);
+        $costBalance  = $newQuantity > 0
+            ? $newTotal / $newQuantity
+            : $lastRecord['cost_balance'];
         $newregister = [
             'detail' => $detail,
             'cost_out' => $lastRecord['cost_balance'],
@@ -76,7 +83,9 @@ class KardexServices
         } elseif ($type == 2) { // Exit
             $newQuantity = $lastRecord['quantity_balance'] - $product['quantity'];
             $newTotal = $lastRecord['total_balance'] - ($product['quantity'] * $lastRecord['cost_balance']);
-            $costBalance = $newTotal / ($newQuantity ?? 1);
+            $costBalance = $newQuantity > 0
+                ? $newTotal / $newQuantity
+                : 0;
         }
 
         $newregister = [
@@ -114,15 +123,10 @@ class KardexServices
 
     public static function updateProductStock($productId, $quantity, $operation): void
     {
-        $product = Product::find($productId);
-        if ($product) {
-            if ($operation === 'add') {
-                $product->stock += $quantity;
-            } elseif ($operation === 'subtract') {
-                $product->stock -= $quantity;
-            }
-
-            $product->save();
+        if ($operation === 'add') {
+            Product::where('id', $productId)->increment('stock', $quantity);
+        } elseif ($operation === 'subtract') {
+            Product::where('id', $productId)->decrement('stock', $quantity);
         }
     }
 }

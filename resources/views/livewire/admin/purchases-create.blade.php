@@ -12,11 +12,9 @@
 }">
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
-            <x-forms.native-select label="Tipo de Comprobante" wire:model="voucher_type" dark>
-                <option value="">Seleccione Tipo de Comprobante</option>
-                <option value="1" @if ($voucher_type === 1) selected @endif>Factura</option>
-                <option value="2" @if ($voucher_type === 2) selected @endif>Boleta</option>
-            </x-forms.native-select>
+            <x-forms.select label="Tipo de Comprobante" wire:model="voucher_type" dark :options="$comprobante"
+                option-label="name" option-value="id" />
+
             <div class="grid lg:grid-cols-2 gap-2">
                 <x-forms.input label="Serie" name="serie" type="text" placeholder="Ingrese el numero " required
                     wire:model="serie" disabled dark class="" />
@@ -29,6 +27,15 @@
                 option-label="name" option-value="uuid" wire:model.live="purchase_order_uuid" />
 
         </div>
+
+
+        <div class="grid grid-cols-2 gap-4">
+            <x-forms.select label="Metodo de pago" wire:model="payment_method" dark :options="$metodo_pago"
+                option-label="name" option-value="id" />
+            <x-forms.select label="Tipo de pago" wire:model="payment_type" dark :options="$tipo_pago" option-label="name"
+                option-value="id" />
+        </div>
+
 
         <div class="grid grid-cols-2 gap-4">
             <x-forms.select label="Proveedor" placeholder="Escribe el nombre o documento..."

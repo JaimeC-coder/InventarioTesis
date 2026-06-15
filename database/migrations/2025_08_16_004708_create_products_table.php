@@ -22,11 +22,12 @@ return new class() extends Migration {
             $blueprint->decimal('price_purchase', 10, 6)->default(0.000000);
             $blueprint->uuid('uuid')->unique();
             $blueprint->foreignId('category_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $blueprint->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('cascade')->description('Proveedor principal del producto');
             $blueprint->integer('stock')->default(0);
             $blueprint->timestamps();
             $blueprint->integer('min_stock')->default(0);
             $blueprint->foreignId('productBase_id')->nullable()->constrained('products')->onDelete('cascade');
-            $blueprint->foreignId('unit_id')->nullable()->constrained('units')->onDelete('cascade');//Caja ,Docena,Unidad
+            $blueprint->foreignId('unit_id')->nullable()->constrained('units')->onDelete('cascade'); //Caja ,Docena,Unidad
             $blueprint->foreignId('measure_id')->nullable()->constrained('measures')->onDelete('cascade');
             $blueprint->boolean('is_active_product')->default(false)->description('Indica si el producto está activo o inactivo para la venta o compra.');
             /**

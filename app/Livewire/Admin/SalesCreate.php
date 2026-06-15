@@ -43,6 +43,10 @@ class SalesCreate extends Component
 
     public $warehouse_id;
 
+    public $payment_method = 'EFECTIVO';
+
+    public $payment_type = 'CONTADO';
+
     public $products = [];
 
     public function boot(): void
@@ -219,7 +223,7 @@ class SalesCreate extends Component
             'date' => 'Fecha',
             'customer_id' => 'Cliente',
             'total' => 'Total',
-            'observation' => 'observation',
+            'observation' => 'Observación',
             'products.*.id' => 'ID del producto',
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
@@ -238,8 +242,10 @@ class SalesCreate extends Component
                 'subtotal' => $this->total,
                 'igv' => $this->total * 0.18,
                 'total' => $this->total * 1.18,
-                'total_string' => $this->totalEnLetras($this->total * 1.18),
+                'total_string' => $this->totalEnLetras($this->total),
                 'observation' => $this->observation,
+                'payment_method' => $this->payment_method,
+                'payment_type' => $this->payment_type,
                 'user_id' => auth()->id(),
             ]);
             Log::info('Venta creada con ID: ' . $Sale->id);
@@ -300,6 +306,22 @@ class SalesCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.sales-create');
+        $comprobante = [
+            ['id' => 1, 'name' => 'Factura'],
+            ['id' => 2, 'name' => 'Boleta'],
+        ];
+        $metodo_pago = [
+            ['id' => 'EFECTIVO', 'name' => 'Efectivo'],
+            ['id' => 'TARJETA', 'name' => 'Tarjeta'],
+            ['id' => 'TRANSFERENCIA', 'name' => 'Transferencia'],
+            ['id' => 'YAPE', 'name' => 'Yape'],
+            ['id' => 'PLIN', 'name' => 'Plin'],
+        ];
+        $tipo_pago = [
+            ['id' => 'CONTADO', 'name' => 'Contado'],
+            ['id' => 'CREDITO', 'name' => 'Crédito'],
+        ];
+
+        return view('livewire.admin.sales-create', ['comprobante' => $comprobante, 'metodo_pago' => $metodo_pago, 'tipo_pago' => $tipo_pago]);
     }
 }

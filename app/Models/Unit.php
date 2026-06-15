@@ -8,6 +8,7 @@ class Unit extends BaseModel
 
     protected $fillable = [
         'name',
+        'abbreviation',
         'code',
         'uuid',
     ];
