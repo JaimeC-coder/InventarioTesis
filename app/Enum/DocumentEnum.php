@@ -4,15 +4,13 @@ namespace App\Enum;
 
 enum DocumentEnum: String
 {
-
     case SI = 'S.I.';
     case DNI = 'DNI';
     case RUC = 'RUC';
     case PASAPORTE = 'PASAPORTE';
     case CARNET_EXTRANJERIA = 'CARNET_EXTRANJERIA';
 
-
-        public function label(): string
+    public function label(): string
     {
         return match ($this) {
             self::SI => 'Sin Identidad',
@@ -23,4 +21,3 @@ enum DocumentEnum: String
         };
     }
 }
-
