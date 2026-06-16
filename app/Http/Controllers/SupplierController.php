@@ -19,7 +19,7 @@ class SupplierController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
             'id' => $mes->label(),
@@ -55,7 +55,9 @@ class SupplierController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Supplier $supplier): void {}
+    public function show(Supplier $supplier): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.

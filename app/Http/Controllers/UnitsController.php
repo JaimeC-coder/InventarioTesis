@@ -34,7 +34,7 @@ class UnitsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Unit $units): void
+    public function show(Unit $unit): void
     {
         //
     }
@@ -42,7 +42,7 @@ class UnitsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Unit $units): void
+    public function edit(Unit $unit): void
     {
         //
     }
@@ -50,7 +50,7 @@ class UnitsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Unit $units): void
+    public function update(Request $request, Unit $unit): void
     {
         //
     }
@@ -58,7 +58,7 @@ class UnitsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Unit $units): void
+    public function destroy(Unit $unit): void
     {
         //
     }
