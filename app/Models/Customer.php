@@ -17,7 +17,6 @@ class Customer extends BaseModel
         'uuid',
     ];
 
-
     // Relación con ventas
     public function sales()
     {

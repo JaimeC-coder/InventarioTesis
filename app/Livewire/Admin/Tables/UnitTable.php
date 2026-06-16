@@ -3,14 +3,12 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Unit;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 
 final class UnitTable extends PowerGridComponent
 {
@@ -58,20 +56,16 @@ final class UnitTable extends PowerGridComponent
             Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
-
             Column::make('Abreviatura', 'abbreviation')
                 ->sortable()
                 ->searchable(),
-
             Column::make('Codigo', 'code')
                 ->sortable()
                 ->searchable(),
-
             Column::make('Creado', 'created_at')
                 ->sortable()
                 ->searchable(),
-
-            Column::action('Action')
+            Column::action('Action'),
         ];
     }
 
@@ -81,19 +75,19 @@ final class UnitTable extends PowerGridComponent
     }
 
     #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    public function edit(string $rowId): void
     {
         $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions(Unit $row): array
+    public function actions(Unit $unit): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: ' . $row->id)
+                ->slot('Edit: ' . $unit->id)
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->dispatch('edit', ['rowId' => $unit->id]),
         ];
     }
 

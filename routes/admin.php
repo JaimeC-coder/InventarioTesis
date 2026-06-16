@@ -14,8 +14,6 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
-
-
 /**
  * route inventario
  */
@@ -27,7 +25,6 @@ Route::get('/', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Cont
     return view('admin.dashboard');
 })->name('dashboard');
 
-
 Route::get('/units', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.units');
 })->name('units.index');
@@ -35,7 +32,6 @@ Route::get('/units', function (): \Illuminate\Contracts\View\Factory|\Illuminate
 Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.measures');
 })->name('measures.index');
-
 
 Route::get('/users', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.users');
