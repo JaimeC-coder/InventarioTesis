@@ -71,6 +71,7 @@ final class CategoryTable extends PowerGridComponent
                 return '<div title="' . e($dish->description) . '" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' . e($dish->description) . '</div>';
             })
             ->add('uuid')
+            ->add('codigo')
             ->add('created_at')
             ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i'));
     }
@@ -78,6 +79,9 @@ final class CategoryTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::make('Código', 'codigo')
+                ->sortable()
+                ->searchable(),
             Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
@@ -156,7 +160,7 @@ final class CategoryTable extends PowerGridComponent
     public function exportExcel()
     {
         $data = Category::whereIn('uuid', $this->checkboxValues)->get();
-        $headers = ['ID', 'name'];
+        $headers = ['Código', 'name'];
 
         return Excel::download(
             new GenericExport(
@@ -164,7 +168,7 @@ final class CategoryTable extends PowerGridComponent
                 headers: $headers,
                 mapping: function ($category): array {
                     return [
-                        $category->id,
+                        $category->codigo,
                         $category->name,
                     ];
                 }

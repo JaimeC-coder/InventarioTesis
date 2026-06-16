@@ -2,18 +2,23 @@
 
 namespace App\Livewire\Admin\Tables;
 
-use App\Models\Customer;
-use Carbon\Carbon;
+use App\Models\Measure;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class CustomerTable extends PowerGridComponent
+final class MeasureTable extends PowerGridComponent
 {
-    public string $tableName = 'customer-table-vuz6a3-table';
+    public string $primaryKey = 'uuid';
+
+    public string $sortField = 'measures.created_at';
+
+    public string $tableName = 'measure-table-zkz5kw-table';
 
     public function setUp(): array
     {
@@ -30,7 +35,7 @@ final class CustomerTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Customer::query();
+        return Measure::query();
     }
 
     public function relationSearch(): array
@@ -41,64 +46,58 @@ final class CustomerTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('document_number')
-            ->add('identity')
+            ->add('code')
             ->add('name')
-            ->add('email')
-            ->add('phone')
-            ->add('address')
-            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
-        ;
+            ->add('abbreviation')
+            ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Número de documento', 'document_number')
-                ->sortable()
-                ->searchable(),
-            Column::make('Tipo de documento', 'identity')
+            Column::make('Codigo', 'code')
                 ->sortable()
                 ->searchable(),
             Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Correo electrónico', 'email')
+
+            Column::make('Abreviatura', 'abbreviation')
                 ->sortable()
                 ->searchable(),
-            Column::make('Teléfono', 'phone')
+
+
+            Column::make('Descripcion', 'description_for_product')
                 ->sortable()
                 ->searchable(),
-            Column::make('Dirección', 'address')
+
+            Column::make('Creado', 'created_at')
                 ->sortable()
                 ->searchable(),
-            Column::make('Creado el', 'created_at_formatted', 'created_at')
-                ->sortable()
-                ->searchable(),
-            Column::action('Action'),
+
+            Column::action('Action')
         ];
     }
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    public function edit($rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions(Customer $customer): array
+    public function actions(Measure $row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$customer->id)
+                ->slot('Edit: ' . $row->id)
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $customer->id]),
+                ->dispatch('edit', ['rowId' => $row->id])
         ];
     }
 

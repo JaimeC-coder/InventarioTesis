@@ -17,11 +17,6 @@ class Customer extends BaseModel
         'uuid',
     ];
 
-    // //relacion con identidad
-    // public function identity()
-    // {
-    //     return $this->belongsTo(Identity::class); //relacion uno a muchos
-    // }
 
     // Relación con ventas
     public function sales()

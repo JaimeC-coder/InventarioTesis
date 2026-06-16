@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\DocumentEnum;
 use App\Http\Requests\SupplierRequest;
 use App\Models\Supplier;
 
@@ -18,9 +19,13 @@ class SupplierController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): \Illuminate\View\View
+    public function create()
     {
-        $identities = \App\Models\Identity::select('name', 'uuid')->get(); // Assuming you have an Identity model
+        $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
+            'id' => $mes->label(),
+            'name' => $mes->label(),
+        ])->toArray();
+
         return view('admin.suppliers.create', ['identities' => $identities]);
     }
 
@@ -50,9 +55,7 @@ class SupplierController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Supplier $supplier): void
-    {
-    }
+    public function show(Supplier $supplier): void {}
 
     /**
      * Show the form for editing the specified resource.

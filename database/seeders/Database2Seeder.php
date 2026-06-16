@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Customer;
 use App\Models\Supplier;
-use App\Models\TypeCustomer;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -22,16 +21,14 @@ class Database2Seeder extends Seeder
             'email' => 'centurionjaime@gmail.com',
             'password' => bcrypt('admin123'),
         ]);
-
         \App\Models\Supplier::create([
-            'document_number'=>'20108832887',
-            'identity'=>'RUC',
-            'name'=>'Fratello S.A.C.',
-            'email'=>'email@example.com',
-            'phone'=>'981268897',
-            'address'=>'Jr. Jorge Chavez Nro. 351 (Mcdo de Breña)',
+            'document_number' => '20108832887',
+            'identity' => 'RUC',
+            'name' => 'Fratello S.A.C.',
+            'email' => 'email@example.com',
+            'phone' => '981268897',
+            'address' => 'Jr. Jorge Chavez Nro. 351 (Mcdo de Breña)',
         ]);
-
         Customer::factory(100)->create();
         Supplier::factory(100)->create();
         $this->call([

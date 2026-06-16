@@ -22,11 +22,6 @@ class Supplier extends BaseModel
         return $this->hasMany(PurchaseOrder::class);
     }
 
-    // // Relación con identidades
-    // public function identity()
-    // {
-    //     return $this->belongsTo(Identity::class); //relacion uno a muchos
-    // }
 
     // Relacion con compras
     public function purchases()

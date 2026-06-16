@@ -21,17 +21,17 @@ class CategorySeeder extends Seeder
             [
                 'name' => 'ESCENCIAS SOLUBLES',
                 'codigo' => ' 20',
-                'description' => 'ESC. SOLUBLES',
+                'description' => 'ESC. SOLUBLE',
             ],
             [
                 'name' => 'ESCENCIAS TURBIAS',
                 'codigo' => ' 30',
-                'description' => 'ESC. TURBIAS',
+                'description' => 'ESC. TURBIA',
             ],
             [
                 'name' => 'COLORANTES LIQUIDOS',
                 'codigo' => '40',
-                'description' => 'COL. LIQUIDOS',
+                'description' => 'COL. LIQUIDO',
             ],
             [
                 'name' => 'COLORANTES A LA GRASA',
@@ -56,12 +56,12 @@ class CategorySeeder extends Seeder
             [
                 'name' => 'COLORANTES DE PETALOS',
                 'codigo' => '70',
-                'description' => 'COL. DE PETALOS',
+                'description' => 'COL. DE PETALO',
             ],
             [
                 'name' => 'NACARADOS',
                 'codigo' => '80',
-                'description' => 'NACARADOS',
+                'description' => 'NACARADO',
             ],
             [
                 'name' => 'COLORANTES EN GEL',

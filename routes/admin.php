@@ -14,12 +14,29 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-    return view('admin.dashboard');
-})->name('dashboard');
+
+
+/**
+ * route inventario
+ */
 Route::get('/ecommerce', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.ecommerce');
 })->name('ecommerce');
+
+Route::get('/', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+    return view('admin.dashboard');
+})->name('dashboard');
+
+
+Route::get('/units', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+    return view('admin.units');
+})->name('units.index');
+
+Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+    return view('admin.measures');
+})->name('measures.index');
+
+
 Route::get('/users', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.users');
 })->name('users');
