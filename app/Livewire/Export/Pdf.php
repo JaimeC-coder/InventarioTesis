@@ -3,7 +3,6 @@
 namespace App\Livewire\Export;
 
 use Barryvdh\DomPDF\Facade\Pdf as domPdf;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class Pdf extends Component
@@ -12,17 +11,8 @@ class Pdf extends Component
     #[\Livewire\Attributes\On('openPdfExport')]
     public function generatePdfNow(array $uuids, string $model, string $titulo, array $columns, array $headers, string $fileName)
     {
-        $model = $model;
-        $uuids = $uuids;
-        $titulo = $titulo;
-        $columns = $columns;
-        $headers = $headers;
-        $fileName = $fileName;
-
         // Buscar datos
-
         $items = $model::whereIn('uuid', $uuids)->get();
-
         $pdf = domPdf::loadView('export.pdf', [
             'items' => $items,
             'titulo' => $titulo,

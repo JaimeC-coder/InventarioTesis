@@ -20,11 +20,12 @@ enum DocumentEnum: String
             self::CARNET_EXTRANJERIA => 'CARNET DE EXTRANJERIA',
         };
     }
+
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn($case) => [
-                $case->value => $case->label()
+            ->mapWithKeys(fn($case): array => [
+                $case->value => $case->label(),
             ])
             ->toArray();
     }

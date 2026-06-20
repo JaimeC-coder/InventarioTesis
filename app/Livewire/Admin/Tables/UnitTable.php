@@ -2,12 +2,11 @@
 
 namespace App\Livewire\Admin\Tables;
 
-use App\Models\Unit;
 use App\Exports\GenericExport;
+use App\Models\Unit;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Maatwebsite\Excel\Facades\Excel;
-
-use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -34,6 +33,7 @@ final class UnitTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
+
     public function header(): array
     {
         return [
@@ -82,7 +82,6 @@ final class UnitTable extends PowerGridComponent
             Column::make('Creado', 'created_at')
                 ->sortable()
                 ->searchable(),
-
         ];
     }
 
@@ -96,16 +95,15 @@ final class UnitTable extends PowerGridComponent
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
-
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
-            return;
+            return null;
         }
+
         $data = Unit::whereIn('uuid', $this->checkboxValues)->get();
         $headers = ['ID', 'Nombre', 'Abreviatura', 'Código'];
 
@@ -129,9 +127,7 @@ final class UnitTable extends PowerGridComponent
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
-
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
@@ -139,14 +135,13 @@ final class UnitTable extends PowerGridComponent
             ]);
             return;
         }
+
         $uuids = $this->checkboxValues;
         $model = Unit::class;
         $headers = ['Nombre', 'Abreviatura', 'Código'];
         $titulo = 'Unidades de Medida';
         $columns = ['name', 'abbreviation', 'code'];
         $fileName = 'unidades-de-medida_export.pdf';
-
-
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }

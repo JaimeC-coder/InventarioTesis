@@ -58,7 +58,7 @@ class CustomerRequest extends FormRequest
 
     public function rules(): array
     {
-        Log::alert("Obteniendo reglas para método: " . $this->method());
+        Log::alert('Obteniendo reglas para método: ' . $this->method());
         return match ($this->method()) {
             'POST' => $this->rulesPost(),
             'PUT' => $this->rulesPut(),

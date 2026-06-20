@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Admin\Tables;
 
-use App\Models\Measure;
 use App\Exports\GenericExport;
+use App\Models\Measure;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -99,16 +99,14 @@ final class MeasureTable extends PowerGridComponent
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
-
-        if (empty($this->checkboxValues)) {
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
-            return;
+            return null;
         }
-
 
         $data = Measure::whereIn('uuid', $this->checkboxValues)->get();
         $headers = ['ID', 'Nombre', 'Abreviatura', 'Código'];
@@ -133,8 +131,7 @@ final class MeasureTable extends PowerGridComponent
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
@@ -142,14 +139,13 @@ final class MeasureTable extends PowerGridComponent
             ]);
             return;
         }
+
         $uuids = $this->checkboxValues;
         $model = Measure::class;
         $headers = ['Nombre', 'Abreviatura', 'Código'];
         $titulo = 'Unidades de Envase';
         $columns = ['name', 'abbreviation', 'code'];
         $fileName = 'unidades-de-envase_export.pdf';
-
-
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }

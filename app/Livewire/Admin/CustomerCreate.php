@@ -79,6 +79,7 @@ class CustomerCreate extends Component
                 $this->name = '';
                 return;
             }
+
             $this->name = $identity['nombreComercial'] ?? $identity['razonSocial'] ?? '';
         } else {
             $this->dispatch('swal', [

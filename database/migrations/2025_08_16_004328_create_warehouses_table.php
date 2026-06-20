@@ -17,7 +17,6 @@ return new class() extends Migration {
             $blueprint->uuid('uuid')->unique();
             // Agrega campos de auditoría
             $blueprint->foreignId('manager')->nullable()->constrained('users')->onDelete('set null');
-
             $blueprint->timestamps();
             $blueprint->softDeletes();
         });

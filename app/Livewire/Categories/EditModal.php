@@ -33,7 +33,6 @@ class EditModal extends Component
     public function save(): void
     {
         $category = Category::where('uuid', $this->categoryId)->first();
-
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',

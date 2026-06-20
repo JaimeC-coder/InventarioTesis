@@ -3,13 +3,13 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Enum\DocumentEnum;
-use App\Models\Customer;
 use App\Exports\GenericExport;
+use App\Models\Customer;
 use Carbon\Carbon;
-use Livewire\Attributes\On;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\On;
+use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -18,9 +18,10 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 
 final class CustomerTable extends PowerGridComponent
 {
-     public string $primaryKey = 'uuid';
+    public string $primaryKey = 'uuid';
 
     public string $sortField = 'customers.created_at';
+
     public string $tableName = 'customer-table-vuz6a3-table';
 
     public function setUp(): array
@@ -75,7 +76,8 @@ final class CustomerTable extends PowerGridComponent
             ->add('email')
             ->add('phone')
             ->add('address')
-            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));;
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -126,11 +128,11 @@ final class CustomerTable extends PowerGridComponent
             ]);
             return;
         }
+
         redirect()->route('admin.customers.edit', $customer);
     }
 
-
-     // DELETE
+    // DELETE
     #[\Livewire\Attributes\On('delete')]
     public function delete($rowId): void
     {
@@ -151,14 +153,13 @@ final class CustomerTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete(array $rowIds): void
     {
-
         $customers = Customer::whereIn('uuid', $rowIds)->get();
         if ($customers->isEmpty()) {
             $this->dispatch('swal', [
@@ -168,17 +169,17 @@ final class CustomerTable extends PowerGridComponent
             ]);
             return;
         }
+
         try {
             $customers->each->delete();
             $this->dispatch('pg:eventRefresh-' . $this->tableName); // 👈 nuevo
-
             $this->dispatch('swal', [
                 'icon' => 'success',
                 'title' => 'Eliminado',
                 'text' => 'Cliente eliminado correctamente.',
             ]);
-        } catch (\Exception $e) {
-            Log::error('Error al eliminar cliente: ' . $e->getMessage());
+        } catch (\Exception $exception) {
+            Log::error('Error al eliminar cliente: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -199,24 +200,21 @@ final class CustomerTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
         ]);
     }
-
-
 
     //EXPORT
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
-            return;
+            return null;
         }
 
         $data = Customer::whereIn('uuid', $this->checkboxValues)->get();
@@ -245,9 +243,7 @@ final class CustomerTable extends PowerGridComponent
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
-
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
@@ -255,8 +251,6 @@ final class CustomerTable extends PowerGridComponent
             ]);
             return;
         }
-
-
 
         $uuids = $this->checkboxValues;
         $model = Customer::class;
@@ -267,6 +261,7 @@ final class CustomerTable extends PowerGridComponent
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
+
     public function actions(Customer $customer): array
     {
         return [
@@ -274,7 +269,6 @@ final class CustomerTable extends PowerGridComponent
                 ->slot('Editar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $customer->uuid]),
-
             Button::add('delete')
                 ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')

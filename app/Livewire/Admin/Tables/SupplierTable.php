@@ -76,7 +76,8 @@ final class SupplierTable extends PowerGridComponent
             ->add('phone')
             ->add('address')
             ->add('uuid')
-            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));;
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -116,14 +117,10 @@ final class SupplierTable extends PowerGridComponent
         return [];
     }
 
-
-
     // DELETE
     #[\Livewire\Attributes\On('delete')]
     public function delete($rowId): void
     {
-
-
         $uuids = Supplier::where('uuid', $rowId)->pluck('uuid')->toArray();
         if (!$uuids) {
             $this->dispatch('swal', [
@@ -141,16 +138,14 @@ final class SupplierTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete(array $rowIds): void
     {
-
         $customers = Supplier::whereIn('uuid', $rowIds)->get();
-
         if ($customers->isEmpty()) {
             $this->dispatch('swal', [
                 'icon' => 'error',
@@ -159,6 +154,7 @@ final class SupplierTable extends PowerGridComponent
             ]);
             return;
         }
+
         try {
             $customers->each->delete();
             $this->dispatch('swal', [
@@ -167,9 +163,8 @@ final class SupplierTable extends PowerGridComponent
                 'text' => 'Proveedor eliminado correctamente.',
             ]);
             $this->dispatch('pg:eventRefresh-' . $this->tableName); // 👈 nuevo
-
-        } catch (\Exception $e) {
-            Log::error('Error al eliminar proveedor: ' . $e->getMessage());
+        } catch (\Exception $exception) {
+            Log::error('Error al eliminar proveedor: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -182,7 +177,6 @@ final class SupplierTable extends PowerGridComponent
     public function bulkDelete(): void
     {
         $uuids = Supplier::whereIn('uuid', $this->checkboxValues)->pluck('uuid')->toArray();
-
         $this->dispatch('swal', [
             'icon' => 'warning',
             'title' => '¿Estás seguro de eliminar los proveedores?',
@@ -190,21 +184,20 @@ final class SupplierTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
         ]);
     }
 
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
-            return;
+            return null;
         }
 
         $data = Supplier::whereIn('uuid', $this->checkboxValues)->get();
@@ -233,9 +226,7 @@ final class SupplierTable extends PowerGridComponent
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
-
-        if (empty($this->checkboxValues)) {
-
+        if ($this->checkboxValues === []) {
             $this->dispatch('swal', [
                 'title' => 'Precaución',
                 'text' => 'No se han seleccionado registros para exportar.',
@@ -243,8 +234,6 @@ final class SupplierTable extends PowerGridComponent
             ]);
             return;
         }
-
-
 
         $uuids = $this->checkboxValues;
         $model = Supplier::class;

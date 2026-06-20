@@ -29,7 +29,9 @@ class CustomerController extends Controller
         return view('admin.customers.create', ['identities' => $identities]);
     }
 
-    public function show(Customer $customer): void {}
+    public function show(Customer $customer): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -40,7 +42,6 @@ class CustomerController extends Controller
             'uuid' => $mes->value,
             'name' => $mes->label(),
         ])->toArray(); // Assuming you have an Identity model
-
         $type = [
             ['uuid' => 'GENERAL', 'name' => 'GENERAL'],
             ['uuid' => 'A1', 'name' => 'A1'],
@@ -54,21 +55,16 @@ class CustomerController extends Controller
      */
     public function update(CustomerRequest $customerRequest, Customer $customer)
     {
-
         try {
-
             $customer->update($customerRequest->validated());
-
             session()->flash('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La actualización del cliente fue exitosa.',
                 'icon' => 'success',
-                ]);
-                return redirect()->route('admin.customers.index');
-
+            ]);
+            return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
-
-            Log::info("Error al actualizar cliente: " . $exception->getMessage());
+            Log::info('Error al actualizar cliente: ' . $exception->getMessage());
             session()->flash('swal', [
                 'title' => 'Error',
                 'text' => 'Hubo un problema al actualizar el cliente.',
