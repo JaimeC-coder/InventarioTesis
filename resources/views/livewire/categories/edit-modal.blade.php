@@ -19,6 +19,14 @@
                             <textarea wire:model.defer="description" class="w-full border p-2 rounded"></textarea>
                         </div>
 
+                        <div class="mb-3">
+                            <label>Código</label>
+                            <input type="text" wire:model.defer="codigo" class="w-full border p-2 rounded">
+                            @error('codigo')
+                                <span class="text-red-500">{{ $message }}</span>
+                            @enderror
+                        </div>
+
                         <div class="flex justify-end space-x-2">
                             <button type="button" @click="open = false"
                                 class="bg-gray-500 text-white px-3 py-1 rounded">

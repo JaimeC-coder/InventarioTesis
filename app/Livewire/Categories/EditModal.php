@@ -13,6 +13,8 @@ class EditModal extends Component
 
     public $description;
 
+    public $codigo;
+
     public $showModal = false;
 
     #[\Livewire\Attributes\On('editCategory')]
@@ -20,24 +22,28 @@ class EditModal extends Component
     {
         $category = Category::where('uuid', $categoryId)->first();
         if ($category) {
-            $this->categoryId = $category->id;
+            $this->categoryId = $category->uuid;
             $this->name = $category->name;
             $this->description = $category->description;
+            $this->codigo = $category->codigo;
             $this->showModal = true;
         }
     }
 
     public function save(): void
     {
+        $category = Category::where('uuid', $this->categoryId)->first();
+
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'codigo' => 'required|integer|unique:categories,codigo,' . $category->id,
         ]);
-        $category = Category::find($this->categoryId);
         if ($category) {
             $category->update([
                 'name' => $this->name,
                 'description' => $this->description,
+                'codigo' => $this->codigo,
             ]);
             $this->showModal = false;
             $this->dispatch('pg:eventRefresh-category-table-oc8dnv-table'); // refresca tabla PowerGrid

@@ -6,6 +6,7 @@ use App\Exports\GenericExport;
 use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -72,8 +73,8 @@ final class CategoryTable extends PowerGridComponent
             })
             ->add('uuid')
             ->add('codigo')
-            ->add('created_at')
-            ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i'));
+            ->add('updated_at')
+            ->add('created_at_formatted', fn($user): string => Carbon::parse($user->updated_at)->format('d/m/Y H:i'));
     }
 
     public function columns(): array
@@ -92,7 +93,7 @@ final class CategoryTable extends PowerGridComponent
                 ->sortable()
                 ->hidden()
                 ->searchable(),
-            Column::make('Creado el', 'created_at_formatted', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'updated_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Acciónes'),
@@ -104,40 +105,59 @@ final class CategoryTable extends PowerGridComponent
         return [];
     }
 
-    protected function getListeners()
-    {
-        return [
-            'confirmDelete',
-            'deleteConfirmed' => 'delete', // Evento que se lanza desde JS cuando el usuario confirma
-        ];
-    }
 
-    #[\Livewire\Attributes\On('confirmDelete')]
-    public function confirmDelete(string $params): void
+
+    // DELETE
+    #[\Livewire\Attributes\On('delete')]
+    public function delete($rowId): void
     {
-        //   dd($params);
-        //  $categoryId = $params['categoryId'] ?? null;
-        // Emitimos un evento de JS (usaremos JS para mostrar Swal)
-        $this->dispatch('swal:confirmDelete', [
-            'title' => '¿Estás seguro?',
-            'text' => 'Esta acción no se puede deshacer.',
+        $uuids = Category::where('uuid', $rowId)->pluck('uuid')->toArray();
+        if (!$uuids) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Categoría no encontrada.',
+            ]);
+            return;
+        }
+
+        $this->dispatch('swal', [
             'icon' => 'warning',
+            'title' => '¿Estás seguro de eliminar la categoría?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'categoryId' => $params,
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
         ]);
     }
 
-    public function delete($categoryId): void
+    #[\Livewire\Attributes\On('confirmDelete')]
+    public function confirmDelete(array $rowIds): void
     {
-        $category = Category::where('uuid', $categoryId)->first();
-        if ($category) {
-            $category->delete();
-            $this->dispatch('pg:eventRefresh-' . $this->tableName);
-            $this->dispatch('swal:success', [
-                'title' => 'Eliminado',
-                'text' => 'La categoría se eliminó correctamente.',
+
+        $customers = Category::whereIn('uuid', $rowIds)->get();
+        if ($customers->isEmpty()) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Categoría no encontrada.',
+            ]);
+            return;
+        }
+        try {
+            $customers->each->delete();
+            $this->dispatch('swal', [
                 'icon' => 'success',
+                'title' => 'Eliminado',
+                'text' => 'Categoría eliminada correctamente.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar categoría: ' . $e->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al eliminar la categoría.',
             ]);
         }
     }
@@ -145,22 +165,36 @@ final class CategoryTable extends PowerGridComponent
     #[On('bulkDelete.{tableName}')]
     public function bulkDelete(): void
     {
-        Category::whereIn('uuid', $this->checkboxValues)->delete();
-        $this->dispatch('pg:eventRefresh-' . $this->tableName);
-        $this->resetPage();
-        $this->dispatch('swal:success', [
-            'title' => 'Eliminado',
-            'text' => 'Las categorías seleccionadas se eliminaron correctamente.',
-            'icon' => 'success',
+        $uuids = Category::whereIn('uuid', $this->checkboxValues)->pluck('uuid')->toArray();
+
+        $this->dispatch('swal', [
+            'icon' => 'warning',
+            'title' => '¿Estás seguro de eliminar las categorías?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'showCancelButton' => true,
+            'confirmButtonText' => 'Sí, eliminar',
+            'cancelButtonText' => 'Cancelar',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
         ]);
-        //
     }
+
 
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
+
+        if (empty($this->checkboxValues)) {
+
+            $this->dispatch('swal', [
+                'title' => 'Precaución',
+                'text' => 'No se han seleccionado registros para exportar.',
+                'icon' => 'warning',
+            ]);
+            return;
+        }
+
         $data = Category::whereIn('uuid', $this->checkboxValues)->get();
-        $headers = ['Código', 'name'];
+        $headers = ['Código', 'Nombre', 'Descripción'];
 
         return Excel::download(
             new GenericExport(
@@ -170,6 +204,7 @@ final class CategoryTable extends PowerGridComponent
                     return [
                         $category->codigo,
                         $category->name,
+                        $category->description,
                     ];
                 }
             ),
@@ -180,14 +215,26 @@ final class CategoryTable extends PowerGridComponent
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
+
+        if (empty($this->checkboxValues)) {
+
+            $this->dispatch('swal', [
+                'title' => 'Precaución',
+                'text' => 'No se han seleccionado registros para exportar.',
+                'icon' => 'warning',
+            ]);
+            return;
+        }
+
+
         $uuids = $this->checkboxValues;
         $model = Category::class;
-        $payload = [
-            'model' => $model,
-            'uuids' => $uuids,
-        ];
+        $headers = ['Código', 'Nombre', 'Descripción'];
+        $titulo = 'Categorías';
+        $columns = ['codigo', 'name', 'description'];
+        $fileName = 'categories_export.pdf';
         // Enviar al componente PDF
-        $this->dispatch('openPdfExport', $payload);
+        $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
 
     public function actions(Category $category): array
@@ -201,19 +248,7 @@ final class CategoryTable extends PowerGridComponent
             Button::add('delete')
                 ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('confirmDelete', ['params' => $category->uuid]),
+                ->dispatch('delete', ['rowId' => $category->uuid]),
         ];
     }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

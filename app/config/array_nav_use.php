@@ -26,7 +26,7 @@ class array_nav_use
                 'icon' => 'warehouse',
                 'submenu' => [
                     ['name' => 'Categoria', 'route' => 'admin.categories.index'],
-                    ['name' => 'Productos', 'route' => 'admin.products.index'],
+                    ['name' => 'Productos falta los export masivos', 'route' => 'admin.products.index'],
                     ['name' => 'Almacenes', 'route' => 'admin.warehouses.index'],
                     ['name' => 'Unidades de medida', 'route' => 'admin.units.index', 'active' => request()->routeIs('admin.units.index')],
                     ['name' => 'Unidades de envase', 'route' => 'admin.measures.index', 'active' => request()->routeIs('admin.measures.index')],

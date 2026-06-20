@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
@@ -20,64 +22,53 @@ class CustomerController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
-        $identities = \App\Models\Identity::select('name', 'uuid')->get(); // Assuming you have an Identity model
+        $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
+            'id' => $mes->value,
+            'name' => $mes->label(),
+        ])->toArray();
         return view('admin.customers.create', ['identities' => $identities]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CustomerRequest $customerRequest): \Illuminate\Http\RedirectResponse
-    {
-        try {
-            Customer::create($customerRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La creación del cliente fue exitosa.',
-                'icon' => 'success',
-            ]);
-        } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al crear el cliente.',
-                'icon' => 'error',
-            ]);
-        }
-
-        return redirect()->route('admin.customers.index');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Customer $customer): void
-    {
-    }
+    public function show(Customer $customer): void {}
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Customer $customer): \Illuminate\View\View
     {
-        $identities = \App\Models\Identity::select('name', 'uuid')->get(); // Assuming you have an Identity model
-        return view('admin.customers.edit', ['customer' => $customer, 'identities' => $identities]);
+        $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
+            'uuid' => $mes->value,
+            'name' => $mes->label(),
+        ])->toArray(); // Assuming you have an Identity model
+
+        $type = [
+            ['uuid' => 'GENERAL', 'name' => 'GENERAL'],
+            ['uuid' => 'A1', 'name' => 'A1'],
+        ];
+
+        return view('admin.customers.edit', ['customer' => $customer, 'identities' => $identities, 'types' => $type]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(CustomerRequest $customerRequest, Customer $customer): \Illuminate\Http\RedirectResponse
+    public function update(CustomerRequest $customerRequest, Customer $customer)
     {
+
         try {
+
             $customer->update($customerRequest->validated());
+
             session()->flash('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La actualización del cliente fue exitosa.',
                 'icon' => 'success',
-            ]);
+                ]);
+                return redirect()->route('admin.customers.index');
 
-            return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
+
+            Log::info("Error al actualizar cliente: " . $exception->getMessage());
             session()->flash('swal', [
                 'title' => 'Error',
                 'text' => 'Hubo un problema al actualizar el cliente.',

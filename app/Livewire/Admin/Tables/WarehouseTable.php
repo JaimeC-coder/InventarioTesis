@@ -6,6 +6,7 @@ use App\Exports\GenericExport;
 use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -98,37 +99,58 @@ final class WarehouseTable extends PowerGridComponent
         return [];
     }
 
-    protected function getListeners()
-    {
-        return [
-            'confirmDelete',
-            'deleteConfirmed' => 'delete', // Evento que se lanza desde JS cuando el usuario confirma
-        ];
-    }
 
-    #[\Livewire\Attributes\On('confirmDelete')]
-    public function confirmDelete(string $params): void
+    // DELETE
+    #[\Livewire\Attributes\On('delete')]
+    public function delete($rowId): void
     {
-        $this->dispatch('swal:confirmDelete', [
-            'title' => '¿Estás seguro?',
-            'text' => 'Esta acción no se puede deshacer.',
+        $uuids = Warehouse::where('uuid', $rowId)->pluck('uuid')->toArray();
+        if (!$uuids) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Almacén no encontrado.',
+            ]);
+            return;
+        }
+
+        $this->dispatch('swal', [
             'icon' => 'warning',
+            'title' => '¿Estás seguro de eliminar el almacén?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'warehouseId' => $params,
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
         ]);
     }
 
-    public function delete($warehouseId): void
+    #[\Livewire\Attributes\On('confirmDelete')]
+    public function confirmDelete(array $rowIds): void
     {
-        $warehouse = Warehouse::where('uuid', $warehouseId)->first();
-        if ($warehouse) {
-            $warehouse->delete();
-            $this->dispatch('pg:eventRefresh-' . $this->tableName);
-            $this->dispatch('swal:success', [
-                'title' => 'Eliminado',
-                'text' => 'El almacén se eliminó correctamente.',
+
+        $customers = Warehouse::whereIn('uuid', $rowIds)->get();
+        if ($customers->isEmpty()) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Almacén no encontrado.',
+            ]);
+            return;
+        }
+        try {
+            $customers->each->delete();
+            $this->dispatch('swal', [
                 'icon' => 'success',
+                'title' => 'Eliminado',
+                'text' => 'Almacén eliminado correctamente.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar almacén: ' . $e->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al eliminar el almacén.',
             ]);
         }
     }
@@ -136,22 +158,38 @@ final class WarehouseTable extends PowerGridComponent
     #[On('bulkDelete.{tableName}')]
     public function bulkDelete(): void
     {
-        Warehouse::whereIn('uuid', $this->checkboxValues)->delete();
-        $this->dispatch('pg:eventRefresh-' . $this->tableName);
-        $this->resetPage();
-        $this->dispatch('swal:success', [
-            'title' => 'Eliminado',
-            'text' => 'Las categorías seleccionadas se eliminaron correctamente.',
-            'icon' => 'success',
+        $uuids = Warehouse::whereIn('uuid', $this->checkboxValues)->pluck('uuid')->toArray();
+
+        $this->dispatch('swal', [
+            'icon' => 'warning',
+            'title' => '¿Estás seguro de eliminar los almacenes?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'showCancelButton' => true,
+            'confirmButtonText' => 'Sí, eliminar',
+            'cancelButtonText' => 'Cancelar',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
         ]);
-        //
     }
+
+
+
+
+
 
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
+        if (empty($this->checkboxValues)) {
+            $this->dispatch('swal', [
+                'title' => 'Precaución',
+                'text' => 'No se han seleccionado registros para exportar.',
+                'icon' => 'warning',
+            ]);
+            return;
+        }
+
         $data = Warehouse::whereIn('uuid', $this->checkboxValues)->get();
-        $headers = ['ID', 'name', 'location'];
+        $headers = ['ID', 'Nombre', 'Ubicación'];
 
         return Excel::download(
             new GenericExport(
@@ -172,14 +210,25 @@ final class WarehouseTable extends PowerGridComponent
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
+        if (empty($this->checkboxValues)) {
+            $this->dispatch('swal', [
+                'title' => 'Precaución',
+                'text' => 'No se han seleccionado registros para exportar.',
+                'icon' => 'warning',
+            ]);
+            return;
+        }
+
         $uuids = $this->checkboxValues;
         $model = Warehouse::class;
-        $payload = [
-            'model' => $model,
-            'uuids' => $uuids,
-        ];
+        $headers = ['Nombre', 'Ubicación'];
+        $titulo = 'Almacenes';
+        $columns = ['name', 'location'];
+        $fileName = 'almacenes_export.pdf';
+
+
         // Enviar al componente PDF
-        $this->dispatch('openPdfExport', $payload);
+        $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
 
     public function actions(Warehouse $warehouse): array
@@ -193,7 +242,7 @@ final class WarehouseTable extends PowerGridComponent
             Button::add('delete')
                 ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('confirmDelete', ['params' => $warehouse->uuid]),
+                ->dispatch('delete', ['rowId' => $warehouse->uuid]),
         ];
     }
 }

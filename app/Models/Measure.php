@@ -10,6 +10,7 @@ class Measure extends BaseModel
         'name',
         'abbreviation',
         'code',
+        'category',
         'description_for_product',
         'uuid',
     ];

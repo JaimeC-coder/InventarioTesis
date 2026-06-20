@@ -48,13 +48,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         Livewire.on('swal', (data) => {
-            Swal.fire(data[0]);
+            const options = data[0];
+
+            Swal.fire(options).then((result) => {
+                if (result.isConfirmed && options.onConfirm) {
+                    eval(options.onConfirm);
+                }
+            });
         });
     </script>
 
-    @if (session('swal'))
+
+    @if (session()->has('swal'))
         <script>
-            Swal.fire(@json(session('swal')));
+            const swalData = @json(session('swal'));
+
+            Swal.fire({
+                title: swalData.title,
+                text: swalData.text,
+                icon: swalData.icon,
+            });
+
+            console.log('1. Evento swal recibido:', data);
+            const options = data[0];
+            console.log('2. options.onConfirm es:', options.onConfirm);
+            Swal.fire(options).then((result) => {
+                if (result.isConfirmed && options.onConfirm) {
+                    eval(options.onConfirm);
+                }
+            });
         </script>
     @endif
 

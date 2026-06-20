@@ -31,14 +31,15 @@
 
 <body>
 
-    <h2>Reporte de {{ $data  }} </h2>
+    <h2>Reporte de {{ $titulo }} </h2>
 
     <table>
         <thead>
             <tr>
                 <th>#</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
+               @foreach ($headers as $header)
+                    <th>{{ $header }}</th>
+                @endforeach
             </tr>
         </thead>
 
@@ -46,8 +47,9 @@
             @foreach ($items as $item => $value)
                 <tr>
                     <td>{{ $item + 1 }}</td>
-                    <td>{{ $value->name ?? '---' }}</td>
-                    <td>{{ $value->description ?? '---' }}</td>
+                    @foreach ($columns as $column)
+                        <td>{{ $value->$column ?? '---' }}</td>
+                    @endforeach
                 </tr>
             @endforeach
         </tbody>

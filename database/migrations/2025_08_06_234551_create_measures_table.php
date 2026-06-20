@@ -16,6 +16,7 @@ return new class() extends Migration {
             $blueprint->string('abbreviation')->unique();
             $blueprint->string('code')->nullable();
             $blueprint->string('description_for_product')->nullable();
+            $blueprint->enum('category', ['LIQUIDO', 'PESO'])->default('PESO');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
