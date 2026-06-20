@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enum\DocumentEnum;
+
 class Supplier extends BaseModel
 {
     protected $table = 'suppliers';
@@ -26,5 +28,10 @@ class Supplier extends BaseModel
     public function purchases()
     {
         return $this->hasMany(Purchase::class);
+    }
+
+    public function getIdentityTypeLabelAttribute()
+    {
+        return DocumentEnum::tryFrom(trim($this->identity))?->label() ?? '';
     }
 }

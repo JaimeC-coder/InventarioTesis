@@ -36,7 +36,7 @@
     <table>
         <thead>
             <tr>
-                <th>#</th>
+                <th width="10"> # </th>
                @foreach ($headers as $header)
                     <th>{{ $header }}</th>
                 @endforeach
@@ -46,7 +46,7 @@
         <tbody>
             @foreach ($items as $item => $value)
                 <tr>
-                    <td>{{ $item + 1 }}</td>
+                    <td >{{ $item + 1 }}</td>
                     @foreach ($columns as $column)
                         <td>{{ $value->$column ?? '---' }}</td>
                     @endforeach

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enum\DocumentEnum;
+
 class Customer extends BaseModel
 {
     protected $table = 'customers';
@@ -29,9 +31,8 @@ class Customer extends BaseModel
         return $this->hasMany(Quote::class);
     }
 
-    // //relacion con tipo de cliente
-    // public function typeCustomer()
-    // {
-    //     return $this->belongsTo(TypeCustomer::class); //relacion uno a muchos inversa
-    // }
+    public function getIdentityTypeLabelAttribute()
+    {
+        return DocumentEnum::tryFrom(trim($this->identity))?->label() ?? '';
+    }
 }

@@ -18,7 +18,7 @@ class SupplierFactory extends Factory
     {
         return [
             'document_number' => $this->faker->unique()->numerify('##########'),
-            'identity' => $this->faker->randomElement(\App\Enum\DocumentEnum::cases())->label,
+            'identity' => $this->faker->randomElement(\App\Enum\DocumentEnum::cases())->value,
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),

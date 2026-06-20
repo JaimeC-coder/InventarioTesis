@@ -194,7 +194,7 @@ final class CategoryTable extends PowerGridComponent
         }
 
         $data = Category::whereIn('uuid', $this->checkboxValues)->get();
-        $headers = ['Código', 'Nombre', 'Descripción'];
+        $headers = ['ID', 'Código', 'Nombre', 'Descripción'];
 
         return Excel::download(
             new GenericExport(
@@ -202,6 +202,7 @@ final class CategoryTable extends PowerGridComponent
                 headers: $headers,
                 mapping: function ($category): array {
                     return [
+                        $category->id,
                         $category->codigo,
                         $category->name,
                         $category->description,

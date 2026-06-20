@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Admin\Tables;
 
+use App\Enum\DocumentEnum;
 use App\Exports\GenericExport;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -67,20 +69,20 @@ final class SupplierTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('identity')
+            ->add('identity_formatted', fn($supplier): string => DocumentEnum::tryFrom(trim($supplier->identity))?->label() ?? '')
             ->add('document_number')
             ->add('name')
             ->add('email')
             ->add('phone')
             ->add('address')
             ->add('uuid')
-            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
-        ;
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));;
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Tipo de documento', 'identity')
+            Column::make('Tipo de documento', 'identity_formatted')
                 ->sortable()
                 ->searchable(),
             Column::make('Número de documento', 'document_number')
@@ -114,40 +116,64 @@ final class SupplierTable extends PowerGridComponent
         return [];
     }
 
-    protected function getListeners()
-    {
-        return [
-            'confirmDelete',
-            'deleteConfirmed' => 'delete', // Evento que se lanza desde JS cuando el usuario confirma
-        ];
-    }
 
-    #[\Livewire\Attributes\On('confirmDelete')]
-    public function confirmDelete(string $params): void
+
+    // DELETE
+    #[\Livewire\Attributes\On('delete')]
+    public function delete($rowId): void
     {
-        //   dd($params);
-        //  $categoryId = $params['categoryId'] ?? null;
-        // Emitimos un evento de JS (usaremos JS para mostrar Swal)
-        $this->dispatch('swal:confirmDelete', [
-            'title' => '¿Estás seguro?',
-            'text' => 'Esta acción no se puede deshacer.',
+
+
+        $uuids = Supplier::where('uuid', $rowId)->pluck('uuid')->toArray();
+        if (!$uuids) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Proveedor no encontrado.',
+            ]);
+            return;
+        }
+
+        $this->dispatch('swal', [
             'icon' => 'warning',
+            'title' => '¿Estás seguro de eliminar el proveedor?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'supplierId' => $params,
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
         ]);
     }
 
-    public function delete($supplierId): void
+    #[\Livewire\Attributes\On('confirmDelete')]
+    public function confirmDelete(array $rowIds): void
     {
-        $supplier = Supplier::where('uuid', $supplierId)->first();
-        if ($supplier) {
-            $supplier->delete();
-            $this->dispatch('pg:eventRefresh-' . $this->tableName);
-            $this->dispatch('swal:success', [
-                'title' => 'Eliminado',
-                'text' => 'El proveedor se eliminó correctamente.',
+
+        $customers = Supplier::whereIn('uuid', $rowIds)->get();
+
+        if ($customers->isEmpty()) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Proveedor no encontrado.',
+            ]);
+            return;
+        }
+        try {
+            $customers->each->delete();
+            $this->dispatch('swal', [
                 'icon' => 'success',
+                'title' => 'Eliminado',
+                'text' => 'Proveedor eliminado correctamente.',
+            ]);
+            $this->dispatch('pg:eventRefresh-' . $this->tableName); // 👈 nuevo
+
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar proveedor: ' . $e->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al eliminar el proveedor.',
             ]);
         }
     }
@@ -155,22 +181,34 @@ final class SupplierTable extends PowerGridComponent
     #[On('bulkDelete.{tableName}')]
     public function bulkDelete(): void
     {
-        Supplier::whereIn('uuid', $this->checkboxValues)->delete();
-        $this->dispatch('pg:eventRefresh-' . $this->tableName);
-        $this->resetPage();
-        $this->dispatch('swal:success', [
-            'title' => 'Eliminado',
-            'text' => 'Los proveedores seleccionados se eliminaron correctamente.',
-            'icon' => 'success',
+        $uuids = Supplier::whereIn('uuid', $this->checkboxValues)->pluck('uuid')->toArray();
+
+        $this->dispatch('swal', [
+            'icon' => 'warning',
+            'title' => '¿Estás seguro de eliminar los proveedores?',
+            'text' => 'Esta acción no se puede deshacer.',
+            'showCancelButton' => true,
+            'confirmButtonText' => 'Sí, eliminar',
+            'cancelButtonText' => 'Cancelar',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . " })",
         ]);
-        //
     }
 
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
+        if (empty($this->checkboxValues)) {
+
+            $this->dispatch('swal', [
+                'title' => 'Precaución',
+                'text' => 'No se han seleccionado registros para exportar.',
+                'icon' => 'warning',
+            ]);
+            return;
+        }
+
         $data = Supplier::whereIn('uuid', $this->checkboxValues)->get();
-        $headers = ['ID', 'name'];
+        $headers = ['ID', 'Tipo de documento', 'Número de documento', 'Nombre', 'Correo electrónico', 'Teléfono', 'Dirección'];
 
         return Excel::download(
             new GenericExport(
@@ -179,25 +217,43 @@ final class SupplierTable extends PowerGridComponent
                 mapping: function ($category): array {
                     return [
                         $category->id,
+                        $category->identity_type_label,
+                        $category->document_number,
                         $category->name,
+                        $category->email,
+                        $category->phone,
+                        $category->address,
                     ];
                 }
             ),
-            'categories.xlsx'
+            'Listado_Proveedores.xlsx'
         );
     }
 
     #[On('exportPdf.{tableName}')]
     public function exportPdf(): void
     {
+
+        if (empty($this->checkboxValues)) {
+
+            $this->dispatch('swal', [
+                'title' => 'Precaución',
+                'text' => 'No se han seleccionado registros para exportar.',
+                'icon' => 'warning',
+            ]);
+            return;
+        }
+
+
+
         $uuids = $this->checkboxValues;
         $model = Supplier::class;
-        $payload = [
-            'model' => $model,
-            'uuids' => $uuids,
-        ];
+        $headers = ['Tpo. documento', 'Nro. documento', 'Nombre', 'Correo', 'Teléfono', 'Dirección'];
+        $titulo = 'Proveedores';
+        $columns = ['identity_type_label', 'document_number', 'name', 'email', 'phone', 'address'];
+        $fileName = 'Listado_Proveedores.pdf';
         // Enviar al componente PDF
-        $this->dispatch('openPdfExport', $payload);
+        $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
 
     public function actions(Supplier $supplier): array
@@ -211,7 +267,7 @@ final class SupplierTable extends PowerGridComponent
             Button::add('delete')
                 ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('confirmDelete', ['params' => $supplier->uuid]),
+                ->dispatch('delete', ['rowId' => $supplier->uuid]),
         ];
     }
 
