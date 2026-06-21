@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
+use App\Models\Category;
 use App\Models\Measure;
 use App\Models\Product;
 use App\Models\Unit;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -66,9 +68,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void
-    {
-    }
+    public function show(Product $product): void {}
 
     /**
      * Show the form for editing the specified resource.
@@ -174,80 +174,101 @@ class ProductController extends Controller
 
     public function massiveProducts(Request $request)
     {
-        $products = [];
-        foreach ($request['productos'] as $productData) {
-            $productBase = Product::create([
-                'name'          => strtoupper($productData['PRODUCTO']),
-                'category_code' => $productData['CP'],
-                'code'          => $productData['CODIGO'],
-                'price_sale' => 0,
-                'price_purchase' => 0,
-                'stock' => 0,
-                'min_stock' => 0,
-            ]);
-            $generatedProducts = $this->information10($productData, $productBase->id);
-            //registrar productos en la base de datos
-            foreach ($generatedProducts as $generatedProduct) {
-                $existingProduct = Product::where('barcode', $generatedProduct['barcode'])->first();
-                if (!$existingProduct) {
-                    Product::create($generatedProduct);
-                    $products[] = $generatedProduct; // Agrega el producto creado al array
-                }
+        $validated = $request->validate([
+            'categoria'              => ['required', 'integer'],
+            'medidas'                => ['required', 'string'],
+            'productos'               => ['required', 'array'],
+            'productos.*.PRODUCTO'    => ['required', 'string'],
+            'productos.*.CODIGO'      => ['required', 'string'],
+        ]);
+        $units = Unit::all(['id', 'code', 'abbreviation']);
+        $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get();
+        $categorie = Category::where('codigo', $validated['categoria'])->select('id', 'codigo')->first();
+        $allGeneratedProducts = [];
+
+
+
+        DB::transaction(function () use ($validated, $categorie, $measures, $units, &$allGeneratedProducts) {
+
+
+            foreach ($validated['productos'] as $productData) {
+                $productBase = Product::create([
+                    'name'          => strtoupper($productData['PRODUCTO']),
+                    'code'          => $productData['CODIGO'],
+                    'category_code' => $categorie['codigo'],
+                    'description' => "Producto base para " . $productData['PRODUCTO'],
+                    'price_sale_a1' => 0,
+                    'price_sale_regular' => 0,
+                    'price_purchase' => 0,
+                    'stock' => 0,
+                    'min_stock' => 0,
+                    'is_active_product' => 0,
+                    'category_id' => $categorie['id'],
+                ]);
+
+                $allGeneratedProducts = array_merge(
+                    $allGeneratedProducts,
+                    $this->arrayinfo($units, $categorie, $measures, $productData, $productBase->id)
+                );
+            }
+            $barcodes = array_column($allGeneratedProducts, 'barcode');
+            $existingBarcodes = Product::whereIn('barcode', $barcodes)->pluck('barcode')->toArray();
+
+            $newProducts = array_values(array_filter(
+                $allGeneratedProducts,
+                fn($p) => !in_array($p['barcode'], $existingBarcodes)
+            ));
+
+            if (!empty($newProducts)) {
+                $now = now();
+                $rows = array_map(function ($p) use ($now) {
+                    $p['created_at'] = $now;
+                    $p['updated_at'] = $now;
+                    return $p;
+                }, $newProducts);
             }
 
-            $products = array_merge($products, $generatedProducts);
-        }
+            Product::insert($newProducts);
 
-        return response()->json(['products' => $products], 200);
+        });
+        return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
-    protected function information10($product, int $productBase): array
+
+
+    protected function arrayinfo($unitarry,  $categoria, $measurearry, array $data, int $productBase): array
     {
-        $measureLiquido = [1, 3, 5, 7, 8, 11, 13];
-        $measureSolido = [2, 4, 6, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20];
-        $units = [1, 2, 3];
-        if (in_array($product['CP'], [10, 20, 30, 40])) {
-            return $this->arrayinfo($units, $measureLiquido, (array)$product, $productBase);
-        }
 
-        if (in_array($product['CP'], [50, 60, 70, 80, 90, 100, 101, 102])) {
-            return $this->arrayinfo($units, $measureSolido, (array)$product, $productBase);
-        }
-
-        return []; // Retorna array vacío si no coincide
-    }
-
-    protected function arrayinfo(array $unitarry, array $measurearry, array $data, int $productBase): array
-    {
         $products = []; // Inicializa el array ANTES del foreach
         $price_sale_regular = rand(70, 200);
         $price_sale = rand(50, 160);
         $price_purchase = rand(70, 200);
-        $units = Unit::whereIn('id', $unitarry)->get();
-        $measures = Measure::whereIn('id', $measurearry)->get();
-        foreach ($units as $unit) {
-            foreach ($measures as $measure) {
-                $codigoConcatenado = sprintf('%s%s%s%s', $data['CP'], $data['CODIGO'], $measure->code, $unit->code);
-                $nombreFinal = sprintf('%s por %s de %s', $this->clearName($data['PRODUCTO'], $data['CODIGO']), $measure->description_for_product, $unit->name);
+        foreach ($unitarry as $unit) {
+            foreach ($measurearry as $measure) {
+                $codigoConcatenado = sprintf('%s%s%s%s', $categoria['codigo'], $data['CODIGO'], $measure['code'], $unit['code']);
+                $nombreFinal = sprintf('%s %s', $this->clearName($data['PRODUCTO'], $data['CODIGO']), $measure['description_for_product']);
                 $products[] = [
-                    'barcode'        => $codigoConcatenado,
                     'name'          => strtoupper($nombreFinal),
+                    'code' => $data['CODIGO'],
+                    'category_code' => $categoria['codigo'],
+                    'barcode'        => $codigoConcatenado,
+                    'description' => $nombreFinal . ' por ' . $unit['abbreviation'],
                     'price_sale_regular' => $price_sale_regular,
-                    'price_sale' => $price_sale,
+                    'price_sale_a1' => $price_sale,
                     'price_purchase' => $price_purchase,
-                    'category_id' => 1,
-                    'category_code' => $data['CP'],
                     'stock' => 100,
                     'min_stock' => 10,
-                    'code' => $data['CODIGO'],
-                    'unit_id' => $unit->id,
-                    'measure_id' => $measure->id,
+                    'is_active_product' => 1,
                     'productBase_id' => $productBase,
+                    'uuid' => \Str::uuid(),
+                    'category_id' => $categoria['id'],
+                    'unit_id' => $unit['id'],
+                    'measure_id' => $measure['id'],
                 ];
             }
         }
 
-        return $products; // ¡Retorna el array!
+        return $products;
     }
 
     protected function clearName(string $name, String $codigo): string
