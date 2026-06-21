@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\DocumentEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class SupplierRequest extends FormRequest
 {
@@ -63,11 +65,25 @@ class SupplierRequest extends FormRequest
             default => [],
         };
     }
+    public function rulesForAction(string $action): array
+    {
+        return match (strtoupper($action)) {
+            'POST'   => $this->rulesPost(),
+            'PUT'    => $this->rulesPut(),
+            'PATCH'  => $this->rulesPatch(),
+            'DELETE' => $this->rulesDestroy(),
+            'SHOW'   => $this->rulesShow(),
+            default  => $this->rulesGet(),
+        };
+    }
 
     protected function sharedRules(): array
     {
         return [
-            'identity_uuid' => 'required|exists:identities,uuid',
+            'identity' => [
+                'required',
+                new Enum(DocumentEnum::class),
+            ],
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
@@ -92,15 +108,18 @@ class SupplierRequest extends FormRequest
     protected function rulesDestroy(): array
     {
         return [
-            'uuid' => 'required|exists:categories,uuid',
+            'uuid' => 'required|exists:suppliers,uuid',
         ];
     }
 
     protected function rulesPatch(): array
     {
         return [
+            'identity' => [
+                'required',
+                new Enum(DocumentEnum::class),
+            ],
             'document_number' => 'required|numeric|unique:suppliers,document_number,' . $this->supplier->id,
-            'identity_uuid' => 'required|exists:identities,uuid',
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
@@ -111,8 +130,8 @@ class SupplierRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'identity_uuid.required' => 'El tipo de documento es requerido',
-            'identity_uuid.exists' => 'El tipo de documento no existe',
+            'identity.required' => 'El tipo de documento es requerido',
+            'identity.enum' => 'El tipo de documento no es válido',
             'name.required' => 'El nombre del proveedor es requerido',
             'name.string' => 'El nombre del proveedor debe ser una cadena de texto',
             'name.max' => 'El nombre del proveedor no debe exceder los 255 caracteres',
