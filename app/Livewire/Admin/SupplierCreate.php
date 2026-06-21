@@ -72,8 +72,8 @@ class SupplierCreate extends Component
     public function save()
     {
         try {
-            $customerRequest = new SupplierRequest();
-            $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
+            $supplierRequest = new SupplierRequest();
+            $this->validate($supplierRequest->rulesForAction('POST'), $supplierRequest->messages());
             Supplier::create([
                 'document_number' => $this->document_number,
                 'identity' => $this->identity,
