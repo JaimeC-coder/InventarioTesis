@@ -68,7 +68,9 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void {}
+    public function show(Product $product): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -185,18 +187,13 @@ class ProductController extends Controller
         $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get();
         $categorie = Category::where('codigo', $validated['categoria'])->select('id', 'codigo')->first();
         $allGeneratedProducts = [];
-
-
-
-        DB::transaction(function () use ($validated, $categorie, $measures, $units, &$allGeneratedProducts) {
-
-
+        DB::transaction(function () use ($validated, $categorie, $measures, $units, &$allGeneratedProducts): void {
             foreach ($validated['productos'] as $productData) {
                 $productBase = Product::create([
                     'name'          => strtoupper($productData['PRODUCTO']),
                     'code'          => $productData['CODIGO'],
                     'category_code' => $categorie['codigo'],
-                    'description' => "Producto base para " . $productData['PRODUCTO'],
+                    'description' => 'Producto base para ' . $productData['PRODUCTO'],
                     'price_sale_a1' => 0,
                     'price_sale_regular' => 0,
                     'price_purchase' => 0,
@@ -205,23 +202,21 @@ class ProductController extends Controller
                     'is_active_product' => 0,
                     'category_id' => $categorie['id'],
                 ]);
-
                 $allGeneratedProducts = array_merge(
                     $allGeneratedProducts,
                     $this->arrayinfo($units, $categorie, $measures, $productData, $productBase->id)
                 );
             }
+
             $barcodes = array_column($allGeneratedProducts, 'barcode');
             $existingBarcodes = Product::whereIn('barcode', $barcodes)->pluck('barcode')->toArray();
-
             $newProducts = array_values(array_filter(
                 $allGeneratedProducts,
-                fn($p) => !in_array($p['barcode'], $existingBarcodes)
+                fn(array $p): bool => !in_array($p['barcode'], $existingBarcodes)
             ));
-
-            if (!empty($newProducts)) {
+            if ($newProducts !== []) {
                 $now = now();
-                $rows = array_map(function ($p) use ($now) {
+                $rows = array_map(function (array $p) use ($now): array {
                     $p['created_at'] = $now;
                     $p['updated_at'] = $now;
                     return $p;
@@ -229,16 +224,12 @@ class ProductController extends Controller
             }
 
             Product::insert($newProducts);
-
         });
         return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
-
-
-    protected function arrayinfo($unitarry,  $categoria, $measurearry, array $data, int $productBase): array
+    protected function arrayinfo($unitarry, array $categoria, $measurearry, array $data, int $productBase): array
     {
-
         $products = []; // Inicializa el array ANTES del foreach
         $price_sale_regular = rand(70, 200);
         $price_sale = rand(50, 160);
