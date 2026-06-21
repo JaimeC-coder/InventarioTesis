@@ -39,7 +39,6 @@ Route::post('products', function (Request $request) {
                     ->orWhere('barcode', 'like', $search . '%');
             });
         }
-
         if ($request->has('selected') && !empty($request->selected)) {
             $query->whereIn('uuid', $request->selected);
         } else {
@@ -60,7 +59,6 @@ Route::post('warehouses', function (Request $request) {
                     ->orWhere('sku', 'like', $search . '%');
             });
         }
-
         if ($request->has('selected') && !empty($request->selected)) {
             $query->whereIn('uuid', $request->selected);
         } else {
@@ -81,7 +79,6 @@ Route::post('purchases-orders', function (Request $request) {
             });
             return;
         }
-
         if (count($parts) === 2) {
             $serie = $parts[0];
             $correlativo = ltrim($parts[1], '0');
@@ -120,7 +117,6 @@ Route::post('quotes', function (Request $request) {
             });
             return;
         }
-
         if (count($parts) === 2) {
             $serie = $parts[0];
             $correlativo = ltrim($parts[1], '0');

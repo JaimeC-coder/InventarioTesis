@@ -153,7 +153,6 @@ class PurchaseOrderCreate extends Component
         $fileDirection = FileServices::generatePdfNow(['model' => PurchaseOrder::class, 'uuids' => $PurchaseOrder->uuid]);
         $PurchaseOrder->update(['file_path' => $fileDirection]);
         $PurchaseOrder->save();
-
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Orden de compra creada',

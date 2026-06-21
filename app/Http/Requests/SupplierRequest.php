@@ -65,6 +65,7 @@ class SupplierRequest extends FormRequest
             default => [],
         };
     }
+
     public function rulesForAction(string $action): array
     {
         return match (strtoupper($action)) {

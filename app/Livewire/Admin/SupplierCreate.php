@@ -27,12 +27,9 @@ class SupplierCreate extends Component
 
     public $identities = [];
 
-
-
     public function mount(): void
     {
-
-        $this->identities =[[
+        $this->identities = [[
             'id' => DocumentEnum::RUC->value,
             'name' => DocumentEnum::RUC->label(),
         ]];
@@ -42,12 +39,11 @@ class SupplierCreate extends Component
     {
         $this->name = '';
         $this->active = $this->identity === DocumentEnum::RUC->value;
-
     }
 
     public function generateDocumentNumber(): void
     {
-       if ($this->identity === DocumentEnum::RUC->value) {
+        if ($this->identity === DocumentEnum::RUC->value) {
             $identity  = DocumentServices::getDataFromRUC($this->document_number);
             if (isset($identity['success']) && $identity['success'] === false) {
                 $this->dispatch('swal', [
@@ -85,7 +81,6 @@ class SupplierCreate extends Component
                 'email' => $this->email,
                 'phone' => $this->phone,
                 'address' => $this->address,
-
             ]);
             $this->dispatch('swal', [
                 'title' => 'Exitoso',
