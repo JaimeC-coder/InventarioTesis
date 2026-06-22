@@ -68,9 +68,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void
-    {
-    }
+    public function show(Product $product): void {}
 
     /**
      * Show the form for editing the specified resource.
@@ -194,9 +192,9 @@ class ProductController extends Controller
             'productos.*.CODIGO.required' => 'El código del producto es obligatorio.',
             'productos.*.CODIGO.string' => 'El código del producto debe ser una cadena de texto.',
         ]);
-        $units = Unit::all(['id', 'code', 'abbreviation']);
-        $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get();
-        $categorie = Category::where('codigo', $validated['categoria'])->select('id', 'codigo')->first();
+        $units = Unit::all(['id', 'code', 'abbreviation'])->toArray();
+        $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get()->toArray();
+        $categorie = Category::where('codigo', $validated['categoria'])->select('id', 'codigo')->firstOrFail()->toArray();
         $allGeneratedProducts = [];
         DB::transaction(function () use ($validated, $categorie, $measures, $units, &$allGeneratedProducts): void {
             foreach ($validated['productos'] as $productData) {
@@ -215,7 +213,7 @@ class ProductController extends Controller
                 ]);
                 $allGeneratedProducts = array_merge(
                     $allGeneratedProducts,
-                    $this->arrayinfo($units, $categorie, $measures, $productData, $productBase->id)
+                    $this->buildProductVariants($units, $categorie, $measures, $productData, $productBase->id)
                 );
             }
 
@@ -227,36 +225,33 @@ class ProductController extends Controller
             ));
             if ($newProducts !== []) {
                 $now = now();
-                $rows = array_map(function (array $p) use ($now): array {
-                    $p['created_at'] = $now;
-                    $p['updated_at'] = $now;
-                    return $p;
-                }, $newProducts);
-            }
+                $rows = array_map(fn(array $p): array => [
+                    ...$p,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ], $newProducts);
 
-            if (isset($rows) && $rows !== []) {
                 foreach (array_chunk($rows, 500) as $chunk) {
                     Product::insert($chunk);
                 }
             }
-
         });
         return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
-    protected function arrayinfo($unitarry, array $categoria, $measurearry, array $data, int $productBase): array
+    protected function buildProductVariants(array $units, array $categoria, array $measures, array $productData, int $productBase): array
     {
         $products = []; // Inicializa el array ANTES del foreach
         $price_sale_regular = rand(70, 200);
         $price_sale = rand(50, 160);
         $price_purchase = rand(70, 200);
-        foreach ($unitarry as $unit) {
-            foreach ($measurearry as $measure) {
-                $codigoConcatenado = sprintf('%s%s%s%s', $categoria['codigo'], $data['CODIGO'], $measure['code'], $unit['code']);
-                $nombreFinal = sprintf('%s %s', $this->clearName($data['PRODUCTO'], $data['CODIGO']), $measure['description_for_product']);
+        foreach ($units as $unit) {
+            foreach ($measures as $measure) {
+                $codigoConcatenado = sprintf('%s%s%s%s', $categoria['codigo'], $productData['CODIGO'], $measure['code'], $unit['code']);
+                $nombreFinal = sprintf('%s %s', $this->clearName($productData['PRODUCTO'], $productData['CODIGO']), $measure['description_for_product']);
                 $products[] = [
                     'name'          => strtoupper($nombreFinal),
-                    'code' => $data['CODIGO'],
+                    'code' => $productData['CODIGO'],
                     'category_code' => $categoria['codigo'],
                     'barcode'        => $codigoConcatenado,
                     'description' => $nombreFinal . ' por ' . $unit['abbreviation'],
