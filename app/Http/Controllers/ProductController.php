@@ -244,7 +244,7 @@ class ProductController extends Controller
         return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
-    protected function arrayinfo($unitarry, $categoria, $measurearry, array $data, int $productBase): array
+    protected function arrayinfo($unitarry, array $categoria, $measurearry, array $data, int $productBase): array
     {
         $products = []; // Inicializa el array ANTES del foreach
         $price_sale_regular = rand(70, 200);
