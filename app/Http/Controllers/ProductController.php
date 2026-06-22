@@ -182,6 +182,17 @@ class ProductController extends Controller
             'productos'               => ['required', 'array'],
             'productos.*.PRODUCTO'    => ['required', 'string'],
             'productos.*.CODIGO'      => ['required', 'string'],
+        ], [
+            'categoria.required' => 'El campo categoría es obligatorio.',
+            'categoria.integer' => 'El campo categoría debe ser un número entero.',
+            'medidas.required' => 'El campo medidas es obligatorio.',
+            'medidas.string' => 'El campo medidas debe ser una cadena de texto.',
+            'productos.required' => 'El campo productos es obligatorio.',
+            'productos.array' => 'El campo productos debe ser un arreglo.',
+            'productos.*.PRODUCTO.required' => 'El nombre del producto es obligatorio.',
+            'productos.*.PRODUCTO.string' => 'El nombre del producto debe ser una cadena de texto.',
+            'productos.*.CODIGO.required' => 'El código del producto es obligatorio.',
+            'productos.*.CODIGO.string' => 'El código del producto debe ser una cadena de texto.',
         ]);
         $units = Unit::all(['id', 'code', 'abbreviation']);
         $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get();
@@ -223,12 +234,17 @@ class ProductController extends Controller
                 }, $newProducts);
             }
 
-            Product::insert($newProducts);
+            if (isset($rows) && $rows !== []) {
+                foreach (array_chunk($rows, 500) as $chunk) {
+                    Product::insert($chunk);
+                }
+            }
+
         });
         return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
-    protected function arrayinfo($unitarry, array $categoria, $measurearry, array $data, int $productBase): array
+    protected function arrayinfo($unitarry, $categoria, $measurearry, array $data, int $productBase): array
     {
         $products = []; // Inicializa el array ANTES del foreach
         $price_sale_regular = rand(70, 200);
@@ -251,7 +267,7 @@ class ProductController extends Controller
                     'min_stock' => 10,
                     'is_active_product' => 1,
                     'productBase_id' => $productBase,
-                    'uuid' => \Str::uuid(),
+                    'uuid' => \Illuminate\Support\Str::uuid(),
                     'category_id' => $categoria['id'],
                     'unit_id' => $unit['id'],
                     'measure_id' => $measure['id'],
