@@ -68,7 +68,9 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void {}
+    public function show(Product $product): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -230,7 +232,6 @@ class ProductController extends Controller
                     'created_at' => $now,
                     'updated_at' => $now,
                 ], $newProducts);
-
                 foreach (array_chunk($rows, 500) as $chunk) {
                     Product::insert($chunk);
                 }
