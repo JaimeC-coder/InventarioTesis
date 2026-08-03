@@ -22,8 +22,9 @@ class InventorySeeder extends Seeder
         ucfirst($numberFormatter->format($entero));
         $products = \App\Models\Product::where('stock', '>', 0)->get();
         $warehouses = \App\Models\Warehouse::all();
-        $quotes = \App\Models\Purchase::latest()->first() ?? 0;
-        $correlativo =  \App\Models\Purchase::where('serie', $quotes)->max('correlativo') ?? 0;
+        $correlativo = \App\Models\Purchase::latest()->first() ?? 0;
+        $correlativo =  \App\Models\Purchase::where('correlativo', $correlativo)->max('correlativo') ?? 0;
+
         $purchases = \App\Models\Purchase::create([
             'voucher_type' => 1,
             'serie' => 'OC-00001',
@@ -31,7 +32,7 @@ class InventorySeeder extends Seeder
             'date' => now(),
             'supplier_id' => \App\Models\Supplier::first()->id,
             'warehouse_id' => \App\Models\Warehouse::first()->id,
-            'status' => 'COMPLETADO',
+            'status' => 'RECIBIDO',
             'subtotal' => $subtotal,
             'igv' => $totalimpuesto,
             'total' => $total,
@@ -41,31 +42,21 @@ class InventorySeeder extends Seeder
         ]);
         foreach ($products as $product) {
             foreach ($warehouses as $warehouse) {
-                // Crear un registro de inventario
+                // Crear el detalle del compra
                 $purchases->products()->attach($product->id, [
                     'quantity' => $product->stock,
                     'price' => $product->price_purchase,
                     'subtotal' => $product->stock * $product->price_purchase,
+                    'product_name' => $product->name,
                 ]);
-                $lastrecortd = \App\Models\Inventorie::where('product_id', $product->id)
-                    ->where('warehouse_id', $warehouse->id)
-                    ->latest()
-                    ->first();
-                $lastQuantity = $lastrecortd ? $lastrecortd->quantity_balance : 0;
-                $lastTotal = $lastrecortd ? $lastrecortd->total_balance : 0;
-                $lastcostBalance = $lastrecortd ? $lastrecortd->cost_balance : 0;
-                $newQuantity = $lastQuantity + $product['stock'];
-                $newTotal = $lastTotal + ($product['stock'] * $lastcostBalance);
-                //$costBalance = $newQuantity > 0 ? $newTotal / $newQuantity : 0;
-                $costBalance = $newTotal / ($newQuantity ?: 1);
+                $purchase_in = $purchases->inventories()->where('product_id', $product->id)->where('warehouse_id', $warehouse->id)->sum('quantity_in');
+                $purchase_out = $purchases->inventories()->where('product_id', $product->id)->where('warehouse_id', $warehouse->id)->sum('quantity_out');
                 $purchases->inventories()->create([
                     'detail' => 'Compra ID: ' . $purchases->id,
-                    'cost_out' => $lastcostBalance,
-                    'total_out' => $product['stock'] * $lastcostBalance,
-                    'quantity_out' => $product['stock'],
-                    'quantity_balance' => $newQuantity,
-                    'cost_balance' => $costBalance,
-                    'total_balance' => $newTotal,
+                    'quantity_in' => $product['stock'],
+                    'quantity_total' => $purchase_in - $purchase_out + $product['stock'],
+                    'product_name' => $product->name,
+                    'type' => 'Entrada',
                     'product_id' => $product->id,
                     'warehouse_id' => $warehouse->id,
                 ]);

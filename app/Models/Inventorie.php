@@ -10,17 +10,12 @@ class Inventorie extends BaseModel
         'detail',
         'quantity_in',
         'quantity_out',
-        'cost_in',
-        'cost_out',
-        'total_in',
-        'total_out',
-        'quantity_balance',
-        'cost_balance',
-        'total_balance',
+        'quantity_total',
+        'product_name',
         'product_id',
         'warehouse_id',
-        'inventoryable_id',
-        'inventoryable_type',
+        'type',//Entrada ,Salida ,Traslado-IGS , Traslado-IGD
+        //traslado-code por verse
         'uuid',
     ];
 

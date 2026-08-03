@@ -9,6 +9,7 @@ use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -17,7 +18,7 @@ class PurchasesCreate extends Component
 {
     public $voucher_type = 2;
 
-    public $serie = 'OC-00001';
+    public $serie = 'V001';
 
     public $correlativo;
 
@@ -93,7 +94,7 @@ class PurchasesCreate extends Component
                 $this->voucher_type = $purchaseOrder->voucher_type;
                 $this->purchase_order_id = $purchaseOrder->id;
                 $this->supplier_uuid = $purchaseOrder->supplier->uuid;
-                $this->supplier_id = $purchaseOrder->id;
+                $this->supplier_id = $purchaseOrder->supplier->id;
                 $this->products = $purchaseOrder->products->map(function ($product): array {
                     return [
                         'id' => $product->id,
@@ -193,7 +194,7 @@ class PurchasesCreate extends Component
                 'igv' => $this->total * 0.18,
                 'total' => $this->total * 1.18,
                 'total_string' => $this->totalEnLetras($this->total * 1.18),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'observation' => $this->observation,
                 'payment_method' => $this->payment_method,
                 'payment_type' => $this->payment_type,

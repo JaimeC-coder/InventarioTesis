@@ -29,7 +29,7 @@ class Movement extends BaseModel
     {
         return $this->morphToMany(Product::class, 'productable')
             ->using(Productable::class)
-            ->withPivot('quantity', 'price', 'subtotal', 'price_type')
+            ->withPivot('quantity', 'price', 'subtotal', 'price_type', 'product_name')
             ->withTimestamps();
     }
 

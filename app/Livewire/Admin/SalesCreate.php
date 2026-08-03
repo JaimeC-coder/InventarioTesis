@@ -9,6 +9,7 @@ use App\Models\Sale;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -246,7 +247,7 @@ class SalesCreate extends Component
                 'observation' => $this->observation,
                 'payment_method' => $this->payment_method,
                 'payment_type' => $this->payment_type,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
             Log::info('Venta creada con ID: ' . $Sale->id);
             foreach ($this->products as $product) {

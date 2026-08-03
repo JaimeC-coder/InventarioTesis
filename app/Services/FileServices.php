@@ -42,7 +42,7 @@ class FileServices
 
     public static function url(string $path): string
     {
-        return Storage::disk(self::disk())->url($path);
+        return Storage::url($path);
     }
 
     protected static function disk(): string
@@ -108,7 +108,7 @@ class FileServices
         $data = [];
         if ($modal instanceof Purchase || $modal instanceof PurchaseOrder) {
             $data['type'] = 'PROVEEDOR';
-            $data['identity'] = $modal->supplier->identity ? $modal->supplier->identity->name : 'DNI';
+            $data['identity'] = $modal->supplier->identity ? $modal->supplier->identity : 'DNI';
             $data['document_number'] = $modal->supplier ? $modal->supplier->document_number : '00000000';
             $data['name'] = $modal->supplier ? $modal->supplier->name : '-------';
             $data['address']  = $modal->supplier ? $modal->supplier->address : '------';
@@ -116,8 +116,8 @@ class FileServices
         }
 
         if ($modal instanceof Quote || $modal instanceof Sale) {
-            $data['type'] = 'PROVEEDOR';
-            $data['identity'] = $modal->customer->identity ? $modal->customer->identity->name : 'DNI';
+            $data['type'] = 'CLIENTE';
+            $data['identity'] = $modal->customer->identity ? $modal->customer->identity : 'DNI';
             $data['document_number'] = $modal->customer ? $modal->customer->document_number : '00000000';
             $data['name'] = $modal->customer ? $modal->customer->name : '-------';
             $data['address']  = $modal->customer ? $modal->customer->address : '------';

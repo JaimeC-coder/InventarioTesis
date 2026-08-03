@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Reason;
 use App\Models\Warehouse;
 use App\Services\FileServices;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class MovementCreate extends Component
@@ -162,7 +163,7 @@ class MovementCreate extends Component
             'total' => $this->total * 1.18,
             'total_string' => $this->totalEnLetras($this->total * 1.18),
             'observation' => $this->observation,
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'reason_id' => $this->reason_id,
         ]);
         foreach ($this->products as $product) {
@@ -214,7 +215,6 @@ class MovementCreate extends Component
         $fileDirection = FileServices::generatePdfNow(['model' => Movement::class, 'uuids' => $Movement->uuid]);
         $Movement->update(['file_path' => $fileDirection]);
         $Movement->save();
-
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Movimiento creado',

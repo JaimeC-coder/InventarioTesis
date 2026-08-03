@@ -19,7 +19,7 @@ return new class() extends Migration {
             $blueprint->foreignId('quote_id')->nullable()->constrained('quotes')->onDelete('cascade');
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $blueprint->enum('status', ['REGISTRADO','CARGADO', 'RUTA','ENTREGADO'])->default('REGISTRADO');
+            $blueprint->string('status')->default('REGISTRADO');
             $blueprint->decimal('subtotal', 10, 2);
             $blueprint->decimal('igv', 10, 2);
             $blueprint->decimal('total', 10, 2)->default(0.00);

@@ -41,13 +41,13 @@ class Transfer extends BaseModel
     {
         return $this->morphToMany(Product::class, 'productable')
             ->using(Productable::class)
-            ->withPivot('quantity', 'price', 'subtotal', 'price_type')
+            ->withPivot('quantity', 'price', 'subtotal', 'price_type', 'product_name')
             ->withTimestamps();
     }
 
     //Relacion uno a muchos polimorfica
-    public function inventories()
+    public function records()
     {
-        return $this->morphMany(Inventorie::class, 'inventoryable');
+        return $this->morphMany(Record::class, 'inventoryable');
     }
 }

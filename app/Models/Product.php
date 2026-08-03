@@ -23,6 +23,7 @@ class Product extends BaseModel
         'uuid',
         'category_id',
         'stock',
+        'supplier_id',
         'unit_id',
         'measure_id',
     ];
@@ -82,5 +83,13 @@ class Product extends BaseModel
     public function productBase()
     {
         return $this->belongsTo(Product::class, 'productBase_id');
+    }
+
+    public function stockByWarehouse()
+    {
+        return $this->hasMany(Inventorie::class)
+            ->selectRaw('product_id, warehouse_id, SUM(quantity_balance) as stock')
+            ->with('warehouse')
+            ->groupBy('product_id', 'warehouse_id');
     }
 }

@@ -10,16 +10,17 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        //este sigue siendo el detalle general
-        Schema::create('productables', function (Blueprint $blueprint): void {
+        //va a ser el historial de los registros de productos osea el historial de los registros de productos, para saber en que almacén se encuentra y su cantidad
+        Schema::create('records', function (Blueprint $blueprint): void {
             $blueprint->id();
+            $blueprint->string('observation')->nullable();
+            $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
+            $blueprint->string('warehouse_name', 255);
             $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $blueprint->string('product_name', 255);
-            $blueprint->string('price_type', 20)->default('NONE');
-            $blueprint->decimal('price', 10, 2);
-            $blueprint->integer('quantity');
-            $blueprint->decimal('subtotal', 10, 2);
-            $blueprint->morphs('productable');
+            $blueprint->string('product_code', 255);
+            $blueprint->decimal('quantity', 10, 2);
+            $blueprint->morphs('recordable');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
@@ -31,6 +32,6 @@ return new class() extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('productables');
+        Schema::dropIfExists('records');
     }
 };

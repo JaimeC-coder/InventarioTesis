@@ -194,9 +194,9 @@ class ProductController extends Controller
             'productos.*.CODIGO.required' => 'El código del producto es obligatorio.',
             'productos.*.CODIGO.string' => 'El código del producto debe ser una cadena de texto.',
         ]);
-        $units = Unit::all(['id', 'code', 'abbreviation'])->toArray();
-        $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get()->toArray();
-        $categorie = Category::where('codigo', $validated['categoria'])->select('id', 'codigo')->firstOrFail()->toArray();
+        $units = Unit::all(['id', 'code', 'abbreviation'])->makeVisible('id')->toArray();
+        $measures = Measure::where('category', $validated['medidas'])->select('id', 'code', 'description_for_product')->get()->makeVisible('id')->toArray();
+        $categorie = Category::where('codigo', $validated['categoria'])->select('id', 'codigo')->firstOrFail();
         $allGeneratedProducts = [];
         DB::transaction(function () use ($validated, $categorie, $measures, $units, &$allGeneratedProducts): void {
             foreach ($validated['productos'] as $productData) {
@@ -211,7 +211,7 @@ class ProductController extends Controller
                     'stock' => 0,
                     'min_stock' => 0,
                     'is_active_product' => 0,
-                    'category_id' => $categorie['id'],
+                    'category_id' => $categorie->id,
                 ]);
                 $allGeneratedProducts = array_merge(
                     $allGeneratedProducts,
@@ -240,7 +240,7 @@ class ProductController extends Controller
         return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
-    protected function buildProductVariants(array $units, array $categoria, array $measures, array $productData, int $productBase): array
+    protected function buildProductVariants(array $units, Category $category, array $measures, array $productData, int $productBase): array
     {
         $products = []; // Inicializa el array ANTES del foreach
         $price_sale_regular = rand(70, 200);
@@ -248,12 +248,12 @@ class ProductController extends Controller
         $price_purchase = rand(70, 200);
         foreach ($units as $unit) {
             foreach ($measures as $measure) {
-                $codigoConcatenado = sprintf('%s%s%s%s', $categoria['codigo'], $productData['CODIGO'], $measure['code'], $unit['code']);
+                $codigoConcatenado = sprintf('%s%s%s%s', $category->codigo, $productData['CODIGO'], $measure['code'], $unit['code']);
                 $nombreFinal = sprintf('%s %s', $this->clearName($productData['PRODUCTO'], $productData['CODIGO']), $measure['description_for_product']);
                 $products[] = [
                     'name'          => strtoupper($nombreFinal),
                     'code' => $productData['CODIGO'],
-                    'category_code' => $categoria['codigo'],
+                    'category_code' => $category->codigo,
                     'barcode'        => $codigoConcatenado,
                     'description' => $nombreFinal . ' por ' . $unit['abbreviation'],
                     'price_sale_regular' => $price_sale_regular,
@@ -264,7 +264,7 @@ class ProductController extends Controller
                     'is_active_product' => 1,
                     'productBase_id' => $productBase,
                     'uuid' => \Illuminate\Support\Str::uuid(),
-                    'category_id' => $categoria['id'],
+                    'category_id' => $category->id,
                     'unit_id' => $unit['id'],
                     'measure_id' => $measure['id'],
                 ];
@@ -280,7 +280,6 @@ class ProductController extends Controller
         $name = str_ireplace($codigo, '', $name);
         // elimina espacios en blanco al inicio y al final
         $name = trim($name);
-        LOG::info('Nombre limpiado: ' . $name);
         return $name;
     }
 }

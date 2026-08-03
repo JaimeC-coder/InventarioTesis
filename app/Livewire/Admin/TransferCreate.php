@@ -7,6 +7,7 @@ use App\Models\Transfer;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -157,7 +158,7 @@ class TransferCreate extends Component
             'total' => $this->total * 1.18,
             'total_string' => $this->totalEnLetras($this->total * 1.18),
             'observation' => $this->observation,
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
         ]);
         foreach ($this->products as $product) {
             $product_id = Product::where('id', $product['id'])->value('id');

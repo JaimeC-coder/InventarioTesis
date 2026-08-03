@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Services\FileServices;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -183,7 +184,7 @@ class QuoteCreate extends Component
                 'total' => $this->total * 1.18,
                 'total_string' => $this->totalEnLetras($this->total * 1.18),
                 'observation' => $this->observation,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
             foreach ($this->products as $product) {
                 $product_id = Product::where('id', $product['id'])->value('id');

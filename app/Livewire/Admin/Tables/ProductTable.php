@@ -33,6 +33,11 @@ final class ProductTable extends PowerGridComponent
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
+            PowerGrid::detail()
+                ->view('components.product-detail')
+                ->params(['tableName' => $this->tableName])
+                ->collapseOthers()
+                ->showCollapseIcon(),
         ];
     }
 
@@ -56,8 +61,8 @@ final class ProductTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Product::where('productBase_id', '!=', null)
-            ->with(['category', 'unit', 'measure', 'productBase']);
+        return Product::whereNotNull('productBase_id')
+            ->with(['category', 'unit', 'measure', 'productBase', 'stockByWarehouse.warehouse']);
     }
 
     public function relationSearch(): array
@@ -265,16 +270,4 @@ final class ProductTable extends PowerGridComponent
                 ->dispatch('confirmDelete', ['params' => $product->uuid]),
         ];
     }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }
