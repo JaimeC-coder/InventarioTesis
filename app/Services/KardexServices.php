@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class KardexServices
 {
-
     public static function getLastRecord(int $product_id, int $warehouse_id): array
     {
         $lastRecord = Inventorie::where('product_id', $product_id)
@@ -29,17 +28,16 @@ class KardexServices
         array $product,
         int $warehouse_id,
         string $detail,
-        KardexTypeEnum $type = KardexTypeEnum::ENTRADA
+        KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::ENTRADA
     ): void {
         $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
         $newQuantity = $lastRecord['quantity_total'] + $product['quantity'];
-
         self::registerData($model, [
             'detail' => $detail,
             'quantity_in' => $product['quantity'],
             'quantity_total' => $newQuantity,
             'product_name' => $product['name'] ?? $lastRecord['product_name'],
-            'type' => $type->value,
+            'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
         ]);
@@ -50,17 +48,16 @@ class KardexServices
         array $product,
         int $warehouse_id,
         string $detail,
-        KardexTypeEnum $type = KardexTypeEnum::SALIDA
+        KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::SALIDA
     ): void {
         $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
         $newQuantity = $lastRecord['quantity_total'] - $product['quantity'];
-
         self::registerData($model, [
             'detail' => $detail,
             'quantity_out' => $product['quantity'],
             'quantity_total' => $newQuantity,
             'product_name' => $product['name'],
-            'type' => $type->value,
+            'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
         ]);

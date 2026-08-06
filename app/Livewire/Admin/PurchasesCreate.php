@@ -9,7 +9,6 @@ use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Services\FileServices;
-use App\Services\KardexServices;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;

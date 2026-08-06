@@ -25,7 +25,6 @@ class ProductDetailServices
         self::syncProductDetails($modelo, $products, $warehouse_id, 'exit', $observation);
     }
 
-
     /**
      * Traslado de productos entre dos almacenes.
      * Genera un movimiento de Salida (Traslado-IGS) en el almacén origen
@@ -36,36 +35,30 @@ class ProductDetailServices
         array $products,
         int $fromWarehouseId,
         int $toWarehouseId
-
     ): void {
         Log::info('productos a trasladar: ', $products);
-
         self::validateProductsExist($products);
-
         if ($fromWarehouseId === $toWarehouseId) {
             throw new \InvalidArgumentException('El almacén origen y destino no pueden ser el mismo.');
         }
 
         DB::transaction(function () use ($modelo, $products, $fromWarehouseId, $toWarehouseId): void {
             $modelo->products()->attach(self::buildPivotData($products));
-
             $fromWarehouseName = Warehouse::whereKey($fromWarehouseId)->value('name');
             $toWarehouseName = Warehouse::whereKey($toWarehouseId)->value('name');
-
             foreach ($products as $product) {
                 KardexServices::registerExit(
                     $modelo,
                     $product,
                     $fromWarehouseId,
-                    "Traslado-IGS {$toWarehouseName}",
+                    'Traslado-IGS ' . $toWarehouseName,
                     KardexTypeEnum::TRASLADO_IGS
                 );
-
                 KardexServices::registerEntry(
                     $modelo,
                     $product,
                     $toWarehouseId,
-                    "Traslado-IGD {$fromWarehouseName}",
+                    'Traslado-IGD ' . $fromWarehouseName,
                     KardexTypeEnum::TRASLADO_IGD
                 );
             }
@@ -74,14 +67,9 @@ class ProductDetailServices
 
     private static function syncProductDetails($modelo, array $products, int $warehouse_id, string $movementType, string $observation): void
     {
-
-
         self::validateProductsExist($products);
-
         DB::transaction(function () use ($modelo, $products, $warehouse_id, $movementType, $observation): void {
-
             $modelo->products()->attach(self::buildPivotData($products));
-
             foreach ($products as $product) {
                 $movementType === 'entry'
                     ? KardexServices::registerEntry($modelo, $product, $warehouse_id, $observation, KardexTypeEnum::ENTRADA)
@@ -95,7 +83,6 @@ class ProductDetailServices
         $requestedIds = array_column($products, 'id');
         $existingIds = Product::whereIn('id', $requestedIds)->pluck('id')->all();
         $missingIds = array_diff($requestedIds, $existingIds);
-
         if ($missingIds !== []) {
             throw new \InvalidArgumentException(
                 'Los siguientes productos no existen: ' . implode(', ', $missingIds)
@@ -115,6 +102,7 @@ class ProductDetailServices
                 'subtotal'     => $product['quantity'] * $product['price'],
             ];
         }
+
         return $pivotData;
     }
 }

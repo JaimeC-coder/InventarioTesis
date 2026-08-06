@@ -97,7 +97,6 @@ class Product extends BaseModel
         return $this->hasMany(Record::class, 'product_id');
     }
 
-
     public function stockByWarehouse()
     {
         return $this->hasMany(Record::class, 'product_id')
