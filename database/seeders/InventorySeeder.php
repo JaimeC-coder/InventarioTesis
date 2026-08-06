@@ -27,7 +27,7 @@ class InventorySeeder extends Seeder
 
         $purchases = \App\Models\Purchase::create([
             'voucher_type' => 1,
-            'serie' => 'OC-00001',
+            'serie' => 'C001',
             'correlativo' =>  $correlativo + 1,
             'date' => now(),
             'supplier_id' => \App\Models\Supplier::first()->id,
@@ -48,6 +48,7 @@ class InventorySeeder extends Seeder
                     'price' => $product->price_purchase,
                     'subtotal' => $product->stock * $product->price_purchase,
                     'product_name' => $product->name,
+                    'price_type' => 'COMPRA',
                 ]);
                 $purchase_in = $purchases->inventories()->where('product_id', $product->id)->where('warehouse_id', $warehouse->id)->sum('quantity_in');
                 $purchase_out = $purchases->inventories()->where('product_id', $product->id)->where('warehouse_id', $warehouse->id)->sum('quantity_out');

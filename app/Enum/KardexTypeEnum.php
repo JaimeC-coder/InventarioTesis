@@ -2,12 +2,15 @@
 
 namespace App\Enum;
 
-enum RecordStatusEnum: string
+enum KardexTypeEnum: string
 {
     //Entrada ,Salida ,Traslado
     case ENTRADA = 'ENTRADA';
     case SALIDA = 'SALIDA';
     case TRASLADO = 'TRASLADO';
+    case TRASLADO_IGS = 'Traslado-IGS'; // salida del almacén origen
+    case TRASLADO_IGD = 'Traslado-IGD'; // ingreso al almacén destino
+    case OTROS = 'Otros';
 
     public function label(): string
     {
@@ -15,6 +18,9 @@ enum RecordStatusEnum: string
             self::ENTRADA => 'Entrada',
             self::SALIDA => 'Salida',
             self::TRASLADO => 'Traslado',
+            self::TRASLADO_IGS => 'Traslado-IGS',
+            self::TRASLADO_IGD => 'Traslado-IGD',
+            self::OTROS => 'Otros',
         };
     }
 

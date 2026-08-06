@@ -85,11 +85,22 @@ class Product extends BaseModel
         return $this->belongsTo(Product::class, 'productBase_id');
     }
 
+    // Relacion con proveedores
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    // Relacion inversa con Record para obtener el stock por almacén
+    public function records()
+    {
+        return $this->hasMany(Record::class, 'product_id');
+    }
+
+
     public function stockByWarehouse()
     {
-        return $this->hasMany(Inventorie::class)
-            ->selectRaw('product_id, warehouse_id, SUM(quantity_balance) as stock')
-            ->with('warehouse')
-            ->groupBy('product_id', 'warehouse_id');
+        return $this->hasMany(Record::class, 'product_id')
+            ->with('warehouse');
     }
 }

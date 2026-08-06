@@ -11,6 +11,7 @@ class Productable extends MorphPivot
 
     protected $fillable = [
         'product_id',
+        'product_name',
         'price_type',
         'quantity',
         'price',

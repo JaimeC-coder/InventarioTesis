@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Http\Requests\PurchaseRequest;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
@@ -9,6 +10,8 @@ use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
+use App\Services\ProductDetailServices;
+use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,9 +21,9 @@ class PurchasesCreate extends Component
 {
     public $voucher_type = 2;
 
-    public $serie = 'V001';
+    public $serie = 'C001';
 
-    public $correlativo;
+    public $correlativo = 1;
 
     public $date = '';
 
@@ -82,7 +85,7 @@ class PurchasesCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Purchase::where('serie', $this->serie)->max('correlativo') + 1;
+        $this->correlativo = Purchase::max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -112,10 +115,8 @@ class PurchasesCreate extends Component
     {
         $this->validate([
             'product_uuid' => 'required|exists:products,uuid',
-            'warehouse_uuid' => 'required|exists:warehouses,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
-        Warehouse::where('uuid', $this->warehouse_uuid)->first();
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -127,11 +128,11 @@ class PurchasesCreate extends Component
             return;
         }
 
-        // $kardex = KardexServices::getLastRecord($product->id, $warehouse->id);
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
+            'price_type' => 'COMPRA',
             'price' => $product->price_purchase,
             'subtotal' => $product->price_purchase,
         ];
@@ -152,34 +153,8 @@ class PurchasesCreate extends Component
             $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
         }
 
-        $this->validate([
-            'voucher_type' => 'required|in:1,2',
-            'serie' => 'required|string|max:20',
-            'correlativo' => 'required|integer|min:1',
-            'date' => 'required|date',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'warehouse_id' => 'required|exists:warehouses,id',
-            'purchase_order_id' => 'nullable|exists:purchase_orders,id',
-            'total' => 'required|numeric|min:0.01',
-            'observation' => 'nullable|string|max:500',
-            'products' => 'required|array|min:1',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-            'products.*.price' => 'required|numeric|min:0',
-        ], [], [
-            'voucher_type' => 'Tipo de comprobante',
-            'warehouse_id' => 'ID del almacén',
-            'purchase_order_id' => 'ID de la orden de compra',
-            'serie' => 'Serie',
-            'correlativo' => 'Correlativo',
-            'date' => 'Fecha',
-            'supplier_id' => 'Proveedor',
-            'total' => 'Total',
-            'observation' => 'Observación',
-            'products.*.id' => 'ID del producto',
-            'products.*.quantity' => 'Cantidad del producto',
-            'products.*.price' => 'Precio del producto',
-        ]);
+        $purchaseRequest = new PurchaseRequest();
+        $this->validate($purchaseRequest->rulesForAction('POST'), $purchaseRequest->messages(), $purchaseRequest->attributes());
         DB::beginTransaction();
         try {
             $Purchase = Purchase::create([
@@ -193,22 +168,13 @@ class PurchasesCreate extends Component
                 'subtotal' => $this->total,
                 'igv' => $this->total * 0.18,
                 'total' => $this->total * 1.18,
-                'total_string' => $this->totalEnLetras($this->total * 1.18),
+                'total_string' => UtilitisServices::TotalEnLetras($this->total * 1.18),
                 'user_id' => Auth::id(),
                 'observation' => $this->observation,
                 'payment_method' => $this->payment_method,
                 'payment_type' => $this->payment_type,
             ]);
-            foreach ($this->products as $product) {
-                $product_id = Product::where('id', $product['id'])->value('id');
-                $Purchase->products()->attach($product_id, [
-                    'quantity' => $product['quantity'],
-                    'price' => $product['price'],
-                    'subtotal' => $product['quantity'] * $product['price'],
-                ]);
-                KardexServices::registerEntry($Purchase, $product, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
-            }
-
+            ProductDetailServices::createDetailproductableRegister($Purchase, $this->products, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
             $fileDirection = FileServices::generatePdfNow(['model' => Purchase::class, 'uuids' => $Purchase->uuid]);
             $Purchase->update(['file_path' => $fileDirection]);
             $Purchase->save();

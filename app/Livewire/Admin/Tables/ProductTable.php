@@ -187,7 +187,7 @@ final class ProductTable extends PowerGridComponent
         ]);
     }
 
-    public function delete($productId): void
+    public function delete(string $productId): void
     {
         $product = Product::where('uuid', $productId)->first();
         if ($product) {

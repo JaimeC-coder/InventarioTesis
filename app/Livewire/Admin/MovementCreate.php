@@ -215,7 +215,6 @@ class MovementCreate extends Component
         $fileDirection = FileServices::generatePdfNow(['model' => Movement::class, 'uuids' => $Movement->uuid]);
         $Movement->update(['file_path' => $fileDirection]);
         $Movement->save();
-
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Movimiento creado',

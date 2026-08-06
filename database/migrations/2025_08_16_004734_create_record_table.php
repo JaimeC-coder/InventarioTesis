@@ -13,15 +13,18 @@ return new class() extends Migration {
         //va a ser el historial de los registros de productos osea el historial de los registros de productos, para saber en que almacén se encuentra y su cantidad
         Schema::create('records', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('observation')->nullable();
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->string('warehouse_name', 255);
+            $blueprint->decimal('quantity', 10, 2);
             $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $blueprint->string('product_name', 255);
             $blueprint->string('product_code', 255);
-            $blueprint->decimal('quantity', 10, 2);
-            $blueprint->morphs('recordable');
+            $blueprint->string('observation')->nullable();
             $blueprint->uuid('uuid')->unique();
+            // $blueprint->morphs('recordable');
+            $blueprint->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
+            $blueprint->index(['product_id', 'warehouse_id']);
+            $blueprint->unique(['product_id', 'warehouse_id']);
             $blueprint->timestamps();
             $blueprint->softDeletes();
         });

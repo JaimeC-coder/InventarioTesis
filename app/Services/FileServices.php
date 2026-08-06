@@ -84,20 +84,9 @@ class FileServices
             . '.pdf';
     }
 
-    protected static function totalEnLetras($monto, $moneda = 'SOLES'): string
-    {
-        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
-        $entero = floor($monto);
-        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
-
-        return mb_strtoupper(
-            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
-        );
-    }
-
     protected static function descripcion_general($items): array
     {
-        return ['voucher_type' => $items->voucher_type == 1 ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA', 'observacion' => $items->observation ? $items->observation : 'SIN OBSERVACIÓN', 'serie' => $items->serie ? $items->serie : '000', 'correlativo' => $items->correlativo ? $items->correlativo : '00000000', 'fecha' => $items->date ? Carbon::parse($items->date)->format('d/m/Y') : date('d/m/Y'), 'currency' => $items->currency ? $items->currency : 'SOLES', 'total_string' => $items->total_string ? $items->total_string : self::totalEnLetras($items->total), 'subtotal' => $items->subtotal ? $items->subtotal : 0, 'igv' => $items->igv ? $items->igv : 0, 'total' => $items->total ? $items->total : 0, 'forma_pago' => $items->payment_method ? $items->payment_method : 'ESPECIE'];
+        return ['voucher_type' => $items->voucher_type == 1 ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA', 'observacion' => $items->observation ? $items->observation : 'SIN OBSERVACIÓN', 'serie' => $items->serie ? $items->serie : '000', 'correlativo' => $items->correlativo ? $items->correlativo : '00000000', 'fecha' => $items->date ? Carbon::parse($items->date)->format('d/m/Y') : date('d/m/Y'), 'currency' => $items->currency ? $items->currency : 'SOLES', 'total_string' => $items->total_string ? $items->total_string : UtilitisServices::totalEnLetras($items->total), 'subtotal' => $items->subtotal ? $items->subtotal : 0, 'igv' => $items->igv ? $items->igv : 0, 'total' => $items->total ? $items->total : 0, 'forma_pago' => $items->payment_method ? $items->payment_method : 'ESPECIE'];
     }
 
     /**
