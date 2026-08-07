@@ -5,10 +5,7 @@ namespace App\Livewire\Admin;
 use App\Http\Requests\PurchaseOrderRequest;
 use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Product;
-use App\Models\Purchase;
 use App\Models\PurchaseOrder;
-use App\Models\Supplier;
-use App\Services\FileServices;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +32,6 @@ class PurchaseOrderCreate extends Component
     public $observation = '';
 
     public $product_uuid = '';
-
 
     public $product_id;
 
@@ -117,11 +113,8 @@ class PurchaseOrderCreate extends Component
                 'observation' => $this->observation,
                 'user_id' => Auth::id(),
             ]);
-
             ProductDetailServices::createDetailproductableOrdenCompra($PurchaseOrder, $this->products);
-
             UtilitisServices::generateAndAttachPdf(PurchaseOrder::class, $PurchaseOrder);
-
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -142,8 +135,6 @@ class PurchaseOrderCreate extends Component
             throw $throwable;
         }
     }
-
-
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

@@ -37,7 +37,6 @@ class QuoteRequest extends FormRequest
         return null;
     }
 
-
     public function rules(): array
     {
         Log::alert('Obteniendo reglas para método: ' . $this->method());
@@ -112,6 +111,7 @@ class QuoteRequest extends FormRequest
             'products.*.price.min' => 'El precio del producto debe ser al menos 0.',
         ];
     }
+
     public function attributes(): array
     {
         return [
@@ -127,5 +127,4 @@ class QuoteRequest extends FormRequest
             'products.*.price' => 'Precio del producto',
         ];
     }
-
 }

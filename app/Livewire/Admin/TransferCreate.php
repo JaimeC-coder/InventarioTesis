@@ -87,7 +87,7 @@ class TransferCreate extends Component
             'origin_warehouse_uuid' => 'required|exists:warehouses,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
-        $origin_warehouse_id = Warehouse::where('uuid', $this->origin_warehouse_uuid)->value('id');
+        Warehouse::where('uuid', $this->origin_warehouse_uuid)->value('id');
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
             $this->dispatch('swal', [
@@ -99,7 +99,7 @@ class TransferCreate extends Component
             return;
         }
 
-        $kardex = KardexServices::getLastRecord($product->id, $origin_warehouse_id);
+        $kardex = KardexServices::getLastRecord($product->id);
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,

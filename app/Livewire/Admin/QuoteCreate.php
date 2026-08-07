@@ -7,7 +7,6 @@ use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
-use App\Services\FileServices;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
@@ -146,10 +145,8 @@ class QuoteCreate extends Component
         $this->resolveCustomerId();
         // recalcular total en backend por seguridad
         $this->recalculateTotalFromProducts();
-
         $Quote = new QuoteRequest();
         $this->validate($Quote->rulesForAction('POST'), $Quote->messages(), $Quote->attributes());
-
         DB::beginTransaction();
         try {
             $correlativo = UtilitisServices::NextCorrelative(Quote::class);
@@ -167,7 +164,6 @@ class QuoteCreate extends Component
                 'observation' => $this->observation,
                 'user_id' => Auth::id(),
             ]);
-
             ProductDetailServices::createDetailproductableCotizacion($Quote, $this->products);
             UtilitisServices::generateAndAttachPdf(Quote::class, $Quote);
             DB::commit();
@@ -190,7 +186,6 @@ class QuoteCreate extends Component
             throw $throwable;
         }
     }
-
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

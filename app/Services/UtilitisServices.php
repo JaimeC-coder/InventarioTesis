@@ -20,7 +20,7 @@ class UtilitisServices
 
     public static function NextCorrelative(string $model): int
     {
-        return (int) DB::table((new $model)->getTable())
+        return (int) DB::table((new $model())->getTable())
             ->lockForUpdate()
             ->max('correlativo') + 1;
     }

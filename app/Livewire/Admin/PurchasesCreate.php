@@ -16,7 +16,6 @@ use Livewire\Component;
 
 class PurchasesCreate extends Component
 {
-
     use ResolvesUuidsToIds;
 
     public $voucher_type = 2;
@@ -135,14 +134,11 @@ class PurchasesCreate extends Component
         $this->resolveSupplierId();
         $this->resolvePurchaseOrderId();
         $this->resolveWarehouseId();
-
         $purchaseRequest = new PurchaseRequest();
         $this->validate($purchaseRequest->rulesForAction('POST'), $purchaseRequest->messages(), $purchaseRequest->attributes());
         DB::beginTransaction();
         try {
-
             $correlativo = UtilitisServices::NextCorrelative(PurchaseOrder::class);
-
             $Purchase = Purchase::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
@@ -162,7 +158,6 @@ class PurchasesCreate extends Component
             ]);
             ProductDetailServices::createDetailproductableRegister($Purchase, $this->products, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
             UtilitisServices::generateAndAttachPdf(Purchase::class, $Purchase);
-
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -181,8 +176,6 @@ class PurchasesCreate extends Component
             throw $throwable;
         }
     }
-
-
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

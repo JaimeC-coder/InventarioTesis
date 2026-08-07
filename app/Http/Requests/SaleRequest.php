@@ -73,7 +73,6 @@ class SaleRequest extends FormRequest
 
         ]);
      */
-
     protected function rulesPost(): array
     {
         return [
@@ -93,6 +92,7 @@ class SaleRequest extends FormRequest
             'products.*.price_type' => 'nullable|in:GENERAL,A1,QUOTE,MANUAL',
         ];
     }
+
     public function messages(): array
     {
         return [

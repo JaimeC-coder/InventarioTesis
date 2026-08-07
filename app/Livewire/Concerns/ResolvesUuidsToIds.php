@@ -3,17 +3,21 @@
 namespace App\Livewire\Concerns;
 
 use App\Models\Customer;
-use App\Models\Supplier;
-use App\Models\Warehouse;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
+use App\Models\Supplier;
+use App\Models\Warehouse;
 
 trait ResolvesUuidsToIds
 {
     protected ?int $supplier_id = null;
+
     protected ?int $warehouse_id = null;
+
     protected ?int $purchase_order_id = null;
+
     protected ?int $customer_id = null;
+
     protected ?int $quote_id = null;
 
     protected function resolveSupplierId(): void

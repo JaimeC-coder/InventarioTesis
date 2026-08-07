@@ -89,12 +89,11 @@ class ProductDetailServices
         });
     }
 
-    private static function syncProductDetails($modelo, array $products,  ?string $observation, ?array $movement): void
+    private static function syncProductDetails($modelo, array $products, ?string $observation, ?array $movement): void
     {
         self::validateProductsExist($products);
         DB::transaction(function () use ($modelo, $products, $movement, $observation): void {
             $modelo->products()->attach(self::buildPivotData($products));
-
             if ($movement === null) {
 
                 return;
@@ -105,10 +104,8 @@ class ProductDetailServices
                 'warehouse_id' => $movement['warehouse_id'],
                 'products' => $products,
             ]);
-
             $movementType = $movement['type'];
             $warehouse_id = $movement['warehouse_id'];
-
             foreach ($products as $product) {
                 $movementType === 'entry'
                     ? KardexServices::registerEntry($modelo, $product, $warehouse_id, $observation, KardexTypeEnum::ENTRADA)
@@ -116,7 +113,6 @@ class ProductDetailServices
             }
         });
     }
-
 
     private static function validateProductsExist(array $products): void
     {

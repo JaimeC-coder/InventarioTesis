@@ -8,9 +8,6 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\Sale;
-use App\Models\Warehouse;
-use App\Services\FileServices;
-use App\Services\KardexServices;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
@@ -194,18 +191,14 @@ class SalesCreate extends Component
         $this->resolveCustomerId();
         $this->resolveWarehouseId();
         $this->resolveQuoteId();
-
         $this->recalculateTotalFromProducts();
         $Sale = new SaleRequest();
         $this->validate($Sale->rulesForAction('POST'), $Sale->messages(), $Sale->attributes());
-
         // recalcular total en backend por seguridad
         // validaciones
-
         DB::beginTransaction();
         try {
             $correlativo = UtilitisServices::NextCorrelative(Sale::class);
-
             $Sale = Sale::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
@@ -225,7 +218,6 @@ class SalesCreate extends Component
             ]);
             ProductDetailServices::createDetailproductableExit($Sale, $this->products, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
             UtilitisServices::generateAndAttachPdf(Sale::class, $Sale);
-
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -248,8 +240,6 @@ class SalesCreate extends Component
             throw $throwable;
         }
     }
-
-
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
