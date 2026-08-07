@@ -3,12 +3,10 @@
 namespace App\Livewire\Admin;
 
 use App\Http\Requests\PurchaseRequest;
+use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
-use App\Models\Supplier;
-use App\Models\Warehouse;
-use App\Services\FileServices;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
@@ -18,9 +16,12 @@ use Livewire\Component;
 
 class PurchasesCreate extends Component
 {
+
+    use ResolvesUuidsToIds;
+
     public $voucher_type = 2;
 
-    public $serie = 'C001';
+    public $serie = 'CM01';
 
     public $correlativo = 1;
 
@@ -36,15 +37,9 @@ class PurchasesCreate extends Component
 
     public $product_uuid = '';
 
-    public $supplier_id;
-
-    public $purchase_order_id;
-
-    public $product_id;
+    public $product_id = 0;
 
     public $warehouse_uuid = '';
-
-    public $warehouse_id;
 
     public $payment_method = 'EFECTIVO';
 
@@ -71,14 +66,6 @@ class PurchasesCreate extends Component
                     'text' => $html,
                 ]);
             }
-
-            // $validator->after(function ($validator) {
-            //     $total = 0;
-            //     foreach ($this->products as $product) {
-            //         $total += $product['quantity'] * $product['price'];
-            //     }
-            //     $this->total = $total;
-            // });
         });
     }
 
@@ -91,23 +78,28 @@ class PurchasesCreate extends Component
     public function updated($property, $value): void
     {
         if ($property === 'purchase_order_uuid' && !empty($value)) {
-            $purchaseOrder = PurchaseOrder::where('uuid', $value)->first();
-            if ($purchaseOrder) {
-                $this->voucher_type = $purchaseOrder->voucher_type;
-                $this->purchase_order_id = $purchaseOrder->id;
-                $this->supplier_uuid = $purchaseOrder->supplier->uuid;
-                $this->supplier_id = $purchaseOrder->supplier->id;
-                $this->products = $purchaseOrder->products->map(function ($product): array {
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'quantity' => $product->pivot->quantity,
-                        'price' => $product->pivot->price,
-                        'subtotal' => $product->pivot->quantity * $product->pivot->price,
-                    ];
-                })->toArray();
-            }
+            $this->loadFromPurchaseOrder($value);
         }
+    }
+
+    private function loadFromPurchaseOrder(string $uuid): void
+    {
+        $purchaseOrder = PurchaseOrder::where('uuid', $uuid)->first();
+        if (!$purchaseOrder) {
+            return;
+        }
+
+        $this->voucher_type = $purchaseOrder->voucher_type;
+        $this->purchase_order_id = $purchaseOrder->id;
+        $this->supplier_uuid = $purchaseOrder->supplier->uuid;
+        $this->supplier_id = $purchaseOrder->supplier->id;
+        $this->products = $purchaseOrder->products->map(fn($product): array => [
+            'id' => $product->id,
+            'name' => $product->name,
+            'quantity' => $product->pivot->quantity,
+            'price' => $product->pivot->price,
+            'subtotal' => $product->pivot->quantity * $product->pivot->price,
+        ])->toArray();
     }
 
     public function addProduct(): void
@@ -140,27 +132,22 @@ class PurchasesCreate extends Component
 
     public function save()
     {
-        if (!empty($this->supplier_uuid)) {
-            $this->supplier_id = Supplier::where('uuid', $this->supplier_uuid)->value('id');
-        }
-
-        if (!empty($this->purchase_order_uuid)) {
-            $this->purchase_order_id = PurchaseOrder::where('uuid', $this->purchase_order_uuid)->value('id');
-        }
-
-        if (!empty($this->warehouse_uuid)) {
-            $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
-        }
+        $this->resolveSupplierId();
+        $this->resolvePurchaseOrderId();
+        $this->resolveWarehouseId();
 
         $purchaseRequest = new PurchaseRequest();
         $this->validate($purchaseRequest->rulesForAction('POST'), $purchaseRequest->messages(), $purchaseRequest->attributes());
         DB::beginTransaction();
         try {
+
+            $correlativo = UtilitisServices::NextCorrelative(PurchaseOrder::class);
+
             $Purchase = Purchase::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
                 'purchase_order_id' => $this->purchase_order_id,
-                'correlativo' => $this->correlativo,
+                'correlativo' => $correlativo,
                 'date' => $this->date,
                 'warehouse_id' => $this->warehouse_id,
                 'supplier_id' => $this->supplier_id,
@@ -174,10 +161,8 @@ class PurchasesCreate extends Component
                 'payment_type' => $this->payment_type,
             ]);
             ProductDetailServices::createDetailproductableRegister($Purchase, $this->products, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
-            $fileDirection = FileServices::generatePdfNow(['model' => Purchase::class, 'uuids' => $Purchase->uuid]);
-            $Purchase->update(['file_path' => $fileDirection]);
-            $Purchase->save();
-            Log::info('File generated at: ' . $fileDirection);
+            UtilitisServices::generateAndAttachPdf(Purchase::class, $Purchase);
+
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -197,16 +182,7 @@ class PurchasesCreate extends Component
         }
     }
 
-    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
-    {
-        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
-        $entero = floor($monto);
-        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
 
-        return mb_strtoupper(
-            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
-        );
-    }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

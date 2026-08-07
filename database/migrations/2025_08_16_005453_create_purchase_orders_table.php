@@ -18,9 +18,9 @@ return new class() extends Migration {
             $blueprint->date('date');
             $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $blueprint->string('status')->nullable();
-            $blueprint->decimal('subtotal', 10, 2)->nullable();
-            $blueprint->decimal('igv', 10, 2)->nullable();
-            $blueprint->decimal('total', 10, 2)->nullable();
+            $blueprint->decimal('subtotal', 15, 2)->nullable();
+            $blueprint->decimal('igv', 15, 2)->nullable();
+            $blueprint->decimal('total', 15, 2)->nullable();
             $blueprint->string('file_path')->nullable();
             $blueprint->string('total_string')->nullable();
             $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');

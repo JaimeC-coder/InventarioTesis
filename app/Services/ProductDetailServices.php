@@ -17,12 +17,36 @@ class ProductDetailServices
      */
     public static function createDetailproductableRegister($modelo, array $products, int $warehouse_id, string $observation): void
     {
-        self::syncProductDetails($modelo, $products, $warehouse_id, 'entry', $observation);
+        self::syncProductDetails($modelo, $products, $observation, movement: [
+            'type' => 'entry',
+            'warehouse_id' => $warehouse_id,
+        ]);
     }
 
     public static function createDetailproductableExit($modelo, array $products, int $warehouse_id, string $observation): void
     {
-        self::syncProductDetails($modelo, $products, $warehouse_id, 'exit', $observation);
+        self::syncProductDetails($modelo, $products, $observation, movement: [
+            'type' => 'exit',
+            'warehouse_id' => $warehouse_id,
+        ]);
+    }
+
+    /**
+     * Orden de compra: solo adjunta productos, SIN afectar stock.
+     * No es un movimiento real hasta que se confirme como compra.
+     */
+    public static function createDetailproductableOrdenCompra($modelo, array $products): void
+    {
+        self::syncProductDetails($modelo, $products, observation: null, movement: null);
+    }
+
+    /**
+     * Cotización: solo adjunta productos, SIN afectar stock.
+     * Es solo una propuesta, no una transacción confirmada.
+     */
+    public static function createDetailproductableCotizacion($modelo, array $products): void
+    {
+        self::syncProductDetails($modelo, $products, observation: null, movement: null);
     }
 
     /**
@@ -65,11 +89,26 @@ class ProductDetailServices
         });
     }
 
-    private static function syncProductDetails($modelo, array $products, int $warehouse_id, string $movementType, string $observation): void
+    private static function syncProductDetails($modelo, array $products,  ?string $observation, ?array $movement): void
     {
         self::validateProductsExist($products);
-        DB::transaction(function () use ($modelo, $products, $warehouse_id, $movementType, $observation): void {
+        DB::transaction(function () use ($modelo, $products, $movement, $observation): void {
             $modelo->products()->attach(self::buildPivotData($products));
+
+            if ($movement === null) {
+
+                return;
+            }
+
+            Log::info('Registrando movimiento de inventario', [
+                'type' => $movement['type'],
+                'warehouse_id' => $movement['warehouse_id'],
+                'products' => $products,
+            ]);
+
+            $movementType = $movement['type'];
+            $warehouse_id = $movement['warehouse_id'];
+
             foreach ($products as $product) {
                 $movementType === 'entry'
                     ? KardexServices::registerEntry($modelo, $product, $warehouse_id, $observation, KardexTypeEnum::ENTRADA)
@@ -77,6 +116,7 @@ class ProductDetailServices
             }
         });
     }
+
 
     private static function validateProductsExist(array $products): void
     {
@@ -96,7 +136,7 @@ class ProductDetailServices
         foreach ($products as $product) {
             $pivotData[$product['id']] = [
                 'product_name' => $product['name'],
-                'price_type'   => $product['price_type'],
+                'price_type'   => $product['price_type'] ?? 'GENERAL',
                 'quantity'     => $product['quantity'],
                 'price'        => $product['price'],
                 'subtotal'     => $product['quantity'] * $product['price'],

@@ -16,9 +16,9 @@ return new class() extends Migration {
             $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $blueprint->string('product_name', 255);
             $blueprint->string('price_type', 20)->default('NONE');
-            $blueprint->decimal('price', 10, 2);
+            $blueprint->decimal('price', 15, 2);
             $blueprint->integer('quantity');
-            $blueprint->decimal('subtotal', 10, 2);
+            $blueprint->decimal('subtotal', 15, 2);
             $blueprint->morphs('productable');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();

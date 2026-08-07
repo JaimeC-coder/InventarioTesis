@@ -15,7 +15,7 @@ return new class() extends Migration {
             $blueprint->id();
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->string('warehouse_name', 255);
-            $blueprint->decimal('quantity', 10, 2);
+            $blueprint->decimal('quantity', 15, 2);
             $blueprint->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $blueprint->string('product_name', 255);
             $blueprint->string('product_code', 255);

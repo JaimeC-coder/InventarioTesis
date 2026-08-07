@@ -2,21 +2,27 @@
 
 namespace App\Livewire\Admin;
 
+use App\Http\Requests\QuoteRequest;
+use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Services\FileServices;
+use App\Services\ProductDetailServices;
+use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class QuoteCreate extends Component
 {
+    use ResolvesUuidsToIds;
+
     public $voucher_type = 1;
 
-    public $serie = 'OC-00001';
+    public $serie = 'QT01';
 
-    public $correlativo;
+    public $correlativo = 1;
 
     public $date = '';
 
@@ -28,9 +34,7 @@ class QuoteCreate extends Component
 
     public $product_uuid = '';
 
-    public $customer_id;
-
-    public $product_id;
+    public $product_id = 0;
 
     public $products = [];
 
@@ -67,7 +71,6 @@ class QuoteCreate extends Component
     public function mount(): void
     {
         $this->correlativo = Quote::max('correlativo') + 1;
-        $this->serie =  sprintf('OC-%04d', $this->correlativo);
         $this->date = now()->format('Y-m-d');
     }
 
@@ -86,6 +89,7 @@ class QuoteCreate extends Component
 
     public function addProduct(): void
     {
+        //!revisar para ver como manejamos el los casos de producto por alamcen y por stock
         $this->validate([
             'product_uuid' => 'required|exists:products,uuid',
         ]);
@@ -139,66 +143,33 @@ class QuoteCreate extends Component
 
     public function save()
     {
-        if (!empty($this->customer_uuid)) {
-            $customerId = Customer::where('uuid', $this->customer_uuid)->value('id');
-            $this->customer_id = $customerId; // ✅ asignas directo a la propiedad
-        }
-
+        $this->resolveCustomerId();
         // recalcular total en backend por seguridad
         $this->recalculateTotalFromProducts();
-        $this->validate([
-            'voucher_type' => 'required|in:1,2',
-            'serie' => 'required|string|max:20',
-            'correlativo' => 'required|integer|min:1',
-            'date' => 'required|date',
-            'customer_id' => 'required|exists:customers,id',
-            'total' => 'required|numeric|min:0.01',
-            'observation' => 'nullable|string|max:500',
-            'products' => 'required|array|min:1',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-            'products.*.price' => 'required|numeric|min:0',
-        ], [], [
-            'voucher_type' => 'Tipo de comprobante',
-            'serie' => 'Serie',
-            'correlativo' => 'Correlativo',
-            'date' => 'Fecha',
-            'customer_id' => 'Cliente',
-            'total' => 'Total',
-            'observation' => 'observation',
-            'products.*.id' => 'ID del producto',
-            'products.*.quantity' => 'Cantidad del producto',
-            'products.*.price' => 'Precio del producto',
-        ]);
+
+        $Quote = new QuoteRequest();
+        $this->validate($Quote->rulesForAction('POST'), $Quote->messages(), $Quote->attributes());
+
         DB::beginTransaction();
         try {
+            $correlativo = UtilitisServices::NextCorrelative(Quote::class);
             //quiero que esto se tenga en una transacción
-            $PurchaseOrder = Quote::create([
+            $Quote = Quote::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
-                'correlativo' => $this->correlativo,
+                'correlativo' => $correlativo,
                 'date' => $this->date,
                 'customer_id' => $this->customer_id,
                 'subtotal' => $this->total,
                 'igv' => $this->total * 0.18,
                 'total' => $this->total * 1.18,
-                'total_string' => $this->totalEnLetras($this->total * 1.18),
+                'total_string' => UtilitisServices::TotalEnLetras($this->total * 1.18),
                 'observation' => $this->observation,
                 'user_id' => Auth::id(),
             ]);
-            foreach ($this->products as $product) {
-                $product_id = Product::where('id', $product['id'])->value('id');
-                $PurchaseOrder->products()->attach($product_id, [
-                    'quantity' => $product['quantity'],
-                    'price' => $product['price'],
-                    'price_type' => 'QUOTE',
-                    'subtotal' => $product['quantity'] * $product['price'],
-                ]);
-            }
 
-            $fileDirection = FileServices::generatePdfNow(['model' => Quote::class, 'uuids' => $PurchaseOrder->uuid]);
-            $PurchaseOrder->update(['file_path' => $fileDirection]);
-            $PurchaseOrder->save();
+            ProductDetailServices::createDetailproductableCotizacion($Quote, $this->products);
+            UtilitisServices::generateAndAttachPdf(Quote::class, $Quote);
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -220,16 +191,6 @@ class QuoteCreate extends Component
         }
     }
 
-    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
-    {
-        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
-        $entero = floor($monto);
-        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
-
-        return mb_strtoupper(
-            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
-        );
-    }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

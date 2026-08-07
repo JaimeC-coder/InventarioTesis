@@ -21,9 +21,9 @@ return new class() extends Migration {
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             // $blueprint->enum('status', ['REGISTRADO','PEDIDO', 'LLEGADO'])->default('REGISTRADO');
             $blueprint->string('status')->default('PENDIENTE');
-            $blueprint->decimal('subtotal', 10, 2)->nullable();
-            $blueprint->decimal('igv', 10, 2)->nullable();
-            $blueprint->decimal('total', 10, 2)->nullable();
+            $blueprint->decimal('subtotal', 15, 2)->nullable();
+            $blueprint->decimal('igv', 15, 2)->nullable();
+            $blueprint->decimal('total', 15, 2)->nullable();
             $blueprint->string('total_string')->nullable();
             $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->string('currency')->default('SOLES');

@@ -23,7 +23,6 @@ return new class() extends Migration {
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->morphs('inventoryable');
             $blueprint->uuid('uuid')->unique();
-            $blueprint->decimal('quantity_balance', 10, 2)->default(0);
             $blueprint->timestamps();
             $blueprint->softDeletes();
         });

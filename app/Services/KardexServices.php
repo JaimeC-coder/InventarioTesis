@@ -3,24 +3,15 @@
 namespace App\Services;
 
 use App\Enum\KardexTypeEnum;
-use App\Models\Inventorie;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class KardexServices
 {
-    public static function getLastRecord(int $product_id, int $warehouse_id): array
+    public static function getLastRecord(int $product_id): string
     {
-        $lastRecord = Inventorie::where('product_id', $product_id)
-            ->where('warehouse_id', $warehouse_id)
-            ->latest()
-            ->first();
-
-        return [
-            'quantity_total' => $lastRecord?->quantity_total ?? 0,
-            'product_name' => $lastRecord?->product_name ?? Product::find($product_id)?->name ?? '',
-            'date' => $lastRecord?->created_at ?? null,
-        ];
+        return Product::find($product_id)?->name ?? '';
     }
 
     public static function registerEntry(
@@ -30,17 +21,15 @@ class KardexServices
         string $detail,
         KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::ENTRADA
     ): void {
-        $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
-        $newQuantity = $lastRecord['quantity_total'] + $product['quantity'];
+        $lastRecord = self::getLastRecord($product['id']);
         self::registerData($model, [
             'detail' => $detail,
             'quantity_in' => $product['quantity'],
-            'quantity_total' => $newQuantity,
-            'product_name' => $product['name'] ?? $lastRecord['product_name'],
+            'product_name' => $product['name'] ?? $lastRecord,
             'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
-        ]);
+        ], isEntry: true);
     }
 
     public static function registerExit(
@@ -50,32 +39,44 @@ class KardexServices
         string $detail,
         KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::SALIDA
     ): void {
-        $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
-        $newQuantity = $lastRecord['quantity_total'] - $product['quantity'];
+        $lastRecord = self::getLastRecord($product['id']);
         self::registerData($model, [
             'detail' => $detail,
             'quantity_out' => $product['quantity'],
-            'quantity_total' => $newQuantity,
-            'product_name' => $product['name'],
+            'product_name' => $product['name'] ?? $lastRecord,
             'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
-        ]);
+        ], isEntry: false);
     }
 
-    protected static function registerData($model, array $data): void
+    protected static function registerData($model, array $data, bool $isEntry): void
     {
         Log::info('Registering inventory movement', $data);
-        $model->inventories()->create([
-            'detail' => $data['detail'] ?? '',
-            'quantity_in' => $data['quantity_in'] ?? 0,
-            'quantity_out' => $data['quantity_out'] ?? 0,
-            'quantity_balance' => $data['quantity_balance'] ?? 0,
-            'product_name' => $data['product_name'] ?? 0,
-            'type' => $data['type'] ?? KardexTypeEnum::OTROS->value,
-            'quantity_total' => $data['quantity_total'] ?? 0,
-            'product_id' => $data['product_id'] ?? 0,
-            'warehouse_id' => $data['warehouse_id'] ?? 0,
-        ]);
+        DB::transaction(function () use ($model, $data, $isEntry): void {
+            // 1. Bloquea (o crea) la fila resumen de este producto+almacén — este es el "mutex" real
+            $summary = DB::table('records')
+                ->where('product_id', $data['product_id'])
+                ->where('warehouse_id', $data['warehouse_id'])
+                ->lockForUpdate()
+                ->first();
+            $previousTotal = $summary->quantity ?? 0;
+            $newQuantity = $isEntry
+                ? $previousTotal + $data['quantity_in']
+                : $previousTotal - $data['quantity_out'];
+            // 2. Inserta el movimiento histórico (esto dispara el Observer -> created)
+            $model->inventories()->create([
+                'detail' => $data['detail'],
+                'quantity_in' => $isEntry ? $data['quantity_in'] : 0,
+                'quantity_out' => $isEntry ? 0 : $data['quantity_out'],
+                'quantity_total' => $newQuantity,
+                'product_name' => $data['product_name'] ?? $summary->product_name ?? '',
+                'type' => $data['type'] ?? KardexTypeEnum::OTROS->value,
+                'product_id' => $data['product_id'],
+                'warehouse_id' => $data['warehouse_id'],
+            ]);
+            // el Observer se encarga de sincronizar stock_summaries y products.stock
+            // usando exactamente este mismo quantity_total, así que no hay doble cálculo
+        });
     }
 }

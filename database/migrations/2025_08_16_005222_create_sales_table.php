@@ -20,9 +20,9 @@ return new class() extends Migration {
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->string('status')->default('REGISTRADO');
-            $blueprint->decimal('subtotal', 10, 2);
-            $blueprint->decimal('igv', 10, 2);
-            $blueprint->decimal('total', 10, 2)->default(0.00);
+            $blueprint->decimal('subtotal', 15, 2);
+            $blueprint->decimal('igv', 15, 2);
+            $blueprint->decimal('total', 15, 2)->default(0.00);
             $blueprint->string('total_string');
             $blueprint->string('currency')->default('SOLES');
             $blueprint->string('payment_method')->default('EFECTIVO');

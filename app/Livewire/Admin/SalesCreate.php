@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin;
 
+use App\Http\Requests\SaleRequest;
+use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
@@ -9,6 +11,8 @@ use App\Models\Sale;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
+use App\Services\ProductDetailServices;
+use App\Services\UtilitisServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,11 +20,13 @@ use Livewire\Component;
 
 class SalesCreate extends Component
 {
+    use ResolvesUuidsToIds;
+
     public $voucher_type = 2;
 
-    public $serie = 'OV-00001';
+    public $serie = 'VN01';
 
-    public $correlativo;
+    public $correlativo = 1;
 
     public $date = '';
 
@@ -34,15 +40,9 @@ class SalesCreate extends Component
 
     public $product_uuid = '';
 
-    public $customer_id;
-
-    public $quote_id;
-
     public $product_id;
 
     public $warehouse_uuid = '';
-
-    public $warehouse_id;
 
     public $payment_method = 'EFECTIVO';
 
@@ -83,33 +83,40 @@ class SalesCreate extends Component
     {
         // cuando cambie la cotización
         if ($property === 'quote_uuid' && !empty($value)) {
-            $quote = Quote::where('uuid', $value)->first();
-            if ($quote) {
-                $this->voucher_type = $quote->voucher_type;
-                $this->quote_id = $quote->id;
-                $this->customer_uuid = $quote->customer->uuid;
-                $this->customer_id = $quote->customer->id;
-                $this->products = $quote->products->map(function ($product): array {
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'quantity' => $product->pivot->quantity,
-                        // usar exactamente el precio que vino en la cotización (inmutable)
-                        'price' => (float) $product->pivot->price,
-                        'subtotal' => $product->pivot->quantity * $product->pivot->price,
-                        'price_type' => 'QUOTE',
-                    ];
-                })->toArray();
-                // actualizar total
-                // dd($this->products);
-                $this->recalculateTotalFromProducts();
-            }
+            $this->loadFromQuote($value);
         }
 
         // cuando cambie cliente: solo actualizar customer_id
         if ($property === 'customer_uuid' && !empty($value)) {
             $this->customer_id = Customer::where('uuid', $value)->value('id');
         }
+    }
+
+    public function loadFromQuote(string $uuid): void
+    {
+        $quote = Quote::where('uuid', $uuid)->first();
+        if (!$quote) {
+            return;
+        }
+
+        $this->voucher_type = $quote->voucher_type;
+        $this->quote_id = $quote->id;
+        $this->customer_uuid = $quote->customer->uuid;
+        $this->customer_id = $quote->customer->id;
+        $this->products = $quote->products->map(function ($product): array {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'quantity' => $product->pivot->quantity,
+                // usar exactamente el precio que vino en la cotización (inmutable)
+                'price' => (float) $product->pivot->price,
+                'subtotal' => $product->pivot->quantity * $product->pivot->price,
+                'price_type' => 'QUOTE',
+            ];
+        })->toArray();
+        // actualizar total
+        // dd($this->products);
+        $this->recalculateTotalFromProducts();
     }
 
     protected function recalculateTotalFromProducts(): void
@@ -184,93 +191,41 @@ class SalesCreate extends Component
 
     public function save()
     {
-        // resolver ids relacionados
-        if (!empty($this->customer_uuid)) {
-            $this->customer_id = Customer::where('uuid', $this->customer_uuid)->value('id');
-        }
+        $this->resolveCustomerId();
+        $this->resolveWarehouseId();
+        $this->resolveQuoteId();
 
-        if (!empty($this->quote_uuid)) {
-            $this->quote_id = Quote::where('uuid', $this->quote_uuid)->value('id');
-        }
-
-        if (!empty($this->warehouse_uuid)) {
-            $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
-        }
+        $this->recalculateTotalFromProducts();
+        $Sale = new SaleRequest();
+        $this->validate($Sale->rulesForAction('POST'), $Sale->messages(), $Sale->attributes());
 
         // recalcular total en backend por seguridad
-        $this->recalculateTotalFromProducts();
         // validaciones
-        $this->validate([
-            'voucher_type' => 'required|in:1,2',
-            'serie' => 'required|string|max:20',
-            'correlativo' => 'required|integer|min:1',
-            'date' => 'required|date',
-            'customer_id' => 'required|exists:customers,id',
-            'warehouse_id' => 'required|exists:warehouses,id',
-            'quote_id' => 'nullable|exists:quotes,id',
-            'total' => 'required|numeric|min:0.01',
-            'observation' => 'nullable|string|max:500',
-            'products' => 'required|array|min:1',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|numeric|min:0.0001',
-            'products.*.price' => 'required|numeric|min:0',
-            'products.*.price_type' => 'nullable|in:GENERAL,A1,QUOTE,MANUAL',
-        ], [], [
-            'voucher_type' => 'Tipo de comprobante',
-            'warehouse_id' => 'ID del almacén',
-            'quote_id' => 'ID de la cotización',
-            'serie' => 'Serie',
-            'correlativo' => 'Correlativo',
-            'date' => 'Fecha',
-            'customer_id' => 'Cliente',
-            'total' => 'Total',
-            'observation' => 'Observación',
-            'products.*.id' => 'ID del producto',
-            'products.*.quantity' => 'Cantidad del producto',
-            'products.*.price' => 'Precio del producto',
-            'products.*.price_type' => 'Tipo de precio del producto',
-        ]);
+
         DB::beginTransaction();
         try {
+            $correlativo = UtilitisServices::NextCorrelative(Sale::class);
+
             $Sale = Sale::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
                 'quote_id' => $this->quote_id,
-                'correlativo' => $this->correlativo,
+                'correlativo' => $correlativo,
                 'date' => $this->date,
                 'warehouse_id' => $this->warehouse_id,
                 'customer_id' => $this->customer_id,
                 'subtotal' => $this->total,
                 'igv' => $this->total * 0.18,
                 'total' => $this->total * 1.18,
-                'total_string' => $this->totalEnLetras($this->total),
+                'total_string' => UtilitisServices::TotalEnLetras($this->total * 1.18),
                 'observation' => $this->observation,
                 'payment_method' => $this->payment_method,
                 'payment_type' => $this->payment_type,
                 'user_id' => Auth::id(),
             ]);
-            Log::info('Venta creada con ID: ' . $Sale->id);
-            foreach ($this->products as $product) {
-                $product_id = Product::where('id', $product['id'])->value('id');
-                // precio final utilizado (si from_quote es true, ya está el precio del pivot)
-                $finalPrice = (float) $product['price'];
-                $quantity = (int) $product['quantity'];
-                $subtotal = $quantity * $finalPrice;
-                $Sale->products()->attach($product_id, [
-                    'quantity' => $quantity,
-                    'price' => $finalPrice,
-                    'price_type' => $product['price_type'] ?? 'GENERAL',
-                    'subtotal' => $subtotal,
-                ]);
-                // registrar salida en kardex
-                KardexServices::registerExit($Sale, $product, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
-                // Si necesitas almacenar inventario como antes, puedes reusar tu lógica aquí
-                // (he dejado comentada tu lógica previa por si quieres activarla)
-            }
+            ProductDetailServices::createDetailproductableExit($Sale, $this->products, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
+            UtilitisServices::generateAndAttachPdf(Sale::class, $Sale);
 
-            $fileDirection = FileServices::generatePdfNow(['model' => Sale::class, 'uuids' => $Sale->uuid]);
-            $Sale->update(['file_path' => $fileDirection]);
-            $Sale->save();
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -294,16 +249,7 @@ class SalesCreate extends Component
         }
     }
 
-    protected function totalEnLetras($monto, $moneda = 'SOLES'): string
-    {
-        $numberFormatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
-        $entero = floor($monto);
-        $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
 
-        return mb_strtoupper(
-            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
-        );
-    }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

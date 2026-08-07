@@ -15,9 +15,9 @@ class MovementCreate extends Component
 {
     public $type = 1;
 
-    public $serie = 'MV-00001';
+    public $serie = 'MV01';
 
-    public $correlativo;
+    public $correlativo = 1;
 
     public $date = '';
 
@@ -215,7 +215,6 @@ class MovementCreate extends Component
         $fileDirection = FileServices::generatePdfNow(['model' => Movement::class, 'uuids' => $Movement->uuid]);
         $Movement->update(['file_path' => $fileDirection]);
         $Movement->save();
-
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Movimiento creado',
