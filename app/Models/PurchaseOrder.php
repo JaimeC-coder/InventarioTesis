@@ -12,7 +12,7 @@ class PurchaseOrder extends BaseModel
         'correlativo',
         'date',
         'supplier_id',
-        // 'warehouse_id',
+        'warehouse_id',
         'status',
         'subtotal',
         'igv',
@@ -40,6 +40,12 @@ class PurchaseOrder extends BaseModel
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Relación con almacenes
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     //Relacion muchos a muchos polimorfica

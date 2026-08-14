@@ -29,6 +29,10 @@ class QuoteCreate extends Component
 
     public $customer_id;
 
+    public $warehouse_uuid = '';
+
+    public ?int $warehouse_id;
+
     public $total = 0.00;
 
     public $observation = '';
@@ -145,6 +149,7 @@ class QuoteCreate extends Component
     public function save()
     {
         $this->resolveCustomerId();
+        $this->resolveWarehouseId();
         // recalcular total en backend por seguridad
         $this->recalculateTotalFromProducts();
         $Quote = new QuoteRequest();
@@ -158,6 +163,7 @@ class QuoteCreate extends Component
                 'serie' => $this->serie,
                 'correlativo' => $correlativo,
                 'date' => $this->date,
+                'warehouse_id' => $this->warehouse_id,
                 'customer_id' => $this->customer_id,
                 'subtotal' => $this->total,
                 'igv' => $this->total * 0.18,

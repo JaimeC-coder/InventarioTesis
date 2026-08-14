@@ -29,11 +29,11 @@ class SalesCreate extends Component
 
     public $customer_uuid = '';
 
-    public $customer_id;
+    public ?int $customer_id;
 
     public $quote_uuid = '';
 
-    public $quote_id;
+    public ?int $quote_id;
 
     public $total = 0.00;
 
@@ -45,7 +45,7 @@ class SalesCreate extends Component
 
     public $warehouse_uuid = '';
 
-    public $warehouse_id;
+    public ?int $warehouse_id;
 
     public $payment_method = 'EFECTIVO';
 
@@ -105,8 +105,8 @@ class SalesCreate extends Component
         $this->quote_id = $quote->id;
         $this->customer_uuid = $quote->customer->uuid;
         $this->customer_id = $quote->customer->id;
-        // $this->warehouse_uuid = $quote->warehouse->uuid;
-        // $this->warehouse_id = $quote->warehouse->id;
+        $this->warehouse_uuid = $quote->warehouse->uuid;
+        $this->warehouse_id = $quote->warehouse->id;
         $this->products = $quote->products->map(function ($product): array {
             return [
                 'id' => $product->id,

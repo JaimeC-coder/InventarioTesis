@@ -13,6 +13,7 @@ class Quote extends BaseModel
         'date',
         'total',
         'observation',
+        'warehouse_id',
         'customer_id',
         'user_id',
         'status',
@@ -34,6 +35,12 @@ class Quote extends BaseModel
     public function sales()
     {
         return $this->hasMany(Sale::class);
+    }
+
+    // Relación con almacenes
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     //Relacion muchos a muchos polimorfica

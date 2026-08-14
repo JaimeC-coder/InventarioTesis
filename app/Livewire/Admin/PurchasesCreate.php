@@ -40,8 +40,6 @@ class PurchasesCreate extends Component
 
     public string $product_uuid = '';
 
-    // public ?int $product_id = 0;
-
     public string $warehouse_uuid = '';
 
     public ?int $warehouse_id = null;
