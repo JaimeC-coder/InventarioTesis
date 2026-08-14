@@ -76,6 +76,5 @@ trait ResolvesUuidsToIds
         }
 
         $this->total = round(collect($this->products)->sum('subtotal'), 2);
-
     }
 }

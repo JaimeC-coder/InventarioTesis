@@ -118,8 +118,6 @@ class ProductDetailServices
             throw new \InvalidArgumentException('Tipo de movimiento inválido. Debe ser "entry" o "exit".');
         }
 
-
-
         DB::transaction(function () use ($modelo, $products, $warehouse_id, $movementType, $observation): void {
             foreach ($products as $product) {
                 $movementType === 'entry'
@@ -133,10 +131,10 @@ class ProductDetailServices
     {
         Log::info('Validando existencia de productos: ', $products);
         $requestedIds = array_column($products, 'id');
-
-        if (empty($requestedIds)) {
+        if ($requestedIds === []) {
             throw new \InvalidArgumentException('No se proporcionaron productos para validar.');
         }
+
         $existingIds = Product::whereIn('id', $requestedIds)->pluck('id')->all();
         $missingIds = array_diff($requestedIds, $existingIds);
         if ($missingIds !== []) {
@@ -165,19 +163,16 @@ class ProductDetailServices
     private static function transformProductsToArray(array &$products): void
     {
         Log::info('Transformando productos a array: ', $products);
-
         $result = [];
         foreach ($products as $product) {
             $hasPivot = isset($product['pivot']);
             $id      = $hasPivot ? $product['pivot']['product_id'] : $product['id'];
             $quantity = $hasPivot ? $product['pivot']['quantity'] : $product['quantity'];
-            $price    = $hasPivot ? $product['pivot']['price']    : $product['price'];
+            $price    = $hasPivot ? $product['pivot']['price'] : $product['price'];
             $priceType = $hasPivot
                 ? ($product['pivot']['price_type'] ?? 'GENERAL')
                 : ($product['price_type'] ?? 'GENERAL');
-
             $subtotal = round((float) $quantity * (float) $price, 2);
-
             $result[] = [
                 'id'       => $id,
                 'name'       => $product['name'],

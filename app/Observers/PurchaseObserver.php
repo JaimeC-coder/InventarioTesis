@@ -20,7 +20,6 @@ class PurchaseObserver
 
     public function updating(Purchase $purchase): void
     {
-
         if (
             $purchase->getOriginal('status') === PurchasesStatusEnum::RECIBIDO->value
             && $purchase->isDirty('status')

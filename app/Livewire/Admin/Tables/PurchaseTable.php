@@ -17,7 +17,6 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 
 final class PurchaseTable extends PowerGridComponent
 {
@@ -61,6 +60,7 @@ final class PurchaseTable extends PowerGridComponent
                 if (is_null($dish->status)) {
                     dd($dish);
                 }
+
                 $active = $dish->status === PurchasesStatusEnum::ANULADO->value || $dish->status === PurchasesStatusEnum::RECIBIDO->value ? 'disabled' : '';
 
                 return Blade::render('<x-select-powergrid type="occurrence" :options=$options  :dishId=$dishId  :selected=$selected :active=$active />', ['options' => $options, 'dishId' => intval($dish->id), 'selected' => strval($dish->status), 'active' => $active]);
@@ -137,7 +137,6 @@ final class PurchaseTable extends PowerGridComponent
         $purchase = Purchase::find($dishId);
         try {
             DB::transaction(function () use ($purchase, $status): void {
-
                 $purchase->update(['status' => $status]);
             });
         } catch (PurchaseStatusLockedException $purchaseStatusLockedException) {
@@ -185,5 +184,4 @@ final class PurchaseTable extends PowerGridComponent
                 ->dispatch('pdf', ['rowId' => $purchase->uuid]),
         ];
     }
-
 }
