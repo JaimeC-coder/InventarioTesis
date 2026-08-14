@@ -25,6 +25,11 @@ class UtilitisServices
             ->max('correlativo') + 1;
     }
 
+    public static function completeCorrelativo(string $correlativo, int $length = 4): string
+    {
+        return str_pad($correlativo, $length, '0', STR_PAD_LEFT);
+    }
+
     public static function generateAndAttachPdf(string $modelClass, $model): void
     {
         $fileDirection = FileServices::generatePdfNow(['model' => $modelClass, 'uuids' => $model->uuid]);

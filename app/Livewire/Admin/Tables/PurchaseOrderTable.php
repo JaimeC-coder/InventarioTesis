@@ -44,7 +44,7 @@ final class PurchaseOrderTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('voucher_type')
-            ->add('voucher_type_formatted', fn($user): string => ($user->voucher_type === '1' ? 'Factura' : ($user->voucher_type === '2' ? 'Boleta' : 'Otros')))
+            ->add('voucher_type_formatted', fn($user): string => ($user->voucher_type === 1 ? 'Factura' : ($user->voucher_type === 2 ? 'Boleta' : 'Otros')))
             ->add('serie')
             ->add('correlativo')
             ->add('date')

@@ -32,8 +32,14 @@
             <x-forms.input label="Fecha" name="date" type="date" required wire:model="date" />
         </div>
 
-        <x-forms.select label="Cliente" placeholder="Escribe el nombre o documento..." wire:model.live="customer_uuid"
-            :async-data="['api' => route('admin.customers'), 'method' => 'POST']" option-label="name" option-value="uuid" option-description="type" />
+        <div class="grid grid-cols-2 gap-4">
+            <x-forms.select label="Cliente" placeholder="Escribe el nombre o documento..."
+                wire:model.live="customer_uuid" :async-data="['api' => route('admin.customers'), 'method' => 'POST']" option-label="name" option-value="uuid"
+                option-description="type" />
+            <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST', 'params' => ['limit' => 10]]"
+                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0"
+                :min-term-length="3" :delay="500" />
+        </div>
 
 
         <div class="lg:flex lg:gap-4">

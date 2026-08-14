@@ -18,33 +18,39 @@ class PurchasesCreate extends Component
 {
     use ResolvesUuidsToIds;
 
-    public $voucher_type = 2;
+    public int $voucher_type = 2;
 
-    public $serie = 'CM01';
+    public string $serie = 'CM01';
 
-    public $correlativo = 1;
+    public int $correlativo = 1;
 
-    public $date = '';
+    public string $date = '';
 
-    public $supplier_uuid = '';
+    public string $supplier_uuid = '';
 
-    public $purchase_order_uuid = '';
+    public ?int $supplier_id = null;
 
-    public $total = 0.00;
+    public string $purchase_order_uuid = '';
 
-    public $observation = '';
+    public ?int $purchase_order_id = null;
 
-    public $product_uuid = '';
+    public float $total = 0.00;
 
-    public $product_id = 0;
+    public string $observation = '';
 
-    public $warehouse_uuid = '';
+    public string $product_uuid = '';
 
-    public $payment_method = 'EFECTIVO';
+    // public ?int $product_id = 0;
 
-    public $payment_type = 'CONTADO';
+    public string $warehouse_uuid = '';
 
-    public $products = [];
+    public ?int $warehouse_id = null;
+
+    public string $payment_method = 'EFECTIVO';
+
+    public string $payment_type = 'CONTADO';
+
+    public array $products = [];
 
     public function boot(): void
     {
@@ -91,7 +97,10 @@ class PurchasesCreate extends Component
         $this->voucher_type = $purchaseOrder->voucher_type;
         $this->purchase_order_id = $purchaseOrder->id;
         $this->supplier_uuid = $purchaseOrder->supplier->uuid;
+        $this->warehouse_uuid = $purchaseOrder->warehouse->uuid;
+        $this->warehouse_id = $purchaseOrder->warehouse->id;
         $this->supplier_id = $purchaseOrder->supplier->id;
+        $this->observation = sprintf('Esta compra fue generada a partir de una cotización %s - ', $purchaseOrder->serie) . UtilitisServices::completeCorrelativo($purchaseOrder->correlativo);
         $this->products = $purchaseOrder->products->map(fn($product): array => [
             'id' => $product->id,
             'name' => $product->name,
@@ -114,7 +123,8 @@ class PurchasesCreate extends Component
                 'title' => 'Producto ya agregado',
                 'text' => 'El producto ya ha sido agregado a la lista.',
             ]);
-            $this->reset('product_id');
+            $this->reset('product_uuid');
+            // $this->reset('product_id');
             return;
         }
 
@@ -127,6 +137,7 @@ class PurchasesCreate extends Component
             'subtotal' => $product->price_purchase,
         ];
         $this->reset('product_uuid');
+        $this->recalcularTotalDesdeProductos();
     }
 
     public function save()
@@ -134,11 +145,12 @@ class PurchasesCreate extends Component
         $this->resolveSupplierId();
         $this->resolvePurchaseOrderId();
         $this->resolveWarehouseId();
+        $this->recalcularTotalDesdeProductos();
         $purchaseRequest = new PurchaseRequest();
         $this->validate($purchaseRequest->rulesForAction('POST'), $purchaseRequest->messages(), $purchaseRequest->attributes());
         DB::beginTransaction();
         try {
-            $correlativo = UtilitisServices::NextCorrelative(PurchaseOrder::class);
+            $correlativo = UtilitisServices::NextCorrelative(Purchase::class);
             $Purchase = Purchase::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
@@ -156,7 +168,7 @@ class PurchasesCreate extends Component
                 'payment_method' => $this->payment_method,
                 'payment_type' => $this->payment_type,
             ]);
-            ProductDetailServices::createDetailproductableRegister($Purchase, $this->products, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
+            ProductDetailServices::createDetailproductableOrdenCompra($Purchase, $this->products);
             UtilitisServices::generateAndAttachPdf(Purchase::class, $Purchase);
             DB::commit();
             session()->flash('swal', [
@@ -173,8 +185,10 @@ class PurchasesCreate extends Component
                 'title' => 'Error',
                 'text' => 'Ocurrió un error al crear la compra.',
             ]);
-            throw $throwable;
+            // throw $throwable;
         }
+
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

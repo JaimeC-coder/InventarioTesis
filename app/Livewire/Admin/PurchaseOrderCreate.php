@@ -21,11 +21,17 @@ class PurchaseOrderCreate extends Component
 
     public $serie = 'OC01';
 
-    public $correlativo;
+    public $correlativo = 1;
 
     public $date = '';
 
     public $supplier_uuid = '';
+
+    public $warehouse_uuid = '';
+
+    public ?int $supplier_id = null;
+
+    public ?int $warehouse_id = null;
 
     public $total = 0.00;
 
@@ -33,7 +39,7 @@ class PurchaseOrderCreate extends Component
 
     public $product_uuid = '';
 
-    public $product_id;
+    public ?int $product_id = null;
 
     public $products = [];
 
@@ -42,10 +48,10 @@ class PurchaseOrderCreate extends Component
         $this->withValidator(function ($validator): void {
             if ($validator->fails()) {
                 $error = $validator->errors()->toArray();
-                $html = "<ul class='text-left'>";
+                $html = "<ul class='list-disc list-inside space-y-2 text-gray-700'>";
                 foreach ($error as $messages) {
                     foreach ($messages as $message) {
-                        $html .= sprintf('<li>%s</li>', $message[0]);
+                        $html .= sprintf('<li>%s</li>', $message);
                     }
                 }
 
@@ -53,7 +59,7 @@ class PurchaseOrderCreate extends Component
                 $this->dispatch('swal', [
                     'icon' => 'error',
                     'title' => 'Error',
-                    'text' => $html,
+                    'html' => $html,
                 ]);
             }
         });
@@ -78,10 +84,11 @@ class PurchaseOrderCreate extends Component
                 'title' => 'Producto ya agregado',
                 'text' => 'El producto ya ha sido agregado a la lista.',
             ]);
-            $this->reset('product_id');
+            $this->reset('product_uuid');
             return;
         }
 
+        $this->products = array_values($this->products);
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
@@ -89,21 +96,32 @@ class PurchaseOrderCreate extends Component
             'price' => $product->price_purchase,
             'subtotal' => 0,
         ];
+        Log::info('Product added to purchase order: ', [
+            'products' => $this->products,
+        ]);
         $this->reset('product_uuid');
+    }
+
+    public function removeProduct(int $index): void
+    {
+        unset($this->products[$index]);
+        $this->products = array_values($this->products);
     }
 
     public function save()
     {
         $this->resolveSupplierId();
+        $this->resolveWarehouseId();
         $PurchaseOrder = new PurchaseOrderRequest();
         $this->validate($PurchaseOrder->rulesForAction('POST'), $PurchaseOrder->messages(), $PurchaseOrder->attributes());
         DB::beginTransaction();
         try {
-            //quiero que esto se tenga en una transacción
+            $correlativo = UtilitisServices::NextCorrelative(PurchaseOrder::class);
             $PurchaseOrder = PurchaseOrder::create([
                 'voucher_type' => $this->voucher_type,
+                'warehouse_id' => $this->warehouse_id,
                 'serie' => $this->serie,
-                'correlativo' => $this->correlativo,
+                'correlativo' => $correlativo,
                 'date' => $this->date,
                 'supplier_id' => $this->supplier_id,
                 'subtotal' => $this->total,
@@ -132,8 +150,10 @@ class PurchaseOrderCreate extends Component
                 'title' => 'Error',
                 'text' => 'Ocurrió un error al crear la compra.',
             ]);
-            throw $throwable;
+            // throw $throwable;
         }
+
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

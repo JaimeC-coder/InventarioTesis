@@ -17,16 +17,18 @@
     @enderror
     <form wire:submit='saveProducts' class="space-y-4">
 
-        <div class="grid lg:grid-cols-2 gap-4 dark:bg-gray-800">
+        <div class="grid lg:grid-cols-3 gap-4 dark:bg-gray-800">
             <x-forms.select label="Categoria" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.categories'), 'method' => 'POST']"
                 option-label="name" option-value="uuid" wire:model="category_uuid" :disabled="$locked" />
 
-            <div class="flex gap-4">
-                <x-forms.input label="Codigo de Categoria" name="name" type="number" min="0" max="99"
+                <div class="flex gap-4">
+                    <x-forms.input label="Codigo de Categoria" name="name" type="number" min="0" max="99"
                     placeholder="Ingrese el nombre del producto" wire:model="category_code" :disabled="$locked" />
-                <x-forms.input label="Stock Minimo" name="stock_min" type="number" placeholder="Stock Minimo"
+                    <x-forms.input label="Stock Minimo" name="stock_min" type="number" placeholder="Stock Minimo"
                     wire:model="stock_min" :disabled="$locked" />
-            </div>
+                </div>
+                <x-forms.select label="Proveedor" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.suppliers'), 'method' => 'POST']"
+                    option-label="name" option-value="uuid" wire:model="supplier_uuid" :disabled="$locked" />
         </div>
 
         <div class="grid lg:grid-cols-5 gap-4 border-collapse lg:border lg:border-gray-200 p-4 rounded">

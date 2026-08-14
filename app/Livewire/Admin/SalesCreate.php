@@ -29,7 +29,11 @@ class SalesCreate extends Component
 
     public $customer_uuid = '';
 
+    public $customer_id;
+
     public $quote_uuid = '';
+
+    public $quote_id;
 
     public $total = 0.00;
 
@@ -37,9 +41,11 @@ class SalesCreate extends Component
 
     public $product_uuid = '';
 
-    public $product_id;
+    public $product_id = 0;
 
     public $warehouse_uuid = '';
+
+    public $warehouse_id;
 
     public $payment_method = 'EFECTIVO';
 
@@ -72,7 +78,6 @@ class SalesCreate extends Component
     public function mount(): void
     {
         $this->correlativo = Sale::max('correlativo') + 1;
-        // $this->serie =  sprintf('OV-%04d', $this->correlativo);
         $this->date = now()->format('Y-m-d');
     }
 
@@ -100,6 +105,8 @@ class SalesCreate extends Component
         $this->quote_id = $quote->id;
         $this->customer_uuid = $quote->customer->uuid;
         $this->customer_id = $quote->customer->id;
+        // $this->warehouse_uuid = $quote->warehouse->uuid;
+        // $this->warehouse_id = $quote->warehouse->id;
         $this->products = $quote->products->map(function ($product): array {
             return [
                 'id' => $product->id,
@@ -113,20 +120,7 @@ class SalesCreate extends Component
         })->toArray();
         // actualizar total
         // dd($this->products);
-        $this->recalculateTotalFromProducts();
-    }
-
-    protected function recalculateTotalFromProducts(): void
-    {
-        $sum = 0;
-        foreach ($this->products as $product) {
-            $qty = isset($product['quantity']) ? (int)$product['quantity'] : 0;
-            $price = isset($product['price']) ? (float)$product['price'] : 0.0;
-            $sum += $qty * $price;
-        }
-
-        // mantener 2 decimales
-        $this->total = (float) number_format($sum, 2, '.', '');
+        $this->recalcularTotalDesdeProductos();
     }
 
     public function addProduct(): void
@@ -183,7 +177,7 @@ class SalesCreate extends Component
             'subtotal' => $price,
         ];
         $this->reset('product_uuid');
-        $this->recalculateTotalFromProducts();
+        $this->recalcularTotalDesdeProductos();
     }
 
     public function save()
@@ -191,11 +185,9 @@ class SalesCreate extends Component
         $this->resolveCustomerId();
         $this->resolveWarehouseId();
         $this->resolveQuoteId();
-        $this->recalculateTotalFromProducts();
+        $this->recalcularTotalDesdeProductos();
         $Sale = new SaleRequest();
         $this->validate($Sale->rulesForAction('POST'), $Sale->messages(), $Sale->attributes());
-        // recalcular total en backend por seguridad
-        // validaciones
         DB::beginTransaction();
         try {
             $correlativo = UtilitisServices::NextCorrelative(Sale::class);

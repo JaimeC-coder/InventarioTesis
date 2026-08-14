@@ -27,6 +27,8 @@ class QuoteCreate extends Component
 
     public $customer_uuid = '';
 
+    public $customer_id;
+
     public $total = 0.00;
 
     public $observation = '';
@@ -183,8 +185,10 @@ class QuoteCreate extends Component
                 'text' => $throwable->getMessage(),
             ]);
             // opcional: log error
-            throw $throwable;
+            //throw $throwable;
         }
+
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

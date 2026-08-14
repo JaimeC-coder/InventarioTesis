@@ -5,6 +5,7 @@
     </x-slot>
 
 
+    5 boton de regresar al index
 
     <livewire:admin.tables.purchase-table />
     <livewire:export.specific-pdf />

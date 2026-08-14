@@ -80,7 +80,7 @@ class PurchaseRequest extends FormRequest
             'observation' => 'nullable|string|max:500',
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
+            'products.*.quantity' => 'required|numeric|min:0.25',
             'products.*.price' => 'required|numeric|min:0',
         ];
     }

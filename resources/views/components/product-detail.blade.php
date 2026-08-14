@@ -3,7 +3,7 @@
     <div>Stock por almacén:
         <ul class="list-disc list-inside">
             @foreach ($row->stock_by_warehouse as $stock)
-                <li>{{ $stock['warehouse']['name'] }} - Stock: {{ $stock['stock'] }}</li>
+                <li>{{ $stock['warehouse_name'] }} - Stock: {{ $stock['quantity'] }}</li>
             @endforeach
         </ul>
     </div>

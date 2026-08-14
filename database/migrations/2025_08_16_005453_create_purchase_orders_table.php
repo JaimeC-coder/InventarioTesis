@@ -17,6 +17,7 @@ return new class() extends Migration {
             $blueprint->integer('correlativo');
             $blueprint->date('date');
             $blueprint->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->string('status')->nullable();
             $blueprint->decimal('subtotal', 15, 2)->nullable();
             $blueprint->decimal('igv', 15, 2)->nullable();

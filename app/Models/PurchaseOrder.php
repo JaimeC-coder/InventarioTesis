@@ -12,6 +12,7 @@ class PurchaseOrder extends BaseModel
         'correlativo',
         'date',
         'supplier_id',
+        // 'warehouse_id',
         'status',
         'subtotal',
         'igv',

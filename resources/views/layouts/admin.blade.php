@@ -47,7 +47,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+
         Livewire.on('swal', (data) => {
+        console.log('Evento swal recibido:', data);
             const options = data[0];
 
             Swal.fire(options).then((result) => {

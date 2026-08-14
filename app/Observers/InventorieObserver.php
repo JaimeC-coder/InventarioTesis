@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Inventorie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class InventorieObserver
 {
@@ -13,6 +14,7 @@ class InventorieObserver
     public function created(Inventorie $inventorie): void
     {
         //
+        Log::info('Registro de inventario de tipo: ' . $inventorie->type . ' creado para el producto: ' . $inventorie->product_name . ' en el almacén: ' . $inventorie->warehouse->name);
         DB::table('products')
             ->where('id', $inventorie->product_id)
             ->update([

@@ -4,16 +4,20 @@ namespace App\Enum;
 
 enum PurchasesStatusEnum: string
 {
+    case PENDIENTE = 'PENDIENTE';
     case REGISTRADO = 'REGISTRADO';
     case PEDIDO = 'PEDIDO';
     case RECIBIDO = 'RECIBIDO';
+    case ANULADO = 'ANULADO';
 
     public function label(): string
     {
         return match ($this) {
-            self::REGISTRADO => 'Registro',
-            self::PEDIDO => 'Pedido',
-            self::RECIBIDO => 'Recibido',
+            self::PENDIENTE => 'PENDIENTE',
+            self::REGISTRADO => 'REGISTRADO',
+            self::PEDIDO => 'PEDIDO',
+            self::RECIBIDO => 'RECIBIDO',
+            self::ANULADO => 'ANULADO',
         };
     }
 

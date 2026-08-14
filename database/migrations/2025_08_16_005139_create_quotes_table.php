@@ -26,6 +26,7 @@ return new class() extends Migration {
             $blueprint->string('observation')->nullable();
             $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();

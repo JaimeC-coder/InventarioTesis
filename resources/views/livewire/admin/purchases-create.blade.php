@@ -10,6 +10,8 @@
         });
     }
 }">
+
+
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
             <x-forms.select label="Tipo de Comprobante" wire:model="voucher_type" dark :options="$comprobante"
@@ -98,7 +100,7 @@
                 wire:model="observation" class="flex-1" />
         </div>
         <div class="flex items-end pt-4 justify-end text-2xl">
-            Total: S/. <span x-text="total"></span>
+            Total: S/. <span x-text="Number(total).toFixed(2)"></span>
         </div>
         <div class="flex items-end border-t pt-4 justify-end">
             <x-button type="submit" :disabled="count($errors) > 0 || count($products) === 0">Guardar</x-button>

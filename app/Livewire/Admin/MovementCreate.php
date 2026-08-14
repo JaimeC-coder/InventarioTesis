@@ -35,7 +35,7 @@ class MovementCreate extends Component
 
     public $product_uuid = '';
 
-    public $product_id;
+    public ?int $product_id ;
 
     public $products = [];
 

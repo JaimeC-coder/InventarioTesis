@@ -24,6 +24,10 @@ class ProductCreate extends Component
 
     public $category_uuid;
 
+    public $supplier_id;
+
+    public $supplier_uuid;
+
     public $name;
 
     public $name_specific;
@@ -53,6 +57,7 @@ class ProductCreate extends Component
     public function addProduct(): void
     {
         $this->validate([
+            'supplier_uuid' => 'required|exists:suppliers,uuid',
             'category_uuid' => 'required|exists:categories,uuid',
             'category_code' => 'required',
             'code' => 'required',
@@ -100,6 +105,7 @@ class ProductCreate extends Component
     public function saveProducts(): void
     {
         $this->validate([
+            'supplier_uuid' => 'required|exists:suppliers,uuid',
             'category_code' => 'required',
             'code' => 'required',
             'description' => 'nullable|string',
@@ -118,7 +124,9 @@ class ProductCreate extends Component
         ]);
         try {
             $category_id = \App\Models\Category::where('uuid', $this->category_uuid)->value('id');
+            $supplier_id = \App\Models\Supplier::where('uuid', $this->supplier_uuid)->value('id');
             $productBaseid = Product::create([
+                'supplier_id' => $supplier_id,
                 'name' => $this->productBaseName,
                 'category_code' => $this->category_code,
                 'code' => $this->code,
@@ -133,6 +141,7 @@ class ProductCreate extends Component
             // luego vamos a crear los productos dependientes
             foreach ($this->products as $product) {
                 Product::create([
+                    'supplier_id' => $supplier_id,
                     'name' => $product['name'],
                     'category_code' => $this->category_code,
                     'code' => $this->code,

@@ -246,6 +246,7 @@ class ProductController extends Controller
         $price_sale_regular = rand(70, 200);
         $price_sale = rand(50, 160);
         $price_purchase = rand(70, 200);
+        $supplier_id = 1; // Asignar un valor predeterminado o obtenerlo de otra manera según tu lógica
         foreach ($units as $unit) {
             foreach ($measures as $measure) {
                 $codigoConcatenado = sprintf('%s%s%s%s', $category->codigo, $productData['CODIGO'], $measure['code'], $unit['code']);
@@ -259,7 +260,8 @@ class ProductController extends Controller
                     'price_sale_regular' => $price_sale_regular,
                     'price_sale_a1' => $price_sale,
                     'price_purchase' => $price_purchase,
-                    'stock' => 100,
+                    'supplier_id' => $supplier_id,
+                    'stock' => 0,
                     'min_stock' => 10,
                     'is_active_product' => 1,
                     'productBase_id' => $productBase,

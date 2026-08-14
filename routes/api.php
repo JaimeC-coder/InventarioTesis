@@ -193,7 +193,7 @@ Route::post('categories', function (Request $request) {
         ->when(
             $request->exists('selected'),
             fn($query) => $query->whereIn('uuid', $request->input('selected')),
-            fn($query) => $query->limit(10)
+            fn($query) => $query->limit(15)
         )
         ->get();
     return response()->json($category);
