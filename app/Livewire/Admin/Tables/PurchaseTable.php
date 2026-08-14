@@ -90,7 +90,6 @@ final class PurchaseTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
             Column::make('Estado', 'status_formatted', 'status')
-                // ->toggleable(hasPermission: true, trueLabel: 'yes', falseLabel: 'no')
                 ->sortable(),
             Column::make('Orden de compra', 'purchaseOrder.serie')
                 ->sortable()

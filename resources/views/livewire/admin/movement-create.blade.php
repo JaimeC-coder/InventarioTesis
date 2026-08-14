@@ -12,7 +12,7 @@
 }">
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
-            <x-forms.native-select label="Tipo de movimiento" wire:model.live="type" >
+            <x-forms.native-select label="Tipo de movimiento" wire:model.live="type">
                 <option value="">Seleccione Tipo de Movimiento</option>
                 <option value="1" @if ($type === 1) selected @endif>Ingreso</option>
                 <option value="2" @if ($type === 2) selected @endif>Salida</option>
@@ -29,7 +29,7 @@
         <div class="grid grid-cols-2 gap-4">
             <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST']"
                 option-label="name" option-value="uuid" wire:model="warehouse_uuid" :disabled="count($products) > 0" />
-            <x-forms.select label="Motivo" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.reasons'), 'method' => 'POST','params' => ['type' => $type]]"
+            <x-forms.select label="Motivo" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.reasons'), 'method' => 'POST', 'params' => ['type' => $type]]"
                 option-label="name" option-value="uuid" wire:model="reason_uuid" />
         </div>
 
@@ -82,13 +82,26 @@
 
         <div class="flex item-center space-x-4">
             <x-forms.input label="Observaciones" name="observation" type="text" placeholder="Observaciones"
-               observation class="flex-1" />
+                observation class="flex-1" />
         </div>
         <div class="flex items-end pt-4 justify-end text-2xl">
             Total: S/. <span x-text="total"></span>
         </div>
-        <div class="flex items-end border-t pt-4 justify-end">
-            <x-button type="submit" :disabled="count($errors) > 0 || count($products) === 0">Guardar</x-button>
+
+        <div class="flex justify-between items-center">
+
+            <a href="{{ route('admin.movements.index') }}" class="ml-2">
+                <x-button type="button" variant="secondary" class="mt-4">
+                    Volver
+                </x-button>
+
+            </a>
+            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+                :disabled="count($errors) > 0 || count($products) === 0">
+                Crear Movimiento
+            </x-button>
+
         </div>
+
     </form>
 </div>

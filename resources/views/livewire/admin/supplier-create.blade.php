@@ -30,9 +30,22 @@
                 placeholder="Correo Electrónico" wire:model="email" />
         </div>
 
-        <x-button type="submit" class="mt-4">
-            Crear Proveedor
-        </x-button>
+        <div class="flex justify-between items-center">
+
+
+            <a href="{{ route('admin.suppliers.index') }}" class="ml-2">
+                <x-button type="button" variant="secondary" class="mt-4">
+                    Volver
+                </x-button>
+
+            </a>
+            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+                :disabled="count($errors) > 0 ">
+                Crear Proveedor
+            </x-button>
+
+        </div>
+
 
     </form>
 </div>

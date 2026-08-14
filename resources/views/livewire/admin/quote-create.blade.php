@@ -107,8 +107,20 @@
         <div class="flex items-end pt-4 justify-end text-2xl">
             Total: S/. <span x-text="total"></span>
         </div>
-        <div class="flex items-end border-t pt-4 justify-end">
-            <x-button type="submit" :disabled="count($errors) > 0 || count($products) === 0">Guardar</x-button>
+        <div class="flex justify-between items-center">
+
+            <a href="{{ route('admin.quotes.index') }}" class="ml-2">
+                <x-button type="button" variant="secondary" class="mt-4">
+                    Volver
+                </x-button>
+
+            </a>
+            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+                :disabled="count($errors) > 0 || count($products) === 0">
+                Crear Cotización
+            </x-button>
+
         </div>
+
     </form>
 </div>
