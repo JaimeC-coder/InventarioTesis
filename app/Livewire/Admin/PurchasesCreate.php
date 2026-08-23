@@ -8,10 +8,13 @@ use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Services\KardexServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Livewire\Component;
 
 class PurchasesCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $voucher_type = 2;
 
     public $serie = 'OC-00001';
@@ -194,11 +197,7 @@ class PurchasesCreate extends Component
             KardexServices::registerEntry($Purchase, $product, $this->warehouse_id, 'Compra ID: ' . $Purchase->id);
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Compra creada',
-            'text' => 'La compra se ha creado exitosamente.',
-        ]);
+        $this->successSwal('La compra se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.purchases.index');
     }

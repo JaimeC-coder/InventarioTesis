@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
+use App\Traits\HandlesSwalMessagesTrait;
 
 class CustomerController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -31,17 +34,9 @@ class CustomerController extends Controller
     {
         try {
             Customer::create($customerRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La creación del cliente fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La creación del cliente fue exitosa.', type: 'session');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al crear el cliente.',
-                'icon' => 'error',
-            ]);
+            $this->successSwal('Hubo un problema al crear el cliente.', type: 'session');
         }
 
         return redirect()->route('admin.customers.index');
@@ -70,19 +65,11 @@ class CustomerController extends Controller
     {
         try {
             $customer->update($customerRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La actualización del cliente fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La actualización del cliente fue exitosa.', type: 'session');
 
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el cliente.',
-                'icon' => 'error',
-            ]);
+            $this->successSwal('Hubo un problema al actualizar el cliente.', type: 'session');
             return redirect()->route('admin.customers.index');
         }
     }
@@ -93,20 +80,12 @@ class CustomerController extends Controller
     public function destroy(Customer $customer): \Illuminate\Http\RedirectResponse
     {
         if ($customer->sales()->exists() || $customer->quotes()->exists()) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.',
-                'icon' => 'error',
-            ]);
+            $this->successSwal('No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.', type: 'session');
             return redirect()->route('admin.customers.index');
         }
 
         $customer->delete();
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'El cliente fue eliminado exitosamente.',
-            'icon' => 'success',
-        ]);
+        $this->successSwal('El cliente fue eliminado exitosamente.', type: 'session');
 
         return redirect()->route('admin.customers.index');
     }

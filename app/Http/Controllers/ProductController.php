@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -42,20 +45,12 @@ class ProductController extends Controller
         try {
             // Validate and create the product
             Product::create($productRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'El producto se ha creado correctamente.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('El producto se ha creado correctamente.', type: 'session');
 
             return redirect()->route('admin.products.index');
         } catch (\Exception $exception) {
             Log::info('Error al crear producto: ' . $exception->getMessage());
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al crear el producto.',
-                'icon' => 'error',
-            ]);
+            $this->successSwal('Hubo un problema al crear el producto.', type: 'session');
 
             return redirect()->route('admin.products.index');
         }
@@ -85,17 +80,9 @@ class ProductController extends Controller
         try {
             // Validate and update the product
             $product->update($productRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'El producto se ha actualizado correctamente.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('El producto se ha actualizado correctamente.', type: 'session');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el producto.',
-                'icon' => 'error',
-            ]);
+            $this->successSwal('Hubo un problema al actualizar el producto.', type: 'session');
         }
 
         return redirect()->route('admin.products.index');
@@ -108,38 +95,22 @@ class ProductController extends Controller
     {
         try {
             if ($product->inventories()->exists()) {
-                session()->flash('swal', [
-                    'title' => 'Error',
-                    'text' => 'No se puede eliminar el producto porque está asociado a una orden.',
-                    'icon' => 'error',
-                ]);
+                $this->successSwal('No se puede eliminar el producto porque está asociado a una orden.', type: 'session');
                 return redirect()->route('admin.products.index');
             }
 
             if ($product->purchases()->exists() || $product->quotes()->exists()) {
-                session()->flash('swal', [
-                    'title' => 'Error',
-                    'text' => 'No se puede eliminar el producto porque está asociado a una compra o cotización.',
-                    'icon' => 'error',
-                ]);
+                $this->successSwal('No se puede eliminar el producto porque está asociado a una compra o cotización.', type: 'session');
                 return redirect()->route('admin.products.index');
             }
 
             $product->images()->delete();
             $product->delete();
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'El producto se ha eliminado correctamente.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('El producto se ha eliminado correctamente.', type: 'session');
 
             return redirect()->route('admin.products.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al eliminar el producto.',
-                'icon' => 'error',
-            ]);
+            $this->successSwal('Hubo un problema al eliminar el producto.', type: 'session');
         }
 
         return redirect()->route('admin.products.index');

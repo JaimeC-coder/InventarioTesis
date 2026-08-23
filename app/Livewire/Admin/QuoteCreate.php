@@ -6,10 +6,13 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Quote;
+use App\Traits\HandlesSwalMessagesTrait;
 use Livewire\Component;
 
 class QuoteCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $voucher_type = 1;
 
     public $serie = 'OC-00001';
@@ -145,11 +148,7 @@ class QuoteCreate extends Component
             ]);
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Cotización creada',
-            'text' => 'La cotización se ha creado exitosamente.',
-        ]);
+        $this->successSwal('La cotización se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.quotes.index');
     }

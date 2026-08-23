@@ -6,11 +6,14 @@ use App\Models\Inventorie;
 use App\Models\Movement;
 use App\Models\Product;
 use App\Models\Reason;
+use App\Traits\HandlesSwalMessagesTrait;
 use App\Models\Warehouse;
 use Livewire\Component;
 
 class MovementCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $type = 1;
 
     public $serie = 'MV-00001';
@@ -206,11 +209,7 @@ class MovementCreate extends Component
             }
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Movimiento creado',
-            'text' => 'El movimiento se ha creado exitosamente.',
-        ]);
+        $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.movements.index');
     }

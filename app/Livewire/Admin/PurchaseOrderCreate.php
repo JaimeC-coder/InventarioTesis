@@ -6,10 +6,13 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
+use App\Traits\HandlesSwalMessagesTrait;
 use Livewire\Component;
 
 class PurchaseOrderCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $voucher_type = 1;
 
     public $serie = 'OC-00001';
@@ -145,11 +148,7 @@ class PurchaseOrderCreate extends Component
             ]);
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Orden de compra creada',
-            'text' => 'La orden de compra se ha creado exitosamente.',
-        ]);
+        $this->successSwal('La orden de compra se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.purchases-orders.index');
     }

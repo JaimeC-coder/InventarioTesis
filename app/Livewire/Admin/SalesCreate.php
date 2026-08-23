@@ -7,11 +7,14 @@ use App\Models\Inventorie;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\Sale;
+use App\Traits\HandlesSwalMessagesTrait;
 use App\Models\Warehouse;
 use Livewire\Component;
 
 class SalesCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $voucher_type = 2;
 
     public $serie = 'OC-00001';
@@ -212,11 +215,7 @@ class SalesCreate extends Component
             ]);
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Venta creada',
-            'text' => 'La venta se ha creado exitosamente.',
-        ]);
+        $this->successSwal('La venta se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.sales.index');
     }

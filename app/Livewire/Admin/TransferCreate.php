@@ -6,11 +6,14 @@ use App\Models\Product;
 use App\Models\Transfer;
 use App\Models\Warehouse;
 use App\Services\KardexServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class TransferCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $type = 1;
 
     public $serie = 'TR-00001';
@@ -166,11 +169,7 @@ class TransferCreate extends Component
             KardexServices::registerEntry($Movement, $product, $this->destination_warehouse_id, sprintf('Entrada de almacen %s desde %s', $this->destination_warehouse_id, $this->origin_warehouse_id));
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Movimiento creado',
-            'text' => 'El movimiento se ha creado exitosamente.',
-        ]);
+        $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.transfers.index');
     }
