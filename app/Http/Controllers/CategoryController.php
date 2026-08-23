@@ -47,7 +47,9 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category): void {}
+    public function show(Category $category): void
+    {
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -82,6 +84,7 @@ class CategoryController extends Controller
             $this->errorSwal('No se puede eliminar la categoría ,tiene productos asociados.', type: 'session');
             return redirect()->back();
         }
+
         $category->delete();
         $this->successSwal('Categoría eliminada correctamente.', type: 'session');
         return redirect()->back();
