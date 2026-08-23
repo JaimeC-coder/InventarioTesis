@@ -7,10 +7,12 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\Reason;
+use App\Models\Record;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::post('suppliers', function (Request $request) {
@@ -28,27 +30,95 @@ Route::post('suppliers', function (Request $request) {
     return response()->json($supplier);
 })->name('admin.suppliers');
 
-Route::post('products', function (Request $request) {
-    $cacheKey = 'products_' . md5(json_encode($request->all()));
-    return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
-        $query = Product::select('uuid', 'name')
-            ->whereNotNull('productBase_id');
-        if ($search = $request->search) {
-            $query->where(function ($q) use ($search): void {
-                $q->where('name', 'like', $search . '%')
-                    ->orWhere('barcode', 'like', $search . '%');
+//productos por proveedor
+Route::post('products_suppliers', function (Request $request) {
+    // $suplier_id = Supplier::where('uuid', $request->supplier_uuid)->value('id');
+    Log::info('products_suppliers', ['supplier_uuid' => $request->supplier_uuid, 'request' => $request->all()]);
+    $suplier_uuid = $request->input('supplier_uuid');
+    Log::info('suplier_uuid', ['supplier_uuid' => $suplier_uuid, 'request' => $request->all()]);
+    $search = $request->filled('search') && mb_strlen($request->search) >= 3
+        ? $request->search
+        : null;
+    $cacheKey = sprintf(
+        'products_wh_%s_%s',
+        $suplier_uuid,
+        md5(json_encode(['search' => $search, 'selected' => $request->selected]))
+    );
+    if ($cached = Cache::get($cacheKey)) {
+        return response()->json($cached);
+    }
+
+    Log::info('products_suppliers cache miss', ['suplier_uuid' => $suplier_uuid]);
+    // 2. Cache miss: ejecuta la query
+    $query = Product::select('products.uuid', 'products.name')
+        ->join('suppliers', 'suppliers.id', '=', 'products.supplier_id')
+        ->where('suppliers.uuid', $suplier_uuid)
+        ->whereNotNull('products.productBase_id');
+    if ($search) {
+        $query->where(function ($q) use ($search): void {
+            $q->where('products.name', 'like', $search . '%')
+                ->orWhere('products.barcode', 'like', $search . '%');
+        });
+    }
+
+    if ($request->has('selected') && !empty($request->selected)) {
+        $query->whereIn('products.uuid', $request->selected);
+    } else {
+        $query->limit(10);
+    }
+
+    Log::info('products_suppliers query', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
+    Log::info('products_suppliers cacheKey', ['cacheKey' => $cacheKey]);
+    Log::info('products_suppliers search', ['search' => $search]);
+    $results = $query->get();
+    Log::info('products_suppliers results', ['results' => $results]);
+    // 3. Solo guarda en caché si SÍ hay resultados
+    if ($results->isNotEmpty()) {
+        Cache::put($cacheKey, $results, 300); // 5 minutos
+    }
+
+    return response()->json($results);
+})->name('admin.products_suppliers');
+
+//productos por almacen
+Route::post('products_warehouses', function (Request $request) {
+    $warehouse_uuid = $request->warehouse_uuid ?? $request->input('warehouse_uuid');
+    Log::info('products_warehouses', ['warehouse_uuid' => $warehouse_uuid, 'request' => $request->all()]);
+    // Si el search es muy corto, lo tratamos como si no existiera
+    $search = $request->filled('search') && mb_strlen($request->search) >= 3
+        ? $request->search
+        : null;
+    $cacheKey = sprintf(
+        'products_wh_%s_%s',
+        $warehouse_uuid,
+        md5(json_encode(['search' => $search, 'selected' => $request->selected]))
+    );
+
+    return Cache::remember($cacheKey, 300, function () use ($request, $warehouse_uuid, $search) {
+        $builder = Record::query()
+            ->join('products', 'products.id', '=', 'records.product_id')
+            ->join('warehouses', 'warehouses.id', '=', 'records.warehouse_id')
+            ->where('warehouses.uuid', $warehouse_uuid)
+            ->whereNotNull('products.productBase_id')
+            ->select('products.uuid', 'products.name', 'products.barcode');
+        if ($search) {
+            $builder->where(function ($q) use ($search): void {
+                $q->where('products.name', 'like', $search . '%')
+                    ->orWhere('products.barcode', 'like', $search . '%');
             });
         }
 
         if ($request->has('selected') && !empty($request->selected)) {
-            $query->whereIn('uuid', $request->selected);
+            $builder->whereIn('products.uuid', $request->selected);
         } else {
-            $query->limit(10);
+            $builder->limit(10);
         }
 
-        return response()->json($query->get());
+        return response()->json($builder->get(['uuid', 'name']));
     });
-})->name('admin.products');
+})->name('admin.products_warehouses');
+
+//productos que el almacen no tiene
 
 Route::post('warehouses', function (Request $request) {
     $cacheKey = 'warehouses_' . md5(json_encode($request->all()));
