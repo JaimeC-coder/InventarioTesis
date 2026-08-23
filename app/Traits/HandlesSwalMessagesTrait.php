@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-
 /**
  * Trait HandlesSwalMessagesTrait
  * @package App\Traits
@@ -11,12 +10,12 @@ namespace App\Traits;
  * @property string|null $swal_icon
  * @property string|null $swal_title
  * @property string|null $swal_text
- * @method void errorSwal(string $text, string $title = 'Error al procesar', string $type = 'dispatch')
- * @method void successSwal(string $text, string $title = 'Operación exitosa', string $type = 'dispatch')
- * @method void warningSwal(string $text, string $title = 'Advertencia', string $type = 'dispatch')
- * @method void confirmSwal(string $text, string $onConfirmMethod, string $title = '¿Estás seguro?', array $onConfirmParams = [])
- * @method void fireSwal(string $icon, string $title, string $text, string $type)
- * @method void dispatch(string $event, array $payload)
+ * @method   void        errorSwal(string $text, string $title = 'Error al procesar', string $type = 'dispatch')
+ * @method   void        successSwal(string $text, string $title = 'Operación exitosa', string $type = 'dispatch')
+ * @method   void        warningSwal(string $text, string $title = 'Advertencia', string $type = 'dispatch')
+ * @method   void        confirmSwal(string $text, string $onConfirmMethod, string $title = '¿Estás seguro?', array $onConfirmParams = [])
+ * @method   void        fireSwal(string $icon, string $title, string $text, string $type)
+ * @method   void        dispatch(string $event, array $payload)
  */
 
 trait HandlesSwalMessagesTrait
@@ -52,8 +51,7 @@ trait HandlesSwalMessagesTrait
 
     private function fireSwal(string $icon, string $title, string $text, string $type): void
     {
-        $payload = compact('icon', 'title', 'text');
-
+        $payload = ['icon' => $icon, 'title' => $title, 'text' => $text];
         match ($type) {
             'session' => session()->flash('swal', $payload),
             default => $this->dispatch('swal', $payload),
