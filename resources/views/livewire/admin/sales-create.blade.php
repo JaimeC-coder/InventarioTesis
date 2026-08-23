@@ -60,15 +60,22 @@
         <div class="grid grid-cols-2 gap-4">
             <x-forms.select label="Cliente" placeholder="Escribe el nombre o documento..."
                 wire:model.live="customer_uuid" :async-data="['api' => route('admin.customers'), 'method' => 'POST']" option-label="name" option-value="uuid"
-                option-description="type" />
+                option-description="type" :disabled="count($products) > 0" />
             <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST', 'params' => ['limit' => 10]]"
-                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0"
+                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0 "
                 :min-term-length="3" :delay="500" />
         </div>
 
         <div class="lg:flex lg:gap-4">
-            <x-forms.select label="Producto" placeholder="Buscar productos..." :async-data="['api' => route('admin.products'), 'method' => 'POST', 'params' => ['limit' => 10]]" option-label="name"
-                option-value="uuid" wire:model="product_uuid" :min-term-length="3" :delay="500" />
+
+            <x-forms.select label="Producto"
+                placeholder="{{ blank($warehouse_uuid) ? 'Debe seleccionar un almacen' : 'Buscar productos...' }}"
+                :async-data="[
+                    'api' => route('admin.products_warehouses'),
+                    'method' => 'POST',
+                    'params' => ['limit' => 10, 'warehouse_uuid' => $warehouse_uuid],
+                ]" option-label="name" option-value="uuid" wire:model="product_uuid"
+                :disabled="blank($warehouse_uuid)" />
             <div class="">
                 <x-forms.button type="button" class="w-full mt-4 lg:mt-7" spinner="addProduct"
                     wire:click="addProduct">Agregar</x-forms.button>

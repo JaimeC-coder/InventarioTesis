@@ -12,33 +12,43 @@
             <livewire:admin.dashboard.grafica-principal />
         </div>
 
-        <ul  class="list-disc list-inside space-y-2 text-gray-700">
-            <li> agregar el almacen a la orden de compra -- pendiente de hacer la migracion y probar
+        <ul class="list-disc list-inside space-y-2 text-gray-700">
+
+            <li class="text-green-500">
+                agregar el boton de limpiar en los formularios
             </li>
-            <li> al agregar el almacen hay que tener en cuenta que hay que cambiar tanto compra como venta en los respectivos valores de cotizacion y orden de compra
-                -- pendiente de hacer la migracion y probar
+            <li class="text-green-500">
+                mejorar todo lo que tiene que ver con apis para tener seguridad
             </li>
-            <li> agregar el proveedor a la insercion masiva de producto  y al registrar producto -- pendiente de usar y revisar
+
+            <li class="text-green-500">
+                mandar el swal a un trait donde se pueda reutilizar todo provar
             </li>
-            <li>
-                ver como manejamos la compra cuando aun no cambia de estado
+            <li class="text-green-500">
+                mandar el swal los errores a un servicio donde se pueda reutilizar todo
             </li>
-            <li>
-                terminar el dashboard de compras y ventas
+            <li class="text-green-500">
+                request personalizado para productos
+             </li>
+
+            <li class="text-yellow-300">
+                configurar roles y permisos
             </li>
-            <li>
-                terminar con movimiento y transferencia de productos
-            </li>
-            <li>
-               configurar roles y permisos
-            </li>
-            <li>
+            <li class="text-yellow-300">
                 terminar policyas para manejar perminsos
             </li>
 
-            <li>
-                mandar el swal a un servicio donde se pueda reutilizar todo
+            <li class="text-red-600">
+                terminar el dashboard de compras y ventas
+                -Lista de productos que ya no tiene stock por almacen
+                -Vista de cantidad de ventas con ingreso -
+                -vista de cantidad de compras con egreso -
+                -Lista de movimientos
             </li>
+            <li class="text-red-600">
+                terminar con movimiento y transferencia de productos
+            </li>
+
         </ul>
 
     </div>

@@ -24,7 +24,7 @@ class InventorySeeder extends Seeder
                 $subtotal = 0;
                 $purchases = \App\Models\Purchase::create([
                     'voucher_type' => 1,
-                    'serie' => 'C001',
+                    'serie' => 'CM01',
                     'correlativo' =>  $correlativo,
                     'date' => now(),
                     'supplier_id' => \App\Models\Supplier::first()->id, //fratello

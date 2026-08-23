@@ -34,6 +34,8 @@ class ProductCreate extends Component
 
     public $description;
 
+    public $codedisabled = false;
+
     public $locked = false;
 
     public $price_sale;
@@ -53,6 +55,22 @@ class ProductCreate extends Component
     public $category_code = 0;
 
     public $products = [];
+
+    public function updated(string $property, ?string $value): void
+    {
+        Log::info('Property updated: ' . $property . ' with value: ' . $value);
+        if ($property === 'category_uuid' && ($value !== null && $value !== '' && $value !== '0')) {
+            Log::info('Category UUID updated: ' . $value);
+            $this->category_code = \App\Models\Category::where('uuid', $value)->value('codigo');
+            $this->codedisabled = true;
+        }
+
+        if ($property === 'category_uuid' && ($value === null || $value === '' || $value === '0')) {
+            $this->codedisabled = false;
+            $this->category_code = 0;
+        }
+
+    }
 
     public function addProduct(): void
     {

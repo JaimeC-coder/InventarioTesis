@@ -19,11 +19,11 @@
 
         <div class="grid lg:grid-cols-3 gap-4 dark:bg-gray-800">
             <x-forms.select label="Categoria" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.categories'), 'method' => 'POST']"
-                option-label="name" option-value="uuid" wire:model="category_uuid" :disabled="$locked" />
+                option-label="name" option-value="uuid" wire:model.live="category_uuid" :disabled="$locked" />
 
             <div class="flex gap-4">
                 <x-forms.input label="Codigo de Categoria" name="name" type="number" min="0" max="99"
-                    placeholder="Ingrese el nombre del producto" wire:model="category_code" :disabled="$locked" />
+                    placeholder="Ingrese el nombre del producto" wire:model="category_code" :disabled="$locked || $codedisabled" />
                 <x-forms.input label="Stock Minimo" name="stock_min" type="number" placeholder="Stock Minimo"
                     wire:model="stock_min" :disabled="$locked" />
             </div>

@@ -107,6 +107,7 @@ class SalesCreate extends Component
         $this->customer_id = $quote->customer->id;
         $this->warehouse_uuid = $quote->warehouse->uuid;
         $this->warehouse_id = $quote->warehouse->id;
+        $this->observation = sprintf('Esta compra fue generada a partir de una cotización %s - ', $quote->serie) . UtilitisServices::completeCorrelativo($quote->correlativo);
         $this->products = $quote->products->map(function ($product): array {
             return [
                 'id' => $product->id,

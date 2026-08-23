@@ -66,7 +66,7 @@ final class PurchaseTable extends PowerGridComponent
                 return Blade::render('<x-select-powergrid type="occurrence" :options=$options  :dishId=$dishId  :selected=$selected :active=$active />', ['options' => $options, 'dishId' => intval($dish->id), 'selected' => strval($dish->status), 'active' => $active]);
             })
             ->add('purchaseOrder.serie')
-            ->add('purchaseOrder.serie', fn($user): string => $user->purchaseOrder ? $user->purchaseOrder->serie : 'Sin orden de compra')
+            ->add('purchaseOrder.serie', fn($user): string => $user->purchaseOrder ? $user->purchaseOrder->serie . ' - ' . UtilitisServices::completeCorrelativo($user->purchaseOrder->correlativo) : 'Sin orden de compra')
             ->add('date')
             ->add('date_formatted', fn($user): string => Carbon::parse($user->date)->format('d/m/Y'))
             ->add('supplier.name')

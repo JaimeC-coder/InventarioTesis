@@ -30,7 +30,7 @@
             <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST']"
                 option-label="name" option-value="uuid" wire:model="warehouse_uuid" :disabled="count($products) > 0" />
             <x-forms.select label="Motivo" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.reasons'), 'method' => 'POST', 'params' => ['type' => $type]]"
-                option-label="name" option-value="uuid" wire:model="reason_uuid" />
+                option-label="name" option-value="uuid" wire:model="reason_uuid" :disabled="count($products) > 0"/>
         </div>
 
 
