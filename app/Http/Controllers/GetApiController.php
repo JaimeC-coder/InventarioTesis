@@ -268,8 +268,8 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            limit: 15,
             query: $categories,
+            limit: 15,
         );
 
         return response()->json($result);
@@ -286,8 +286,8 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            limit: 10,
             query: $units,
+            limit: 10,
         );
 
         return response()->json($result);
@@ -304,8 +304,8 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            limit: 15,
             query: $measures,
+            limit: 15,
         );
 
         return response()->json($result);
