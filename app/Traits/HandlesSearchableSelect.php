@@ -11,15 +11,15 @@ trait HandlesSearchableSelect
      * Ejecuta una búsqueda paginada/seleccionable con cache seguro.
      *
      * @param string   $cachePrefix    Prefijo único por endpoint (ej: 'products')
-     * @param Builder $builder Query base ya con ->select(...) aplicado
+     * @param Builder  $builder        Query base ya con ->select(...) aplicado
      * @param array    $validated      Datos ya validados del FormRequest (search, selected)
      * @param callable $searchCallback function(Builder $q, string $search): void
      */
     protected function searchableSelect(
         string $cachePrefix,
-        Builder $builder,
         array $validated,
         callable $searchCallback,
+        Builder $query,
         int $limit = 10,
         int $ttlSeconds = 300
     ) {
@@ -27,18 +27,18 @@ trait HandlesSearchableSelect
         $selected = $validated['selected'] ?? [];
         $cacheKey = $this->buildSearchCacheKey($cachePrefix, $search, $selected, $limit);
 
-        return Cache::remember($cacheKey, $ttlSeconds, function () use ($builder, $search, $selected, $searchCallback, $limit) {
+        return Cache::remember($cacheKey, $ttlSeconds, function () use ($query, $search, $selected, $searchCallback, $limit) {
             if (!empty($selected)) {
-                $builder->whereIn('uuid', $selected);
+                $query->whereIn('uuid', $selected);
             } else {
                 if ($search !== '') {
-                    $searchCallback($builder, $search);
+                    $searchCallback($query, $search);
                 }
 
-                $builder->limit($limit);
+                $query->limit($limit);
             }
 
-            return $builder->get();
+            return $query->get();
         });
     }
 
