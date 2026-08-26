@@ -132,8 +132,8 @@ class CustomerCreate extends Component
                 'icon' => 'error',
             ]);
         }
-        return null;
 
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

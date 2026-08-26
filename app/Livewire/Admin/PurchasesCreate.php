@@ -187,6 +187,7 @@ class PurchasesCreate extends Component
             ]);
             $this->errorSwal('Ocurrió un error al crear la compra.');
         }
+
         return null;
     }
 

@@ -2,18 +2,6 @@
 
 use App\Http\Controllers\GetApiController;
 use App\Http\Controllers\ProductController;
-use App\Models\Category;
-use App\Models\Customer;
-use App\Models\Product;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\Reason;
-use App\Models\Record;
-use App\Models\Supplier;
-use App\Models\Warehouse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::post('suppliers', [GetApiController::class, 'suppliers'])->name('admin.suppliers');

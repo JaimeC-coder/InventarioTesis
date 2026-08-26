@@ -186,8 +186,8 @@ class QuoteCreate extends Component
             $this->errorSwal('Ocurrió un error al crear la cotización.');
             Log::error('Error al crear la cotización - Throwable: ' . $throwable->getMessage());
         }
-        return null;
 
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

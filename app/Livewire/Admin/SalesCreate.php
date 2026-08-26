@@ -227,6 +227,7 @@ class SalesCreate extends Component
             Log::error('Error al crear la venta - Throwable: ' . $throwable->getMessage());
             $this->errorSwal('Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.');
         }
+
         return null;
     }
 

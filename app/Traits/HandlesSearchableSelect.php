@@ -2,24 +2,22 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 trait HandlesSearchableSelect
 {
     /**
      * Ejecuta una búsqueda paginada/seleccionable con cache seguro.
      *
-     * @param string $cachePrefix Prefijo único por endpoint (ej: 'products')
-     * @param Builder $query Query base ya con ->select(...) aplicado
-     * @param array $validated Datos ya validados del FormRequest (search, selected)
+     * @param string   $cachePrefix    Prefijo único por endpoint (ej: 'products')
+     * @param Builder $builder Query base ya con ->select(...) aplicado
+     * @param array    $validated      Datos ya validados del FormRequest (search, selected)
      * @param callable $searchCallback function(Builder $q, string $search): void
-     * @param int $limit
-     * @param int $ttlSeconds
      */
     protected function searchableSelect(
         string $cachePrefix,
-        Builder $query,
+        Builder $builder,
         array $validated,
         callable $searchCallback,
         int $limit = 10,
@@ -27,20 +25,20 @@ trait HandlesSearchableSelect
     ) {
         $search = $validated['search'] ?? '';
         $selected = $validated['selected'] ?? [];
-
         $cacheKey = $this->buildSearchCacheKey($cachePrefix, $search, $selected, $limit);
 
-        return Cache::remember($cacheKey, $ttlSeconds, function () use ($query, $search, $selected, $searchCallback, $limit) {
+        return Cache::remember($cacheKey, $ttlSeconds, function () use ($builder, $search, $selected, $searchCallback, $limit) {
             if (!empty($selected)) {
-                $query->whereIn('uuid', $selected);
+                $builder->whereIn('uuid', $selected);
             } else {
                 if ($search !== '') {
-                    $searchCallback($query, $search);
+                    $searchCallback($builder, $search);
                 }
-                $query->limit($limit);
+
+                $builder->limit($limit);
             }
 
-            return $query->get();
+            return $builder->get();
         });
     }
 
