@@ -2,27 +2,29 @@
 
 namespace App\Livewire\Admin;
 
+use App\Http\Requests\ProductRequest;
+use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Measure;
 use App\Models\Product;
 use App\Models\Unit;
+use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class ProductCreate extends Component
 {
-    /**
-     * Agregar una validacion para el codigo del producto
-     * Que si existe el name_specific, el name no se debe de researtear
-     * Que si no existe el name_specific, el name se debe de researtear
-     * Al momento de agregar un producto, se debe de validar que no exista ya el codigo
-     * Al momento de agregar un producto, se debe de validar que no exista ya el nombre
-     * Al momento de guardar, se debe de validar que no exista ya el codigo
-     */
+    use ResolvesUuidsToIds;
+
+    use HandlesSwalMessagesTrait;
+
     public $measures_uuid = [];
 
     public $units_uuid = [];
 
     public $category_uuid;
+
+    public $category_id;
 
     public $supplier_id;
 
@@ -46,8 +48,6 @@ class ProductCreate extends Component
 
     public $stock;
 
-    public $alert_stock;
-
     public $code;
 
     public $stock_min = 0;
@@ -69,7 +69,6 @@ class ProductCreate extends Component
             $this->codedisabled = false;
             $this->category_code = 0;
         }
-
     }
 
     public function addProduct(): void
@@ -111,6 +110,7 @@ class ProductCreate extends Component
 
         $this->locked = true;
         $this->reset(['name', 'name_specific', 'units_uuid', 'measures_uuid']);
+        Log::info('products después de addProduct: ' . json_encode($this->products));
     }
 
     public function removeProduct($id): void
@@ -120,31 +120,17 @@ class ProductCreate extends Component
         $this->products = array_values($this->products);
     }
 
-    public function saveProducts(): void
+    public function save()
     {
-        $this->validate([
-            'supplier_uuid' => 'required|exists:suppliers,uuid',
-            'category_code' => 'required',
-            'code' => 'required',
-            'description' => 'nullable|string',
-            'products' => 'required|array|min:1',
-            'products.*.codigo' => 'required|string|distinct|unique:products,barcode',
-            'products.*.name' => 'required|string',
-            'products.*.unituuid' => 'required|exists:units,uuid',
-            'products.*.measureuuid' => 'required|exists:measures,uuid',
-            'products.*.price_sale' => 'required|numeric|min:0',
-            'products.*.price_purchase' => 'required|numeric|min:0',
-            'category_uuid' => 'required|exists:categories,uuid',
-            'stock_min' => 'nullable|integer|min:0',
-            'productBaseName' => 'required|string',
-        ], [
-            'products.*.codigo.unique' => 'El código :input ya existe en la base de datos.',
-        ]);
+        $this->resolveSupplierId();
+        $this->resolveCategoryId();
+        Log::info('products:' . count($this->products));
+        $productRequest = new ProductRequest();
+        $this->validate($productRequest->rulesForAction('POST'), $productRequest->messages(), $productRequest->attributes());
+        DB::beginTransaction();
         try {
-            $category_id = \App\Models\Category::where('uuid', $this->category_uuid)->value('id');
-            $supplier_id = \App\Models\Supplier::where('uuid', $this->supplier_uuid)->value('id');
             $productBaseid = Product::create([
-                'supplier_id' => $supplier_id,
+                'supplier_id' => $this->supplier_id,
                 'name' => $this->productBaseName,
                 'category_code' => $this->category_code,
                 'code' => $this->code,
@@ -153,13 +139,13 @@ class ProductCreate extends Component
                 'price_purchase' => 0,
                 'stock' => 0,
                 'min_stock' => $this->stock_min,
-                'is_active_product' => true,
-                'category_id' => $category_id,
+                'is_active_product' => false,
+                'category_id' =>  $this->category_id,
             ]);
             // luego vamos a crear los productos dependientes
             foreach ($this->products as $product) {
                 Product::create([
-                    'supplier_id' => $supplier_id,
+                    'supplier_id' => $this->supplier_id,
                     'name' => $product['name'],
                     'category_code' => $this->category_code,
                     'code' => $this->code,
@@ -171,29 +157,60 @@ class ProductCreate extends Component
                     'min_stock' => $this->stock_min,
                     'is_active_product' => true,
                     'productBase_id' => $productBaseid->id,
-                    'category_id' => $category_id,
+                    'category_id' =>  $this->category_id,
                     'unit_id' => \App\Models\Unit::where('uuid', $product['unituuid'])->value('id'),
                     'measure_id' => \App\Models\Measure::where('uuid', $product['measureuuid'])->value('id'),
                 ]);
             }
 
+            DB::commit();
             $this->dispatch('swal:success', [
                 'title' => 'Productos guardados',
                 'text' => 'Los productos se han guardado correctamente.',
                 'icon' => 'success',
             ]);
-        } catch (\Throwable $throwable) {
-            Log::error('Error al guardar productos: ' . $throwable->getMessage());
+            $this->reset(['name', 'name_specific', 'units_uuid', 'measures_uuid', 'category_uuid', 'supplier_id', 'supplier_uuid', 'description', 'code', 'stock_min', 'category_code']);
+            $this->locked = false;
+            $this->codedisabled = false;
+            $this->productBaseName = '';
+            $this->category_code = 0;
+            $this->code = '';
+            $this->name = '';
+            $this->name_specific = '';
+            $this->description = '';
+            $this->stock_min = 0;
+            $this->products = [];
+            return redirect()->route('admin.products.index');
+        } catch (\Illuminate\Validation\ValidationException  $throwable) {
+            DB::rollBack();
+            Log::error('Error al guardar productos - ValidationException: ' . $throwable->getMessage(), [
+                'errors' => $throwable->errors(),
+            ]);
             $this->dispatch('swal:success', [
                 'title' => 'Error al guardar productos',
                 'text' => 'Ocurrió un error al guardar los productos. Por favor, inténtelo de nuevo.',
                 'icon' => 'error',
             ]);
-            return;
+            return redirect()->back();
+        } catch (\Exception $throwable) {
+            DB::rollBack();
+            Log::error('Error al guardar productos - Exception: ' . $throwable->getMessage());
+            $this->dispatch('swal:success', [
+                'title' => 'Error al guardar productos',
+                'text' => 'Ocurrió un error al guardar los productos. Por favor, inténtelo de nuevo.',
+                'icon' => 'error',
+            ]);
+            return redirect()->back();
+        } catch (\Throwable $throwable) {
+            DB::rollBack();
+            Log::error('Error al guardar productos - Throwable: ' . $throwable->getMessage());
+            $this->dispatch('swal:success', [
+                'title' => 'Error al guardar productos',
+                'text' => 'Ocurrió un error al guardar los productos. Por favor, inténtelo de nuevo.',
+                'icon' => 'error',
+            ]);
+            return redirect()->back();
         }
-
-        Log::info('Guardando productos', $this->products);
-        $this->products = [];
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

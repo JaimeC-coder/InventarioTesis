@@ -9,6 +9,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,8 @@ use Livewire\Component;
 class PurchasesCreate extends Component
 {
     use ResolvesUuidsToIds;
+
+    use HandlesSwalMessagesTrait;
 
     public int $voucher_type = 2;
 
@@ -66,7 +69,7 @@ class PurchasesCreate extends Component
                 $this->dispatch('swal', [
                     'icon' => 'error',
                     'title' => 'Error',
-                    'text' => $html,
+                    'html' => $html,
                 ]);
             }
         });
@@ -169,23 +172,21 @@ class PurchasesCreate extends Component
             ProductDetailServices::createDetailproductableOrdenCompra($Purchase, $this->products);
             UtilitisServices::generateAndAttachPdf(Purchase::class, $Purchase);
             DB::commit();
-            session()->flash('swal', [
-                'icon' => 'success',
-                'title' => 'Compra creada',
-                'text' => 'La compra se ha creado exitosamente.',
-            ]);
+            $this->successSwal('La compra se ha creado exitosamente.', type: 'session');
             return redirect()->route('admin.purchases.index');
-        } catch (\Throwable $throwable) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error creating purchase: ' . $throwable->getMessage());
-            session()->flash('swal', [
-                'icon' => 'error',
-                'title' => 'Error',
-                'text' => 'Ocurrió un error al crear la compra.',
+            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+                'stack' => $exception->getTraceAsString(),
             ]);
-            // throw $throwable;
+            $this->errorSwal('Ocurrió un error al crear la compra.');
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+                'stack' => $exception->getTraceAsString(),
+            ]);
+            $this->errorSwal('Ocurrió un error al crear la compra.');
         }
-
         return null;
     }
 

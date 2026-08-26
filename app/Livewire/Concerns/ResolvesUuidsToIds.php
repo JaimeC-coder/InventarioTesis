@@ -22,6 +22,9 @@ use Illuminate\Support\Facades\Log;
  * @property int|null    $customer_id
  * @property string|null $quote_uuid
  * @property int|null    $quote_id
+ * @property string|null $category_uuid
+ * @property int|null    $category_id
+ * @property int|null    $total
  */
 
 trait ResolvesUuidsToIds
@@ -64,6 +67,14 @@ trait ResolvesUuidsToIds
         if (!empty($this->quote_uuid)) {
             Log::info('Entro a quote uuid: ' . $this->quote_uuid);
             $this->quote_id = Quote::where('uuid', $this->quote_uuid)->value('id');
+        }
+    }
+
+    protected function resolveCategoryId(): void
+    {
+        if (!empty($this->category_uuid)) {
+            Log::info('Entro a category uuid: ' . $this->category_uuid);
+            $this->category_id = \App\Models\Category::where('uuid', $this->category_uuid)->value('id');
         }
     }
 

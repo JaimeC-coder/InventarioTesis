@@ -9,13 +9,17 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class QuoteCreate extends Component
 {
     use ResolvesUuidsToIds;
+
+    use HandlesSwalMessagesTrait;
 
     public $voucher_type = 1;
 
@@ -94,28 +98,19 @@ class QuoteCreate extends Component
 
     public function addProduct(): void
     {
-        //!revisar para ver como manejamos el los casos de producto por alamcen y por stock
         $this->validate([
             'product_uuid' => 'required|exists:products,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
         if (!$product) {
-            $this->dispatch('swal', [
-                'icon' => 'error',
-                'title' => 'Error',
-                'text' => 'Producto no encontrado.',
-            ]);
+            $this->errorSwal('Producto no encontrado.');
             $this->reset('product_uuid');
             return;
         }
 
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
-            $this->dispatch('swal', [
-                'icon' => 'warning',
-                'title' => 'Producto ya agregado',
-                'text' => 'El producto ya ha sido agregado a la lista.',
-            ]);
+            $this->warningSwal('El producto ya ha sido agregado a la lista.');
             $this->reset('product_id');
             return;
         }
@@ -182,19 +177,17 @@ class QuoteCreate extends Component
             ]);
 
             return redirect()->route('admin.quotes.index');
+        } catch (\Exception $throwable) {
+            DB::rollBack();
+            $this->errorSwal('Ocurrió un error al crear la cotización.');
+            Log::error('Error al crear la cotización - Exception: ' . $throwable->getMessage());
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            // dispatch error
-            $this->dispatch('swal', [
-                'icon' => 'error',
-                'title' => 'Error al crear la venta',
-                'text' => $throwable->getMessage(),
-            ]);
-            // opcional: log error
-            //throw $throwable;
+            $this->errorSwal('Ocurrió un error al crear la cotización.');
+            Log::error('Error al crear la cotización - Throwable: ' . $throwable->getMessage());
         }
-
         return null;
+
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

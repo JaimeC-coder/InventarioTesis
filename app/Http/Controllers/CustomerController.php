@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -29,6 +32,26 @@ class CustomerController extends Controller
         return view('admin.customers.create', ['identities' => $identities]);
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(CustomerRequest $customerRequest): \Illuminate\Http\RedirectResponse
+    {
+        try {
+            Customer::create($customerRequest->validated());
+            $this->successSwal('La creación del cliente fue exitosa.', type: 'session');
+            return redirect()->route('admin.customers.index');
+        } catch (\Exception $exception) {
+            Log::info('Error al crear cliente: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al crear el cliente.', type: 'session');
+            return redirect()->back();
+        }
+
+    }
+
+    /**
+     * Display the specified resource.
+     */
     public function show(Customer $customer): void
     {
     }
@@ -57,20 +80,12 @@ class CustomerController extends Controller
     {
         try {
             $customer->update($customerRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La actualización del cliente fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La actualización del cliente fue exitosa.', type: 'session');
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
             Log::info('Error al actualizar cliente: ' . $exception->getMessage());
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el cliente.',
-                'icon' => 'error',
-            ]);
-            return redirect()->route('admin.customers.index');
+            $this->errorSwal('Hubo un problema al actualizar el cliente.', type: 'session');
+            return redirect()->back();
         }
     }
 
@@ -80,20 +95,12 @@ class CustomerController extends Controller
     public function destroy(Customer $customer): \Illuminate\Http\RedirectResponse
     {
         if ($customer->sales()->exists() || $customer->quotes()->exists()) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.',
-                'icon' => 'error',
-            ]);
+            $this->warningSwal('No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.', type: 'session');
             return redirect()->route('admin.customers.index');
         }
 
         $customer->delete();
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'El cliente fue eliminado exitosamente.',
-            'icon' => 'success',
-        ]);
+        $this->successSwal('El cliente fue eliminado exitosamente.', type: 'session');
 
         return redirect()->route('admin.customers.index');
     }

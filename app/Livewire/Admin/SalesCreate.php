@@ -10,6 +10,7 @@ use App\Models\Quote;
 use App\Models\Sale;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,8 @@ use Livewire\Component;
 class SalesCreate extends Component
 {
     use ResolvesUuidsToIds;
+
+    use HandlesSwalMessagesTrait;
 
     public $voucher_type = 2;
 
@@ -212,26 +215,19 @@ class SalesCreate extends Component
             ProductDetailServices::createDetailproductableExit($Sale, $this->products, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
             UtilitisServices::generateAndAttachPdf(Sale::class, $Sale);
             DB::commit();
-            session()->flash('swal', [
-                'icon' => 'success',
-                'title' => 'Venta creada',
-                'text' => 'La venta se ha creado exitosamente.',
-            ]);
+            $this->successSwal('La venta se ha creado exitosamente.', type: 'session');
 
             return redirect()->route('admin.sales.index');
+        } catch (\Exception $throwable) {
+            DB::rollBack();
+            Log::error('Error al crear la venta - Exception: ' . $throwable->getMessage());
+            $this->errorSwal('Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.');
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            // dispatch error
-            Log::error('Error al crear la venta: ' . $throwable->getMessage());
-            $this->dispatch('swal', [
-                'icon' => 'error',
-                'title' => 'Error al crear la venta',
-                'text' => 'Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.',
-            ]);
-            // opcional: log error
-            Log::error('Error al crear la venta: ' . $throwable->getMessage());
-            throw $throwable;
+            Log::error('Error al crear la venta - Throwable: ' . $throwable->getMessage());
+            $this->errorSwal('Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.');
         }
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

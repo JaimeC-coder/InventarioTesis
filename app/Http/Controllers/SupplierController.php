@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Enum\DocumentEnum;
 use App\Http\Requests\SupplierRequest;
 use App\Models\Supplier;
+use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Support\Facades\Log;
 
 class SupplierController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -36,20 +40,14 @@ class SupplierController extends Controller
     {
         try {
             Supplier::create($supplierRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La creación del proveedor fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La creación del proveedor fue exitosa.', type: 'session');
+            return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al crear el proveedor.',
-                'icon' => 'error',
-            ]);
+            Log::info('Error al crear proveedor: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al crear el proveedor.', type: 'session');
+            return redirect()->back();
         }
 
-        return redirect()->route('admin.suppliers.index');
     }
 
     /**
@@ -75,20 +73,14 @@ class SupplierController extends Controller
     {
         try {
             $supplier->update($supplierRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La actualización del proveedor fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La actualización del proveedor fue exitosa.', type: 'session');
+            return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el proveedor.',
-                'icon' => 'error',
-            ]);
+            Log::info('Error al actualizar proveedor: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al actualizar el proveedor.', type: 'session');
+            return redirect()->back();
         }
 
-        return redirect()->route('admin.suppliers.index');
     }
 
     /**
@@ -98,28 +90,17 @@ class SupplierController extends Controller
     {
         try {
             if ($supplier->sales()->exists() || $supplier->quotes()->exists()) {
-                session()->flash('swal', [
-                    'title' => 'Error',
-                    'text' => 'No se puede eliminar el proveedor porque tiene ventas o cotizaciones asociadas.',
-                    'icon' => 'error',
-                ]);
+                $this->warningSwal('No se puede eliminar el proveedor porque tiene ventas o cotizaciones asociadas.', type: 'session');
                 return redirect()->route('admin.suppliers.index');
             }
 
             $supplier->delete();
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'El proveedor fue eliminado exitosamente.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('El proveedor fue eliminado exitosamente.', type: 'session');
 
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al eliminar el proveedor.',
-                'icon' => 'error',
-            ]);
+            Log::info('Error al eliminar proveedor: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al eliminar el proveedor.', type: 'session');
             return redirect()->route('admin.suppliers.index');
         }
     }

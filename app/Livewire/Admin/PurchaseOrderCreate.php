@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,8 @@ use Livewire\Component;
 class PurchaseOrderCreate extends Component
 {
     use ResolvesUuidsToIds;
+
+    use HandlesSwalMessagesTrait;
 
     public $voucher_type = 1;
 
@@ -134,26 +137,19 @@ class PurchaseOrderCreate extends Component
             ProductDetailServices::createDetailproductableOrdenCompra($PurchaseOrder, $this->products);
             UtilitisServices::generateAndAttachPdf(PurchaseOrder::class, $PurchaseOrder);
             DB::commit();
-            session()->flash('swal', [
-                'icon' => 'success',
-                'title' => 'Orden de compra creada',
-                'text' => 'La orden de compra se ha creado exitosamente.',
-            ]);
-
+            $this->successSwal('La orden de compra se ha creado exitosamente.', type: 'session');
             return redirect()->route('admin.purchases-orders.index');
+        } catch (\Exception $throwable) {
+            DB::rollBack();
+            Log::error('Error al crear la orden de compra - Exception: ' . $throwable->getMessage());
+            $this->errorSwal('Ocurrió un error al crear la orden de compra.');
+            return redirect()->back();
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            //throw $th;
-            Log::error('Error creating purchase Order: ' . $throwable->getMessage());
-            session()->flash('swal', [
-                'icon' => 'error',
-                'title' => 'Error',
-                'text' => 'Ocurrió un error al crear la compra.',
-            ]);
-            // throw $throwable;
+            Log::error('Error al crear la orden de compra - Throwable: ' . $throwable->getMessage());
+            $this->errorSwal('Ocurrió un error al crear la orden de compra.');
+            return redirect()->back();
         }
-
-        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

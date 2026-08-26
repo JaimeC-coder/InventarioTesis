@@ -71,9 +71,9 @@ class SupplierCreate extends Component
 
     public function save()
     {
+        $supplierRequest = new SupplierRequest();
+        $this->validate($supplierRequest->rulesForAction('POST'), $supplierRequest->messages());
         try {
-            $supplierRequest = new SupplierRequest();
-            $this->validate($supplierRequest->rulesForAction('POST'), $supplierRequest->messages());
             Supplier::create([
                 'document_number' => $this->document_number,
                 'identity' => $this->identity,
@@ -90,7 +90,16 @@ class SupplierCreate extends Component
 
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            Log::error('Error al crear el proveedor: ' . $exception->getMessage(), [
+            Log::error('Error al crear el proveedor - exception: ' . $exception->getMessage(), [
+                'stack' => $exception->getTraceAsString(),
+            ]);
+            $this->dispatch('swal', [
+                'title' => 'Error',
+                'text' => 'Hubo un problema al crear el proveedor.',
+                'icon' => 'error',
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('Error al crear el proveedor - throwable: ' . $exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
@@ -99,8 +108,8 @@ class SupplierCreate extends Component
                 'icon' => 'error',
             ]);
         }
-
         return null;
+
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

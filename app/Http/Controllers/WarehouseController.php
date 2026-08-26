@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\WarehouseRequest;
 use App\Models\Warehouse;
+use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Support\Facades\Log;
 
 class WarehouseController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -31,19 +35,12 @@ class WarehouseController extends Controller
         try {
             $validated = $warehouseRequest->validated();
             Warehouse::create($validated);
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La creación del almacén fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La creación del almacén fue exitosa.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al crear el almacén.',
-                'icon' => 'error',
-            ]);
+            Log::info('Error al crear almacén: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al crear el almacén.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
         }
@@ -73,19 +70,12 @@ class WarehouseController extends Controller
         try {
             $validated = $warehouseRequest->validated();
             $warehouse->update($validated);
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La actualización del almacén fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La actualización del almacén fue exitosa.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el almacén.',
-                'icon' => 'error',
-            ]);
+            Log::info('Error al actualizar almacén: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al actualizar el almacén.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
         }
@@ -97,21 +87,13 @@ class WarehouseController extends Controller
     public function destroy(Warehouse $warehouse): \Illuminate\Http\RedirectResponse
     {
         if ($warehouse->inventories()->count() > 0) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'No se puede eliminar el almacén porque tiene productos asociados.',
-                'icon' => 'error',
-            ]);
+            $this->warningSwal('No se puede eliminar el almacén porque tiene productos asociados.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
         }
 
         $warehouse->delete();
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'La eliminación del almacén fue exitosa.',
-            'icon' => 'success',
-        ]);
+        $this->successSwal('La eliminación del almacén fue exitosa.', type: 'session');
 
         return redirect()->route('admin.warehouses.index');
     }

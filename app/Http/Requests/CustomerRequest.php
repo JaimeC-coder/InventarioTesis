@@ -89,7 +89,7 @@ class CustomerRequest extends FormRequest
             ],
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|max:20|regex:/^[0-9\-\(\)\s]+$/|min:7',
             'email' => 'required|email|max:255',
             'type' => 'required|in:GENERAL,A1',
         ];
@@ -126,7 +126,7 @@ class CustomerRequest extends FormRequest
             ],
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|max:20|regex:/^[0-9\-\(\)\s]+$/|min:7',
             'email' => 'required|email|max:255',
             'type' => 'required|in:GENERAL,A1',
         ];
@@ -144,6 +144,8 @@ class CustomerRequest extends FormRequest
             'phone.required' => 'El teléfono del cliente es requerido',
             'phone.string' => 'El teléfono del cliente debe ser una cadena de texto',
             'phone.max' => 'El teléfono del cliente no debe exceder los 20 caracteres',
+            'phone.regex' => 'El teléfono del cliente debe ser un número válido',
+            'phone.min' => 'El teléfono del cliente debe tener al menos 7 caracteres',
             'email.required' => 'El correo electrónico del cliente es requerido',
             'email.email' => 'El correo electrónico del cliente debe ser una dirección de correo electrónico válida',
             'email.max' => 'El correo electrónico del cliente no debe exceder los 255 caracteres',

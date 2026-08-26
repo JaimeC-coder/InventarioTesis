@@ -8,11 +8,14 @@ use App\Models\Product;
 use App\Models\Reason;
 use App\Models\Warehouse;
 use App\Services\FileServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class MovementCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $type = 1;
 
     public $serie = 'MV01';
@@ -215,12 +218,7 @@ class MovementCreate extends Component
         $fileDirection = FileServices::generatePdfNow(['model' => Movement::class, 'uuids' => $Movement->uuid]);
         $Movement->update(['file_path' => $fileDirection]);
         $Movement->save();
-
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Movimiento creado',
-            'text' => 'El movimiento se ha creado exitosamente.',
-        ]);
+        $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.movements.index');
     }

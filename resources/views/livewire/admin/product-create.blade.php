@@ -3,19 +3,8 @@
     removeProduct(index) { this.products.splice(index, 1); },
 
 }">
-    @error('products.*')
-        <x-forms.alert title="Error en la lista de productos!" negative>
 
-            <x-slot name="slot">
-                <ul class="mt-2 list-disc list-outside space-y-1 ps-2.5">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </x-slot>
-        </x-forms.alert>
-    @enderror
-    <form wire:submit='saveProducts' class="space-y-4">
+    <form wire:submit='save' class="space-y-4">
 
         <div class="grid lg:grid-cols-3 gap-4 dark:bg-gray-800">
             <x-forms.select label="Categoria" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.categories'), 'method' => 'POST']"
@@ -66,9 +55,22 @@
         </div>
         <div class="overflow-x-auto w-full">
             <table class="w-full text-sm text-left table-auto">
-                <caption class="caption-top px-6 py-3">
+                <caption class="caption-top px-6 py-3 text-left">
                     Productos agregados del producto base :
                     <strong>{{ $productBaseName }}</strong>
+                    @error('products')
+
+                        <x-forms.alert title="Error en la lista de productos!" negative>
+
+                            <x-slot name="slot">
+                                <ul class="mt-2 list-disc list-outside space-y-1 ps-2.5">
+                                    @foreach ($errors->get('products') as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </x-slot>
+                        </x-forms.alert>
+                    @enderror
                 </caption>
                 <thead>
                     <tr class="border-y text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -126,8 +128,7 @@
                 </x-button>
 
             </a>
-            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
-                :disabled="count($errors) > 0 || count($products) === 0">
+            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled">
                 Crear Producto
             </x-button>
 

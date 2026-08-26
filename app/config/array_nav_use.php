@@ -15,6 +15,7 @@ class array_nav_use
                 'route' => 'admin.dashboard',
                 'active' => request()->routeIs('admin.dashboard'),
                 'icon' => 'dashboard',
+                'permission' => 'view-dashboard',
             ],
             [
                 'header' => 'Sistema',
@@ -25,7 +26,7 @@ class array_nav_use
                 'active' => request()->routeIs('admin.ecommerce'),
                 'icon' => 'warehouse',
                 'submenu' => [
-                    ['name' => 'Categoria', 'route' => 'admin.categories.index'],
+                    ['name' => 'Categoria', 'route' => 'admin.categories.index',],
                     ['name' => 'Productos falta los export masivos', 'route' => 'admin.products.index'],
                     ['name' => 'Almacenes', 'route' => 'admin.warehouses.index'],
                     ['name' => 'Unidades de medida', 'route' => 'admin.units.index', 'active' => request()->routeIs('admin.units.index')],

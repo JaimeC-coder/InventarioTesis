@@ -15,24 +15,27 @@
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
             <li class="text-green-500">
+                mejorar todo lo que tiene que ver con apis para tener seguridad -- por probar
+            </li>
+            <li class="text-green-500">
+                ver ese error que aparece cuando borro el listado de productos
+            </li>
+            <li class="text-green-500">
                 agregar el boton de limpiar en los formularios
             </li>
-            <li class="text-green-500">
-                mejorar todo lo que tiene que ver con apis para tener seguridad
-            </li>
 
-            <li class="text-green-500">
-                mandar el swal a un trait donde se pueda reutilizar todo provar
-            </li>
-            <li class="text-green-500">
-                mandar el swal los errores a un servicio donde se pueda reutilizar todo
-            </li>
-            <li class="text-green-500">
-                request personalizado para productos
-             </li>
 
             <li class="text-yellow-300">
                 configurar roles y permisos
+            </li>
+            <li class="text-yellow-300">
+                Registrar roles y permisos
+            </li>
+            <li class="text-yellow-300">
+                agregarlos a array del menu
+            </li>
+            <li class="text-yellow-300">
+                provar roles y permisos
             </li>
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos

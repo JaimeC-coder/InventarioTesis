@@ -35,7 +35,7 @@ class CustomerCreate extends Component
     public function mount(): void
     {
         $this->identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
-            'id' => $mes->value,
+            'id' => $mes,
             'name' => $mes->label(),
         ])->toArray();
         $this->types = [
@@ -47,12 +47,12 @@ class CustomerCreate extends Component
     public function updatedIdentity(): void
     {
         $this->name = '';
-        $this->active = in_array($this->identity, [DocumentEnum::DNI, DocumentEnum::RUC]);
+        $this->active = in_array($this->identity, [DocumentEnum::DNI->value, DocumentEnum::RUC->value]);
     }
 
     public function generateDocumentNumber(): void
     {
-        if ($this->identity === DocumentEnum::DNI) {
+        if ($this->identity === DocumentEnum::DNI->value) {
             $identity  = DocumentServices::getDataFromDNI($this->document_number);
             if ($identity['success'] === false) {
                 $this->dispatch('swal', [
@@ -66,8 +66,7 @@ class CustomerCreate extends Component
             }
 
             $this->name = $identity['nombres'] . ' ' . $identity['apellidoPaterno'] . ' ' . $identity['apellidoMaterno'];
-            // dd($identity);
-        } elseif ($this->identity === DocumentEnum::RUC) {
+        } elseif ($this->identity === DocumentEnum::RUC->value) {
             $identity  = DocumentServices::getDataFromRUC($this->document_number);
             if (isset($identity['success']) && $identity['success'] === false) {
                 $this->dispatch('swal', [
@@ -95,9 +94,9 @@ class CustomerCreate extends Component
 
     public function save()
     {
+        $customerRequest = new CustomerRequest();
+        $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
         try {
-            $customerRequest = new CustomerRequest();
-            $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
             Customer::create([
                 'document_number' => $this->document_number,
                 'identity' => $this->identity,
@@ -123,9 +122,18 @@ class CustomerCreate extends Component
                 'text' => 'Hubo un problema al crear el cliente.',
                 'icon' => 'error',
             ]);
+        } catch (\Throwable $exception) {
+            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+                'stack' => $exception->getTraceAsString(),
+            ]);
+            $this->dispatch('swal', [
+                'title' => 'Error',
+                'text' => 'Hubo un problema al crear el cliente.',
+                'icon' => 'error',
+            ]);
         }
-
         return null;
+
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

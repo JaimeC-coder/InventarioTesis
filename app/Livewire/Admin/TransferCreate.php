@@ -7,12 +7,15 @@ use App\Models\Transfer;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class TransferCreate extends Component
 {
+    use HandlesSwalMessagesTrait;
+
     public $type = 1;
 
     public $serie = 'TR-00001';
@@ -90,11 +93,7 @@ class TransferCreate extends Component
         Warehouse::where('uuid', $this->origin_warehouse_uuid)->value('id');
         $exists = collect($this->products)->where('id', $product->id)->first();
         if ($exists) {
-            $this->dispatch('swal', [
-                'icon' => 'warning',
-                'title' => 'Producto ya agregado',
-                'text' => 'El producto ya ha sido agregado a la lista.',
-            ]);
+            $this->warningSwal('El producto ya ha sido agregado a la lista.');
             $this->reset('product_id');
             return;
         }
@@ -174,11 +173,7 @@ class TransferCreate extends Component
             $Movement->save();
         }
 
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => 'Movimiento creado',
-            'text' => 'El movimiento se ha creado exitosamente.',
-        ]);
+        $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.transfers.index');
     }
