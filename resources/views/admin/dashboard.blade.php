@@ -40,6 +40,12 @@
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos
             </li>
+            <li class="text-yellow-300">
+                considerar registrar unidades de medida
+            </li>
+            <li class="text-yellow-300">
+                considerar editar unidades de medida
+            </li>
 
             <li class="text-red-600">
                 terminar el dashboard de compras y ventas
@@ -51,6 +57,9 @@
             <li class="text-red-600">
                 terminar con movimiento y transferencia de productos
             </li>
+            <li class="text-red-600">
+                agregar filtro a productos por medida y categoria y unidad
+             </li>
 
         </ul>
 

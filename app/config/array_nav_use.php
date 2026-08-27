@@ -18,6 +18,13 @@ class array_nav_use
                 'permission' => 'view-dashboard',
             ],
             [
+                'name' => 'HELLPER IA',
+                'route' => 'admin.dashboard',
+                'active' => request()->routeIs('admin.dashboard'),
+                'icon' => 'dashboard',
+                'permission' => 'view-dashboard',
+            ],
+            [
                 'header' => 'Sistema',
             ],
             [
