@@ -19,7 +19,7 @@ trait HandlesSearchableSelect
         string $cachePrefix,
         array $validated,
         callable $searchCallback,
-        Builder $query,
+        Builder $builder,
         int $limit = 10,
         int $ttlSeconds = 300
     ) {
@@ -27,18 +27,18 @@ trait HandlesSearchableSelect
         $selected = $validated['selected'] ?? [];
         $cacheKey = $this->buildSearchCacheKey($cachePrefix, $search, $selected, $limit);
 
-        return Cache::remember($cacheKey, $ttlSeconds, function () use ($query, $search, $selected, $searchCallback, $limit) {
+        return Cache::remember($cacheKey, $ttlSeconds, function () use ($builder, $search, $selected, $searchCallback, $limit) {
             if (!empty($selected)) {
-                $query->whereIn('uuid', $selected);
+                $builder->whereIn('uuid', $selected);
             } else {
                 if ($search !== '') {
-                    $searchCallback($query, $search);
+                    $searchCallback($builder, $search);
                 }
 
-                $query->limit($limit);
+                $builder->limit($limit);
             }
 
-            return $query->get();
+            return $builder->get();
         });
     }
 
