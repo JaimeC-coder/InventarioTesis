@@ -22,7 +22,7 @@ class GetApiController extends Controller
                         ->orWhere('barcode', 'like', $search . '%');
                 });
             },
-            query: $products
+            builder: $products
         );
 
         return response()->json($result);
@@ -40,7 +40,7 @@ class GetApiController extends Controller
                         ->orWhere('document_number', 'like', '%' . $search . '%');
                 });
             },
-            query: $supplier
+            builder: $supplier
         );
 
         return response()->json($result);
@@ -61,25 +61,25 @@ class GetApiController extends Controller
             return response()->json($cached);
         }
 
-        // 2. Cache miss: ejecuta la query
-        $query = \App\Models\Product::select('products.uuid', 'products.name')
+        // 2. Cache miss: ejecuta la builder
+        $builder = \App\Models\Product::select('products.uuid', 'products.name')
             ->join('suppliers', 'suppliers.id', '=', 'products.supplier_id')
             ->where('suppliers.uuid', $suplier_uuid)
             ->whereNotNull('products.productBase_id');
         if ($search) {
-            $query->where(function ($q) use ($search): void {
+            $builder->where(function ($q) use ($search): void {
                 $q->where('products.name', 'like', $search . '%')
                     ->orWhere('products.barcode', 'like', $search . '%');
             });
         }
 
         if ($request->has('selected') && !empty($request->selected)) {
-            $query->whereIn('products.uuid', $request->selected);
+            $builder->whereIn('products.uuid', $request->selected);
         } else {
-            $query->limit(10);
+            $builder->limit(10);
         }
 
-        $results = $query->get();
+        $results = $builder->get();
         // 3. Solo guarda en caché si SÍ hay resultados
         if ($results->isNotEmpty()) {
             Cache::put($cacheKey, $results, 300); // 5 minutos
@@ -102,7 +102,7 @@ class GetApiController extends Controller
         );
 
         return Cache::remember($cacheKey, 300, function () use ($request, $warehouse_uuid, $search) {
-            $builder = \App\Models\Record::query()
+            $builder = \App\Models\Record::builder()
                 ->join('products', 'products.id', '=', 'records.product_id')
                 ->join('warehouses', 'warehouses.id', '=', 'records.warehouse_id')
                 ->where('warehouses.uuid', $warehouse_uuid)
@@ -137,7 +137,7 @@ class GetApiController extends Controller
                         ->orWhere('sku', 'like', '%' . $search . '%');
                 });
             },
-            query: $warehouses
+            builder: $warehouses
         );
 
         return response()->json($result);
@@ -145,10 +145,10 @@ class GetApiController extends Controller
 
     public function purchasesOrders(Request $request)
     {
-        $purchaseOrder = \App\Models\PurchaseOrder::when($request->search, function ($query) use ($request): void {
+        $purchaseOrder = \App\Models\PurchaseOrder::when($request->search, function ($builder) use ($request): void {
             $parts = explode('-', $request->search);
             if (count($parts) == 1) {
-                $query->whereHas('supplier', function ($q) use ($request): void {
+                $builder->whereHas('supplier', function ($q) use ($request): void {
                     $q->where('name', 'like', '%' . $request->search . '%')
                         ->orWhere('document_number', 'like', '%' . $request->search . '%');
                 });
@@ -158,15 +158,15 @@ class GetApiController extends Controller
             if (count($parts) === 2) {
                 $serie = $parts[0];
                 $correlativo = ltrim($parts[1], '0');
-                $query->where('serie', $serie)
+                $builder->where('serie', $serie)
                     ->where('correlativo', 'like', '%' . $correlativo . '%');
                 return;
             }
         })
             ->when(
                 $request->exists('selected'),
-                fn($query) => $query->whereIn('uuid', $request->input('selected')),
-                fn($query) => $query->limit(10)
+                fn($builder) => $builder->whereIn('uuid', $request->input('selected')),
+                fn($builder) => $builder->limit(10)
             )
             ->with(['supplier'])
             ->orderBy('created_at', 'desc')
@@ -184,10 +184,10 @@ class GetApiController extends Controller
 
     public function quotes(Request $request)
     {
-        $quote = \App\Models\Quote::when($request->search, function ($query) use ($request): void {
+        $quote = \App\Models\Quote::when($request->search, function ($builder) use ($request): void {
             $parts = explode('-', $request->search);
             if (count($parts) == 1) {
-                $query->whereHas('customer', function ($q) use ($request): void {
+                $builder->whereHas('customer', function ($q) use ($request): void {
                     $q->where('name', 'like', '%' . $request->search . '%')
                         ->orWhere('document_number', 'like', '%' . $request->search . '%');
                 });
@@ -197,15 +197,15 @@ class GetApiController extends Controller
             if (count($parts) === 2) {
                 $serie = $parts[0];
                 $correlativo = ltrim($parts[1], '0');
-                $query->where('serie', $serie)
+                $builder->where('serie', $serie)
                     ->where('correlativo', 'like', '%' . $correlativo . '%');
                 return;
             }
         })
             ->when(
                 $request->exists('selected'),
-                fn($query) => $query->whereIn('uuid', $request->input('selected')),
-                fn($query) => $query->limit(10)
+                fn($builder) => $builder->whereIn('uuid', $request->input('selected')),
+                fn($builder) => $builder->limit(10)
             )
             ->with(['customer'])
             ->orderBy('created_at', 'desc')
@@ -233,7 +233,7 @@ class GetApiController extends Controller
                         ->orWhere('document_number', 'like', '%' . $search . '%');
                 });
             },
-            query: $customers
+            builder: $customers
         );
 
         return response()->json($result);
@@ -243,17 +243,17 @@ class GetApiController extends Controller
     {
         $cacheKey = 'reasons_' . md5(json_encode($request->all()));
         return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
-            $query = \App\Models\Reason::select('uuid', 'name')
-                ->when($request->search, function ($query) use ($request): void {
-                    $query->where('name', 'like', '%' . $request->search . '%');
+            $builder = \App\Models\Reason::select('uuid', 'name')
+                ->when($request->search, function ($builder) use ($request): void {
+                    $builder->where('name', 'like', '%' . $request->search . '%');
                 })->where('type', $request->input('type', '')); // 1 ingreso, 2 salida
             if ($request->has('selected') && !empty($request->selected)) {
-                $query->whereIn('uuid', $request->selected);
+                $builder->whereIn('uuid', $request->selected);
             } else {
-                $query->limit(10);
+                $builder->limit(10);
             }
 
-            return response()->json($query->get());
+            return response()->json($builder->get());
         });
     }
 
@@ -268,7 +268,7 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            query: $categories,
+            builder: $categories,
             limit: 15,
         );
 
@@ -286,7 +286,7 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            query: $units,
+            builder: $units,
             limit: 10,
         );
 
@@ -304,7 +304,7 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            query: $measures,
+            builder: $measures,
             limit: 15,
         );
 
@@ -322,7 +322,7 @@ class GetApiController extends Controller
                     $sub->where('name', 'like', '%' . $search . '%');
                 });
             },
-            query: $productsBase
+            builder: $productsBase
         );
 
         return response()->json($result);
