@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use  Spatie\Permission\Models\Role;
-use  Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolSeeder extends Seeder
 {
@@ -17,12 +17,10 @@ class RolSeeder extends Seeder
         $role2 = Role::create(['name' => 'Gerente']);
         $role3 = Role::create(['name' => 'Jefe de Almacen']);
         $role4 = Role::create(['name' => 'Jefe de abastecimiento']);
-
         //view-dashboard ,view-Hellper
         Permission::create(['name' => 'view-dashboard', 'description' => 'Ver dashboard'])->syncRoles([$role1, $role2, $role3, $role4]);
         Permission::create(['name' => 'view-helper', 'description' => 'Ver ayuda IA'])->syncRoles([$role1, $role2, $role3, $role4]);
         Permission::create(['name' => 'view-reports', 'description' => 'Ver reportes'])->syncRoles([$role1, $role2, $role3, $role4]);
-
         //Inventario:categories,products,warehouses,units,measures
         //*Categories
         Permission::create(['name' => 'admin.categories.index', 'description' => 'Ver categorías'])->syncRoles([$role1, $role2, $role3]);
@@ -54,7 +52,6 @@ class RolSeeder extends Seeder
         Permission::create(['name' => 'admin.measures.destroy', 'description' => 'Eliminar medidas'])->syncRoles([$role1, $role2, $role3]);
         Permission::create(['name' => 'admin.measures.create', 'description' => 'Crear medidas'])->syncRoles([$role1, $role2, $role3]);
         Permission::create(['name' => 'admin.measures.show', 'description' => 'Ver detalles de medida'])->syncRoles([$role1, $role2, $role3]);
-
         //Compras:
         //*suppliers
         Permission::create(['name' => 'admin.suppliers.index', 'description' => 'Ver proveedores'])->syncRoles([$role1, $role2, $role4]);
@@ -106,7 +103,6 @@ class RolSeeder extends Seeder
         Permission::create(['name' => 'admin.transfers.destroy', 'description' => 'Eliminar transferencias'])->syncRoles([$role1, $role2,$role3,$role4]);
         Permission::create(['name' => 'admin.transfers.create', 'description' => 'Crear transferencias'])->syncRoles([$role1, $role2,$role3,$role4]);
         Permission::create(['name' => 'admin.transfers.show', 'description' => 'Ver detalles de transferencia'])->syncRoles([$role1, $role2,$role3,$role4]);
-
         //Ventas: Configuraciones,
         //*users
         Permission::create(['name' => 'admin.users.index', 'description' => 'Ver usuarios'])->syncRoles([$role1, $role2]);
@@ -126,8 +122,6 @@ class RolSeeder extends Seeder
         Permission::create(['name' => 'admin.permissions.destroy', 'description' => 'Eliminar permisos'])->syncRoles([$role1, $role2]);
         Permission::create(['name' => 'admin.permissions.create', 'description' => 'Crear permisos'])->syncRoles([$role1, $role2]);
         Permission::create(['name' => 'admin.permissions.show', 'description' => 'Ver detalles de permiso'])->syncRoles([$role1, $role2]);
-
         //otros:Reportes
-
     }
 }

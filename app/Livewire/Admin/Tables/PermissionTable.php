@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Admin\Tables;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -53,10 +51,6 @@ final class PermissionTable extends PowerGridComponent
             Column::make('Descripcion', 'description')
                 ->sortable()
                 ->searchable(),
-
-
         ];
     }
-
-
 }

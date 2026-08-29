@@ -8,8 +8,7 @@ class array_nav_use
 {
     /**
      * Get the navigation items for the application.
-     * @param \Illuminate\Contracts\Auth\Authenticatable|null $user
-     * @return array
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null $user
      */
     public static function items(): array
     {
@@ -41,7 +40,6 @@ class array_nav_use
                 'route' => 'admin.ecommerce',
                 'active' => request()->routeIs('admin.ecommerce'),
                 'icon' => 'warehouse',
-
                 'permission' => ($user?->can('view-categories') && $user?->can('view-products') && $user?->can('view-warehouses') && $user?->can('view-units') && $user?->can('view-measures')) ?? false,
                 'submenu' => [
                     ['name' => 'Categoria', 'route' => 'admin.categories.index', 'active' => request()->routeIs('admin.categories.index'), 'permission' => $user?->can('view-categories') ?? false],

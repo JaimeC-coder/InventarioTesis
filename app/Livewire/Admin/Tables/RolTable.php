@@ -9,7 +9,6 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use Spatie\Permission\Models\Role;
@@ -87,5 +86,4 @@ final class RolTable extends PowerGridComponent
                 ->dispatch('edit', ['rowId' => $user->id]),
         ];
     }
-
 }
