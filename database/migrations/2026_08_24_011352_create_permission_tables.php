@@ -23,6 +23,7 @@ return new class() extends Migration {
         Schema::create($tableNames['permissions'], static function (Blueprint $blueprint): void {
             $blueprint->id(); // permission id
             $blueprint->string('name');
+            $blueprint->string('description')->nullable();
             $blueprint->string('guard_name');
             $blueprint->timestamps();
             $blueprint->unique(['name', 'guard_name']);

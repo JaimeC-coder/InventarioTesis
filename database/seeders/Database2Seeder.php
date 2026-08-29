@@ -32,6 +32,7 @@ class Database2Seeder extends Seeder
         Customer::factory(100)->create();
         Supplier::factory(100)->create();
         $this->call([
+            RolSeeder::class,
             CategorySeeder::class,
             WarehouseSeeder::class,
             ReasonSeeder::class,

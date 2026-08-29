@@ -2,17 +2,21 @@
 
 namespace App\Livewire\Admin\Tables;
 
-use App\Models\User;
+use App\Models\user;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use Spatie\Permission\Models\Role;
 
-final class UserTable extends PowerGridComponent
+final class RolTable extends PowerGridComponent
 {
-    public string $tableName = 'user-table-d57rsx-table';
+    public string $tableName = 'rol-table-504aiw-table';
 
     public function setUp(): array
     {
@@ -29,12 +33,7 @@ final class UserTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return User::query();
-    }
-
-    public function relationSearch(): array
-    {
-        return [];
+        return Role::query();
     }
 
     public function fields(): PowerGridFields
@@ -42,27 +41,23 @@ final class UserTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('name')
-            ->add('email')
-            ->add('created_at');
+            ->add('name_lower', fn(Role $role) => strtolower(e($role->name)))
+            ->add('created_at')
+            ->add('created_at_formatted', fn(Role $role): string => Carbon::parse($role->created_at)->format('d/m/Y H:i:s'));
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('ID', 'id')
+                ->searchable()
+                ->sortable(),
             Column::make('Name', 'name')
-                ->sortable()
-                ->searchable(),
-            Column::make('Email', 'email')
-                ->sortable()
-                ->searchable(),
-            Column::make('Rol', 'email')
-                ->sortable()
-                ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
+                ->searchable()
                 ->sortable(),
             Column::make('Created at', 'created_at')
-                ->sortable()
+                ->hidden(),
+            Column::make('Created at', 'created_at_formatted', 'created_at')
                 ->searchable(),
             Column::action('Action'),
         ];
@@ -71,6 +66,8 @@ final class UserTable extends PowerGridComponent
     public function filters(): array
     {
         return [
+            Filter::inputText('name'),
+            Filter::datepicker('created_at_formatted', 'created_at'),
         ];
     }
 
@@ -80,7 +77,7 @@ final class UserTable extends PowerGridComponent
         $this->js('alert('.$rowId.')');
     }
 
-    public function actions(User $user): array
+    public function actions(user $user): array
     {
         return [
             Button::add('edit')
@@ -91,15 +88,4 @@ final class UserTable extends PowerGridComponent
         ];
     }
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

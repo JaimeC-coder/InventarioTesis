@@ -33,9 +33,10 @@ Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illumin
     return view('admin.measures');
 })->name('measures.index');
 
-Route::get('/users', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-    return view('admin.users');
-})->name('users');
+// Route::get('/users', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+
+//     return view('admin.users');
+// })->name('users');
 
 Route::get('/settings', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.settings');
@@ -63,3 +64,8 @@ Route::resource('movements', MovementController::class)->only(['index', 'create'
 Route::resource('transfers', TransferController::class)->only(['index','create' ,'store']);
 
 Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('image.destroy');
+
+//Configuraciones
+Route::resource('users', \App\Http\Controllers\UserController::class)->except(['show', 'destroy', 'update']);
+Route::resource('roles', \App\Http\Controllers\RolController::class)->except(['show', 'destroy', 'update']);
+Route::get('permissions', [\App\Http\Controllers\RolController::class, 'permissionsIndex'])->name('permissions.index');

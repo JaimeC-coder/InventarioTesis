@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchReasonRequest;
+use App\Http\Requests\SearchSelectRequest;
 use App\Traits\HandlesSearchableSelect;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class GetApiController extends Controller
 {
     use HandlesSearchableSelect;
 
-    public function products(Request $request)
+    public function products(SearchSelectRequest $searchSelectRequest)
     {
         $products = \App\Models\Product::select('uuid', 'name')->whereNotNull('productBase_id');
         $result = $this->searchableSelect(
             cachePrefix: 'products',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', $search . '%')
@@ -28,12 +29,12 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function suppliers(Request $request)
+    public function suppliers(SearchSelectRequest $searchSelectRequest)
     {
         $supplier = \App\Models\Supplier::select('uuid', 'name');
         $result = $this->searchableSelect(
             cachePrefix: 'suppliers',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', $search . '%')
@@ -46,16 +47,17 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function productsSuppliers(Request $request)
+    //?revisar
+    public function productsSuppliers(SearchSelectRequest $searchSelectRequest)
     {
-        $suplier_uuid = $request->input('supplier_uuid');
-        $search = $request->filled('search') && mb_strlen($request->search) >= 3
-            ? $request->search
+        $suplier_uuid = $searchSelectRequest->input('supplier_uuid');
+        $search = $searchSelectRequest->filled('search') && mb_strlen($searchSelectRequest->search) >= 3
+            ? $searchSelectRequest->search
             : null;
         $cacheKey = sprintf(
             'products_wh_%s_%s',
             $suplier_uuid,
-            md5(json_encode(['search' => $search, 'selected' => $request->selected]))
+            md5(json_encode(['search' => $search, 'selected' => $searchSelectRequest->selected]))
         );
         if ($cached = Cache::get($cacheKey)) {
             return response()->json($cached);
@@ -73,8 +75,8 @@ class GetApiController extends Controller
             });
         }
 
-        if ($request->has('selected') && !empty($request->selected)) {
-            $builder->whereIn('products.uuid', $request->selected);
+        if ($searchSelectRequest->has('selected') && !empty($searchSelectRequest->selected)) {
+            $builder->whereIn('products.uuid', $searchSelectRequest->selected);
         } else {
             $builder->limit(10);
         }
@@ -88,20 +90,21 @@ class GetApiController extends Controller
         return response()->json($results);
     }
 
-    public function productsWarehouses(Request $request)
+    //?revisar
+    public function productsWarehouses(SearchSelectRequest $searchSelectRequest)
     {
-        $warehouse_uuid = $request->warehouse_uuid ?? $request->input('warehouse_uuid');
+        $warehouse_uuid = $searchSelectRequest->warehouse_uuid ?? $searchSelectRequest->input('warehouse_uuid');
         // Si el search es muy corto, lo tratamos como si no existiera
-        $search = $request->filled('search') && mb_strlen($request->search) >= 3
-            ? $request->search
+        $search = $searchSelectRequest->filled('search') && mb_strlen($searchSelectRequest->search) >= 3
+            ? $searchSelectRequest->search
             : null;
         $cacheKey = sprintf(
             'products_wh_%s_%s',
             $warehouse_uuid,
-            md5(json_encode(['search' => $search, 'selected' => $request->selected]))
+            md5(json_encode(['search' => $search, 'selected' => $searchSelectRequest->selected]))
         );
 
-        return Cache::remember($cacheKey, 300, function () use ($request, $warehouse_uuid, $search) {
+        return Cache::remember($cacheKey, 300, function () use ($searchSelectRequest, $warehouse_uuid, $search) {
             $builder = \App\Models\Record::builder()
                 ->join('products', 'products.id', '=', 'records.product_id')
                 ->join('warehouses', 'warehouses.id', '=', 'records.warehouse_id')
@@ -115,8 +118,8 @@ class GetApiController extends Controller
                 });
             }
 
-            if ($request->has('selected') && !empty($request->selected)) {
-                $builder->whereIn('products.uuid', $request->selected);
+            if ($searchSelectRequest->has('selected') && !empty($searchSelectRequest->selected)) {
+                $builder->whereIn('products.uuid', $searchSelectRequest->selected);
             } else {
                 $builder->limit(10);
             }
@@ -125,12 +128,12 @@ class GetApiController extends Controller
         });
     }
 
-    public function warehouses(Request $request)
+    public function warehouses(SearchSelectRequest $searchSelectRequest)
     {
         $warehouses = \App\Models\Warehouse::select('uuid', 'name');
         $result = $this->searchableSelect(
             cachePrefix: 'warehouses',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', $search . '%')
@@ -143,14 +146,14 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function purchasesOrders(Request $request)
+    public function purchasesOrders(SearchSelectRequest $searchSelectRequest)
     {
-        $purchaseOrder = \App\Models\PurchaseOrder::when($request->search, function ($builder) use ($request): void {
-            $parts = explode('-', $request->search);
+        $purchaseOrder = \App\Models\PurchaseOrder::when($searchSelectRequest->search, function ($builder) use ($searchSelectRequest): void {
+            $parts = explode('-', $searchSelectRequest->search);
             if (count($parts) == 1) {
-                $builder->whereHas('supplier', function ($q) use ($request): void {
-                    $q->where('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('document_number', 'like', '%' . $request->search . '%');
+                $builder->whereHas('supplier', function ($q) use ($searchSelectRequest): void {
+                    $q->where('name', 'like', '%' . $searchSelectRequest->search . '%')
+                        ->orWhere('document_number', 'like', '%' . $searchSelectRequest->search . '%');
                 });
                 return;
             }
@@ -164,8 +167,8 @@ class GetApiController extends Controller
             }
         })
             ->when(
-                $request->exists('selected'),
-                fn($builder) => $builder->whereIn('uuid', $request->input('selected')),
+                $searchSelectRequest->exists('selected'),
+                fn($builder) => $builder->whereIn('uuid', $searchSelectRequest->input('selected')),
                 fn($builder) => $builder->limit(10)
             )
             ->with(['supplier'])
@@ -182,14 +185,14 @@ class GetApiController extends Controller
         });
     }
 
-    public function quotes(Request $request)
+    public function quotes(SearchSelectRequest $searchSelectRequest)
     {
-        $quote = \App\Models\Quote::when($request->search, function ($builder) use ($request): void {
-            $parts = explode('-', $request->search);
+        $quote = \App\Models\Quote::when($searchSelectRequest->search, function ($builder) use ($searchSelectRequest): void {
+            $parts = explode('-', $searchSelectRequest->search);
             if (count($parts) == 1) {
-                $builder->whereHas('customer', function ($q) use ($request): void {
-                    $q->where('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('document_number', 'like', '%' . $request->search . '%');
+                $builder->whereHas('customer', function ($q) use ($searchSelectRequest): void {
+                    $q->where('name', 'like', '%' . $searchSelectRequest->search . '%')
+                        ->orWhere('document_number', 'like', '%' . $searchSelectRequest->search . '%');
                 });
                 return;
             }
@@ -203,8 +206,8 @@ class GetApiController extends Controller
             }
         })
             ->when(
-                $request->exists('selected'),
-                fn($builder) => $builder->whereIn('uuid', $request->input('selected')),
+                $searchSelectRequest->exists('selected'),
+                fn($builder) => $builder->whereIn('uuid', $searchSelectRequest->input('selected')),
                 fn($builder) => $builder->limit(10)
             )
             ->with(['customer'])
@@ -221,12 +224,12 @@ class GetApiController extends Controller
         });
     }
 
-    public function customers(Request $request)
+    public function customers(SearchSelectRequest $searchSelectRequest)
     {
         $customers = \App\Models\Customer::select('uuid', 'name', 'type');
         $result = $this->searchableSelect(
             cachePrefix: 'customers',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', $search . '%')
@@ -239,16 +242,16 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function reasons(Request $request)
+    public function reasons(SearchReasonRequest $searchReasonRequest)
     {
-        $cacheKey = 'reasons_' . md5(json_encode($request->all()));
-        return Cache::remember($cacheKey, 300, function () use ($request) { // 5 minutos
+        $cacheKey = 'reasons_' . md5(json_encode($searchReasonRequest->all()));
+        return Cache::remember($cacheKey, 300, function () use ($searchReasonRequest) { // 5 minutos
             $builder = \App\Models\Reason::select('uuid', 'name')
-                ->when($request->search, function ($builder) use ($request): void {
-                    $builder->where('name', 'like', '%' . $request->search . '%');
-                })->where('type', $request->input('type', '')); // 1 ingreso, 2 salida
-            if ($request->has('selected') && !empty($request->selected)) {
-                $builder->whereIn('uuid', $request->selected);
+                ->when($searchReasonRequest->search, function ($builder) use ($searchReasonRequest): void {
+                    $builder->where('name', 'like', '%' . $searchReasonRequest->search . '%');
+                })->where('type', $searchReasonRequest->input('type', '')); // 1 ingreso, 2 salida
+            if ($searchReasonRequest->has('selected') && !empty($searchReasonRequest->selected)) {
+                $builder->whereIn('uuid', $searchReasonRequest->selected);
             } else {
                 $builder->limit(10);
             }
@@ -257,12 +260,12 @@ class GetApiController extends Controller
         });
     }
 
-    public function categories(Request $request)
+    public function categories(SearchSelectRequest $searchSelectRequest)
     {
         $categories = \App\Models\Category::select('uuid', 'name');
         $result = $this->searchableSelect(
             cachePrefix: 'categories',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', '%' . $search . '%');
@@ -275,12 +278,12 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function units(Request $request)
+    public function units(SearchSelectRequest $searchSelectRequest)
     {
         $units = \App\Models\Unit::select('uuid', 'name');
         $result = $this->searchableSelect(
             cachePrefix: 'units',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', '%' . $search . '%');
@@ -293,12 +296,12 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function measures(Request $request)
+    public function measures(SearchSelectRequest $searchSelectRequest)
     {
         $measures = \App\Models\Measure::select('uuid', 'name', 'description_for_product', 'code', 'abbreviation');
         $result = $this->searchableSelect(
             cachePrefix: 'measures',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', '%' . $search . '%');
@@ -311,12 +314,12 @@ class GetApiController extends Controller
         return response()->json($result);
     }
 
-    public function baseProducts(Request $request)
+    public function baseProducts(SearchSelectRequest $searchSelectRequest)
     {
         $productsBase = \App\Models\Product::select('uuid', 'name')->whereNull('productBase_id');
         $result = $this->searchableSelect(
             cachePrefix: 'productsBase',
-            validated: $request->validated(),
+            validated: $searchSelectRequest->validated(),
             searchCallback: function ($q, $search): void {
                 $q->where(function ($sub) use ($search): void {
                     $sub->where('name', 'like', '%' . $search . '%');
