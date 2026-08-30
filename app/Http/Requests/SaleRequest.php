@@ -66,7 +66,6 @@ class SaleRequest extends FormRequest
         };
     }
 
-
     protected function rulesPost(): array
     {
         return [

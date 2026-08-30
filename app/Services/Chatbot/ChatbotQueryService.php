@@ -15,28 +15,29 @@ use App\Repositories\SaleRepository;
 use App\Services\Chatbot\Contracts\LlmClient;
 use Illuminate\Support\Facades\Log;
 
-
 class ChatbotQueryService
 {
     public function __construct(
-        private LlmClient $llm,
-        private CustomerRepository $customerRepo,
-        private ProductRepository $productRepo,
-        private SaleRepository $saleRepo,
-        private ConversionRepository $conversionRepo,
-    ) {}
+        private LlmClient $llmClient,
+        private CustomerRepository $customerRepository,
+        private ProductRepository $productRepository,
+        private SaleRepository $saleRepository,
+        private ConversionRepository $conversionRepository,
+    ) {
+    }
 
     public function handleUserMessage(User $user, array $conversationHistory): array
     {
-        $decision = $this->llm->decide($conversationHistory, $this->buildTools($user));
+        $decision = $this->llmClient->decide($conversationHistory, $this->buildTools($user));
         if ($decision->toolCall) {
             $result = $this->runMetric($user, $decision->toolCall['input']);
-            $text = $this->llm->respondWithToolResult($conversationHistory, $decision->toolCall, $result);
+            $text = $this->llmClient->respondWithToolResult($conversationHistory, $decision->toolCall, $result);
             return ['reply' => $text, 'data' => $result['data'] ?? null];
         }
 
         return ['reply' => $decision->text ?? 'No entendí la consulta.'];
     }
+
     private function buildTools(User $user): array
     {
         return [[
@@ -59,7 +60,7 @@ class ChatbotQueryService
     private function allowedEntities(User $user): array
     {
         return collect(['customer', 'product', 'sale', 'conversion'])
-            ->filter(fn($entity) => $user->can("chatbot.query.{$entity}"))
+            ->filter(fn($entity) => $user->can('chatbot.query.' . $entity))
             ->values()
             ->all();
     }
@@ -68,7 +69,6 @@ class ChatbotQueryService
     {
         $entity = $this->normalizeEntity($params['entity']);
         $metric = $this->normalizeMetric($params['metric']);
-
         if (!MetricCatalog::isAllowed($entity, $metric, $user)) {
             Log::info('chatbot.denied', ['user' => $user->id, 'entity' => $entity, 'metric' => $metric]);
             return ['error' => 'No tienes permiso para consultar ese reporte.'];
@@ -77,35 +77,32 @@ class ChatbotQueryService
         $filters = $params['filters'] ?? [];
         $direction = $params['sort_direction'] ?? 'desc';
         $limit = min($params['limit'] ?? 10, 50);
-
         ChatbotQueryLog::create([
             'user_id' => $user->id,
             'entity' => $entity,
             'metric' => $metric,
             'filters' => $filters,
         ]);
-
         // conversion.* devuelve un resumen (array plano), no una lista paginable
         if ($entity === 'conversion') {
             $summary = match ($metric) {
-                'quote_to_sale_rate'         => $this->conversionRepo->quoteToSaleRate($filters),
-                'purchase_order_fulfillment' => $this->conversionRepo->purchaseOrderFulfillment($filters),
-                'purchases_vs_sales_total'   => $this->conversionRepo->purchasesVsSalesTotal($filters),
+                'quote_to_sale_rate'         => $this->conversionRepository->quoteToSaleRate($filters),
+                'purchase_order_fulfillment' => $this->conversionRepository->purchaseOrderFulfillment($filters),
+                'purchases_vs_sales_total'   => $this->conversionRepository->purchasesVsSalesTotal($filters),
                 default => null,
             };
             return ['data' => new ConversionReportResource($summary)];
         }
 
-        $rows = match ("{$entity}.{$metric}") {
-            'customer.total_revenue'  => $this->customerRepo->topByRevenue($filters, $direction, $limit),
-            'customer.purchase_count' => $this->customerRepo->topByPurchaseCount($filters, $direction, $limit),
-            'product.total_sold'      => $this->productRepo->topSold($filters, $direction, $limit),
-            'product.total_purchased' => $this->productRepo->topPurchased($filters, $direction, $limit),
-            'product.stock_level'     => $this->productRepo->stockReport($filters, $limit),
-            'sale.avg_ticket'         => $this->saleRepo->avgTicket($filters),
+        $rows = match (sprintf('%s.%s', $entity, $metric)) {
+            'customer.total_revenue'  => $this->customerRepository->topByRevenue($filters, $direction, $limit),
+            'customer.purchase_count' => $this->customerRepository->topByPurchaseCount($filters, $direction, $limit),
+            'product.total_sold'      => $this->productRepository->topSold($filters, $direction, $limit),
+            'product.total_purchased' => $this->productRepository->topPurchased($filters, $direction, $limit),
+            'product.stock_level'     => $this->productRepository->stockReport($filters, $limit),
+            'sale.avg_ticket'         => $this->saleRepository->avgTicket($filters),
             default => null,
         };
-
         $resourceClass = match ($entity) {
             'customer' => CustomerReportResource::class,
             'product'  => ProductReportResource::class,

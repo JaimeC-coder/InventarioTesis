@@ -11,11 +11,10 @@ class ConversionRepository
 {
     public function quoteToSaleRate(array $filters): array
     {
-        $query = Quote::query()->whereNull('deleted_at');
-        $this->applyDateFilters($query, $filters, 'date');
-
-        $total = (clone $query)->count();
-        $converted = (clone $query)->whereHas('sale')->count();
+        $builder = Quote::query()->whereNull('deleted_at');
+        $this->applyDateFilters($builder, $filters, 'date');
+        $total = (clone $builder)->count();
+        $converted = (clone $builder)->whereHas('sale')->count();
 
         return [
             'total_quotes' => $total,
@@ -26,11 +25,10 @@ class ConversionRepository
 
     public function purchaseOrderFulfillment(array $filters): array
     {
-        $query = PurchaseOrder::query()->whereNull('deleted_at');
-        $this->applyDateFilters($query, $filters, 'date');
-
-        $total = (clone $query)->count();
-        $fulfilled = (clone $query)->whereHas('purchase')->count();
+        $builder = PurchaseOrder::query()->whereNull('deleted_at');
+        $this->applyDateFilters($builder, $filters, 'date');
+        $total = (clone $builder)->count();
+        $fulfilled = (clone $builder)->whereHas('purchase')->count();
 
         return [
             'total_orders' => $total,
@@ -41,13 +39,11 @@ class ConversionRepository
 
     public function purchasesVsSalesTotal(array $filters): array
     {
-        $salesQuery = Sale::query()->whereNull('deleted_at');
+        $builder = Sale::query()->whereNull('deleted_at');
         $purchasesQuery = Purchase::query()->whereNull('deleted_at');
-
-        $this->applyDateFilters($salesQuery, $filters, 'date');
+        $this->applyDateFilters($builder, $filters, 'date');
         $this->applyDateFilters($purchasesQuery, $filters, 'date');
-
-        $totalSales = (float) (clone $salesQuery)->sum('total');
+        $totalSales = (float) (clone $builder)->sum('total');
         $totalPurchases = (float) (clone $purchasesQuery)->sum('total');
 
         return [
@@ -59,8 +55,16 @@ class ConversionRepository
 
     private function applyDateFilters($query, array $filters, string $column): void
     {
-        if (!empty($filters['year']))      $query->whereYear($column, $filters['year']);
-        if (!empty($filters['date_from'])) $query->where($column, '>=', $filters['date_from']);
-        if (!empty($filters['date_to']))   $query->where($column, '<=', $filters['date_to']);
+        if (!empty($filters['year'])) {
+            $query->whereYear($column, $filters['year']);
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->where($column, '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->where($column, '<=', $filters['date_to']);
+        }
     }
 }

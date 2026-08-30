@@ -28,8 +28,6 @@ Route::get('/chatbot', function (): \Illuminate\Contracts\View\Factory|\Illumina
     return view('admin.chatbot');
 })->name('chatbot');
 
-
-
 Route::get('/settings', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.settings');
 })->name('settings');

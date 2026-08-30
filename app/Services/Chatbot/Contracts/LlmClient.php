@@ -1,5 +1,7 @@
 <?php
+
 // app/Services/Chatbot/Contracts/LlmClient.php
+
 namespace App\Services\Chatbot\Contracts;
 
 interface LlmClient

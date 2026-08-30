@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\UserRequest;
-
 use App\Models\User as ModelsUser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,12 +10,28 @@ use Livewire\Component;
 
 class User extends Component
 {
-    public string $name, $lastname, $email, $password, $role_id, $document, $phone, $address, $fechaNacimiento;
+    public string $name;
+
+    public string $lastname;
+
+    public string $email;
+
+    public string $password;
+
+    public string $role_id;
+
+    public string $document;
+
+    public string $phone;
+
+    public string $address;
+
+    public string $fechaNacimiento;
 
     public function save()
     {
-        $customerRequest = new UserRequest();
-        $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
+        $userRequest = new UserRequest();
+        $this->validate($userRequest->rulesForAction('POST'), $userRequest->messages());
         DB::beginTransaction();
         try {
             $nameComplete = $this->name . ' ' . $this->lastname;
@@ -25,9 +40,7 @@ class User extends Component
                 'email' => $this->email,
                 'password' => bcrypt($this->password),
             ]);
-
             $user->roles()->attach($this->role_id);
-
             $user->employee()->create([
                 'document' => $this->document,
                 'phone' => $this->phone,
@@ -63,10 +76,8 @@ class User extends Component
                 'icon' => 'error',
             ]);
         }
+        return null;
     }
-
-
-
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

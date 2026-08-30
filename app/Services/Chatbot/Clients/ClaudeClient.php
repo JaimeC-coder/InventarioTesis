@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class ClaudeClient implements LlmClient
 {
-
-
     public function decide(array $history, array $tools): LlmDecision
     {
         $response = $this->request([
@@ -18,14 +16,12 @@ class ClaudeClient implements LlmClient
             'messages' => $history,
             'tools' => $tools,
         ]);
-
         if (!$response) {
             return new LlmDecision(toolCall: null, text: 'Hubo un problema consultando el asistente, intenta de nuevo.');
         }
 
         $toolBlock = collect($response['content'] ?? [])->firstWhere('type', 'tool_use');
         $textBlock = collect($response['content'] ?? [])->firstWhere('type', 'text');
-
         if ($toolBlock) {
             return new LlmDecision(
                 toolCall: ['id' => $toolBlock['id'], 'name' => $toolBlock['name'], 'input' => $toolBlock['input']],
@@ -56,10 +52,9 @@ class ClaudeClient implements LlmClient
                     'type' => 'tool_result',
                     'tool_use_id' => $toolCall['id'],
                     'content' => json_encode($toolResult),
-                ]]]
+                ]]],
             ],
         ]);
-
         if (!$response) {
             return 'Hubo un problema generando la respuesta, intenta de nuevo.';
         }
@@ -79,7 +74,6 @@ class ClaudeClient implements LlmClient
                 'model' => config('services.anthropic.model'),
                 'max_tokens' => 1024,
             ], $payload));
-
         if ($response->failed()) {
             Log::error('chatbot.llm_error', [
                 'provider' => 'claude',

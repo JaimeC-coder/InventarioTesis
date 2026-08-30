@@ -23,8 +23,7 @@ class MetricCatalog
 
     public static function isAllowed(string $entity, string $metric, User $user): bool
     {
-        $entry = self::catalog()["{$entity}.{$metric}"] ?? null;
-
+        $entry = self::catalog()[sprintf('%s.%s', $entity, $metric)] ?? null;
         if (!$entry) {
             return false; // combinación no existe en el catálogo → rechazo automático
         }

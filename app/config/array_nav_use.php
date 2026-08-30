@@ -8,7 +8,7 @@ class array_nav_use
 {
     /**
      * Get the navigation items for the application.
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null $user
+     * @param \Illuminate\Contracts\Auth\Authenticatable|null $user
      */
     public static function items(): array
     {

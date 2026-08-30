@@ -18,13 +18,11 @@ class GeminiClient implements LlmClient
             'contents' => $this->mapHistoryToGeminiFormat($history),
             'tools' => [['functionDeclarations' => $this->mapTools($tools)]],
         ]);
-
         if (!$response) {
             return new LlmDecision(toolCall: null, text: 'Hubo un problema consultando el asistente, intenta de nuevo.');
         }
 
         $part = $response['candidates'][0]['content']['parts'][0] ?? null;
-
         if (isset($part['functionCall'])) {
             return new LlmDecision(
                 toolCall: ['id' => null, 'name' => $part['functionCall']['name'], 'input' => $part['functionCall']['args'], 'thought_signature' => $part['thoughtSignature'] ?? null,],
@@ -38,8 +36,6 @@ class GeminiClient implements LlmClient
     public function respondWithToolResult(array $history, array $toolCall, array $toolResult): string
     {
         $contents = $this->mapHistoryToGeminiFormat($history);
-
-
         $modelPart = ['functionCall' => ['name' => $toolCall['name'], 'args' => $toolCall['input']]];
         if (!empty($toolCall['thought_signature'])) {
             $modelPart['thoughtSignature'] = $toolCall['thought_signature']; // se reenvía sin modificar
@@ -47,13 +43,10 @@ class GeminiClient implements LlmClient
 
         $contents[] = ['role' => 'model', 'parts' => [$modelPart]];
         $contents[] = ['role' => 'function', 'parts' => [['functionResponse' => ['name' => $toolCall['name'], 'response' => $toolResult]]]];
-
-
         $response = $this->request([
             'systemInstruction' => ['parts' => [['text' => $this->systemPrompt()]]],
             'contents' => $contents,
         ]);
-
         if (!$response) {
             return 'Hubo un problema generando la respuesta, intenta de nuevo.';
         }
@@ -63,19 +56,14 @@ class GeminiClient implements LlmClient
 
     private function mapHistoryToGeminiFormat(array $history): array
     {
-        return collect($history)->map(fn($msg) => [
+        return collect($history)->map(fn($msg): array => [
             'role' => $msg['role'] === 'assistant' ? 'model' : 'user',
             'parts' => [['text' => $msg['content']]],
         ])->values()->all();
     }
 
-
-
-
-
     private function request(array $payload): ?array
     {
-
         $response = Http::timeout(30)
             ->retry(2, 200)
             ->post(
@@ -84,7 +72,6 @@ class GeminiClient implements LlmClient
                     . ':generateContent?key=' . config('services.gemini.key'),
                 $payload
             );
-
         if ($response->failed()) {
             Log::error('chatbot.llm_error', [
                 'provider' => 'gemini',
@@ -97,12 +84,10 @@ class GeminiClient implements LlmClient
         return $response->json();
     }
 
-
-
     private function mapTools(array $tools): array
     {
         // Gemini usa "parameters" (subset de JSON Schema) en vez de "input_schema"
-        return collect($tools)->map(fn($tool) => [
+        return collect($tools)->map(fn($tool): array => [
             'name' => $tool['name'],
             'description' => $tool['description'],
             'parameters' => $this->normalizeSchemaTypes($tool['input_schema']),
@@ -114,14 +99,17 @@ class GeminiClient implements LlmClient
         if (isset($schema['type'])) {
             $schema['type'] = strtoupper($schema['type']);
         }
+
         if (isset($schema['properties'])) {
             $schema['properties'] = collect($schema['properties'])
-                ->map(fn($prop) => $this->normalizeSchemaTypes($prop))
+                ->map(fn($prop): array => $this->normalizeSchemaTypes($prop))
                 ->all();
         }
+
         if (isset($schema['items'])) {
             $schema['items'] = $this->normalizeSchemaTypes($schema['items']);
         }
+
         return $schema;
     }
 

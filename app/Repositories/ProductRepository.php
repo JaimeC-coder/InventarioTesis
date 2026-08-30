@@ -9,32 +9,30 @@ class ProductRepository
 {
     public function topSold(array $filters, string $direction, int $limit)
     {
-        $query = Product::query()
+        $builder = Product::query()
             ->select('products.uuid', 'products.name')
             ->selectRaw('SUM(productables.quantity) as total_sold')
             ->join('productables', 'productables.product_id', '=', 'products.id')
             ->where('productables.productable_type', \App\Models\Sale::class) // clave: solo ventas
             ->whereNull('products.deleted_at')
             ->groupBy('products.id', 'products.uuid', 'products.name');
+        $this->applyDateFilters($builder, $filters, 'productables.created_at');
 
-        $this->applyDateFilters($query, $filters, 'productables.created_at');
-
-        return $query->orderBy('total_sold', $direction)->limit($limit)->get();
+        return $builder->orderBy('total_sold', $direction)->limit($limit)->get();
     }
 
     public function topPurchased(array $filters, string $direction, int $limit)
     {
-        $query = Product::query()
+        $builder = Product::query()
             ->select('products.uuid', 'products.name')
             ->selectRaw('SUM(productables.quantity) as total_purchased')
             ->join('productables', 'productables.product_id', '=', 'products.id')
             ->where('productables.productable_type', \App\Models\Purchase::class) // clave: solo compras
             ->whereNull('products.deleted_at')
             ->groupBy('products.id', 'products.uuid', 'products.name');
+        $this->applyDateFilters($builder, $filters, 'productables.created_at');
 
-        $this->applyDateFilters($query, $filters, 'productables.created_at');
-
-        return $query->orderBy('total_purchased', $direction)->limit($limit)->get();
+        return $builder->orderBy('total_purchased', $direction)->limit($limit)->get();
     }
 
     public function stockReport(array $filters, int $limit)
@@ -53,8 +51,16 @@ class ProductRepository
 
     private function applyDateFilters($query, array $filters, string $column): void
     {
-        if (!empty($filters['year']))      $query->whereYear($column, $filters['year']);
-        if (!empty($filters['date_from'])) $query->where($column, '>=', $filters['date_from']);
-        if (!empty($filters['date_to']))   $query->where($column, '<=', $filters['date_to']);
+        if (!empty($filters['year'])) {
+            $query->whereYear($column, $filters['year']);
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->where($column, '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->where($column, '<=', $filters['date_to']);
+        }
     }
 }

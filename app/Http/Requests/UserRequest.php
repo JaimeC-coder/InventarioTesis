@@ -19,7 +19,6 @@ class UserRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-
     public function typeMetodo(): ?string
     {
         switch ($this->method()) {
@@ -65,11 +64,9 @@ class UserRequest extends FormRequest
         };
     }
 
-
     protected function rulesPost(): array
     {
         return [
-
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',

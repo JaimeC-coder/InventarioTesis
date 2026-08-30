@@ -242,6 +242,7 @@ class GetApiController extends Controller
 
         return response()->json($result);
     }
+
     public function roles(SearchSelectRequest $searchSelectRequest)
     {
         $roles = Role::select('id', 'name');
