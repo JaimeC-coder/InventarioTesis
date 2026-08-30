@@ -23,6 +23,9 @@
             <li class="text-green-500">
                 agregar el boton de limpiar en los formularios
             </li>
+            <li class="text-green-500">
+                agregar ver como agregar los permisos a la hora de crear los roles
+            </li>
 
 
             <li class="text-yellow-300">

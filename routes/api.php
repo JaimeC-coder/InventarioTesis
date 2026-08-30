@@ -15,5 +15,6 @@ Route::post('reasons', [GetApiController::class, 'reasons'])->name('admin.reason
 Route::post('categories', [GetApiController::class, 'categories'])->name('admin.categories');
 Route::post('units', [GetApiController::class, 'units'])->name('admin.units');
 Route::post('measures', [GetApiController::class, 'measures'])->name('admin.measures');
+Route::post('roles', [GetApiController::class, 'roles'])->name('admin.list-roles');
 Route::post('baseProducts', [GetApiController::class, 'baseProducts'])->name('admin.baseProducts');
 Route::post('massive-products', [ProductController::class, 'massiveProducts'])->name('admin.massive-products');

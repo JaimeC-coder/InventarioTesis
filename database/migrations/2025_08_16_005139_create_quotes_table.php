@@ -14,7 +14,7 @@ return new class() extends Migration {
             $blueprint->id();
             $blueprint->string('voucher_type');
             $blueprint->string('serie');
-            $blueprint->string('correlativo');
+            $blueprint->integer('correlativo');
             $blueprint->date('date');
             $blueprint->string('status')->nullable();
             $blueprint->decimal('subtotal', 15, 2)->nullable();

@@ -24,19 +24,11 @@ Route::get('/ecommerce', function (): \Illuminate\Contracts\View\Factory|\Illumi
 Route::get('/', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.dashboard');
 })->name('dashboard');
+Route::get('/chatbot', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+    return view('admin.chatbot');
+})->name('chatbot');
 
-Route::get('/units', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-    return view('admin.units');
-})->name('units.index');
 
-Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-    return view('admin.measures');
-})->name('measures.index');
-
-// Route::get('/users', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-
-//     return view('admin.users');
-// })->name('users');
 
 Route::get('/settings', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.settings');
@@ -50,6 +42,14 @@ Route::resource('categories', CategoryController::class)->except(['show']);
 Route::resource('products', ProductController::class)->except(['show']);
 Route::resource('warehouses', WarehouseController::class)->except(['show']);
 
+Route::get('/units', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+    return view('admin.units');
+})->name('units.index');
+
+Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+    return view('admin.measures');
+})->name('measures.index');
+
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages'])->name('products.uploadImages');
 //Ventas
 Route::resource('customers', CustomerController::class)->except(['show']);
@@ -61,7 +61,7 @@ Route::resource('purchases-orders', PurchaseOrderController::class)->only(['inde
 Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store']);
 //Movimientos
 Route::resource('movements', MovementController::class)->only(['index', 'create', 'store']);
-Route::resource('transfers', TransferController::class)->only(['index','create' ,'store']);
+Route::resource('transfers', TransferController::class)->only(['index', 'create', 'store']);
 
 Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('image.destroy');
 

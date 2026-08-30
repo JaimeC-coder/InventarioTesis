@@ -6,6 +6,7 @@
 
 
 
-    @livewire('admin.create.Create.User')
+
+    @livewire('admin.create.user')
 
 </x-admin-layout>

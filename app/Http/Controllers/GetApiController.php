@@ -6,6 +6,7 @@ use App\Http\Requests\SearchReasonRequest;
 use App\Http\Requests\SearchSelectRequest;
 use App\Traits\HandlesSearchableSelect;
 use Illuminate\Support\Facades\Cache;
+use Spatie\Permission\Models\Role;
 
 class GetApiController extends Controller
 {
@@ -237,6 +238,22 @@ class GetApiController extends Controller
                 });
             },
             builder: $customers
+        );
+
+        return response()->json($result);
+    }
+    public function roles(SearchSelectRequest $searchSelectRequest)
+    {
+        $roles = Role::select('id', 'name');
+        $result = $this->searchableSelect(
+            cachePrefix: 'roles',
+            validated: $searchSelectRequest->validated(),
+            searchCallback: function ($q, $search): void {
+                $q->where(function ($sub) use ($search): void {
+                    $sub->where('name', 'like', $search . '%');
+                });
+            },
+            builder: $roles
         );
 
         return response()->json($result);

@@ -17,6 +17,13 @@ class RolSeeder extends Seeder
         $role2 = Role::create(['name' => 'Gerente']);
         $role3 = Role::create(['name' => 'Jefe de Almacen']);
         $role4 = Role::create(['name' => 'Jefe de abastecimiento']);
+
+
+        Permission::create(['name' => 'chatbot.query.customer', 'description' => 'Consultar clientes'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'chatbot.query.product', 'description' => 'Consultar productos'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'chatbot.query.sale', 'description' => 'Consultar ventas'])->syncRoles([$role1, $role2, $role3,]);
+        Permission::create(['name' => 'chatbot.query.conversion', 'description' => 'Consultar conversiones'])->syncRoles([$role1, $role2,  $role4]);
+
         //view-dashboard ,view-Hellper
         Permission::create(['name' => 'view-dashboard', 'description' => 'Ver dashboard'])->syncRoles([$role1, $role2, $role3, $role4]);
         Permission::create(['name' => 'view-helper', 'description' => 'Ver ayuda IA'])->syncRoles([$role1, $role2, $role3, $role4]);
@@ -73,36 +80,36 @@ class RolSeeder extends Seeder
         Permission::create(['name' => 'admin.purchases.show', 'description' => 'Ver detalles de compra'])->syncRoles([$role1, $role2, $role4]);
         //Ventas:
         //*customers
-        Permission::create(['name' => 'admin.customers.index', 'description' => 'Ver clientes'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.customers.edit', 'description' => 'Editar clientes'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.customers.destroy', 'description' => 'Eliminar clientes'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.customers.create', 'description' => 'Crear clientes'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.customers.show', 'description' => 'Ver detalles de cliente'])->syncRoles([$role1, $role2,$role4]);
+        Permission::create(['name' => 'admin.customers.index', 'description' => 'Ver clientes'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.customers.edit', 'description' => 'Editar clientes'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.customers.destroy', 'description' => 'Eliminar clientes'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.customers.create', 'description' => 'Crear clientes'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.customers.show', 'description' => 'Ver detalles de cliente'])->syncRoles([$role1, $role2, $role4]);
         //*quotes
-        Permission::create(['name' => 'admin.quotes.index', 'description' => 'Ver cotizaciones'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.quotes.edit', 'description' => 'Editar cotizaciones'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.quotes.destroy', 'description' => 'Eliminar cotizaciones'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.quotes.create', 'description' => 'Crear cotizaciones'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.quotes.show', 'description' => 'Ver detalles de cotización'])->syncRoles([$role1, $role2,$role4]);
+        Permission::create(['name' => 'admin.quotes.index', 'description' => 'Ver cotizaciones'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.quotes.edit', 'description' => 'Editar cotizaciones'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.quotes.destroy', 'description' => 'Eliminar cotizaciones'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.quotes.create', 'description' => 'Crear cotizaciones'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.quotes.show', 'description' => 'Ver detalles de cotización'])->syncRoles([$role1, $role2, $role4]);
         //*sales
-        Permission::create(['name' => 'admin.sales.index', 'description' => 'Ver ventas'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.sales.edit', 'description' => 'Editar ventas'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.sales.destroy', 'description' => 'Eliminar ventas'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.sales.create', 'description' => 'Crear ventas'])->syncRoles([$role1, $role2,$role4]);
-        Permission::create(['name' => 'admin.sales.show', 'description' => 'Ver detalles de venta'])->syncRoles([$role1, $role2,$role4]);
+        Permission::create(['name' => 'admin.sales.index', 'description' => 'Ver ventas'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.sales.edit', 'description' => 'Editar ventas'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.sales.destroy', 'description' => 'Eliminar ventas'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.sales.create', 'description' => 'Crear ventas'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.sales.show', 'description' => 'Ver detalles de venta'])->syncRoles([$role1, $role2, $role4]);
         //Movimientos:
         //*movements
-        Permission::create(['name' => 'admin.movements.index', 'description' => 'Ver movimientos'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.movements.edit', 'description' => 'Editar movimientos'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.movements.destroy', 'description' => 'Eliminar movimientos'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.movements.create', 'description' => 'Crear movimientos'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.movements.show', 'description' => 'Ver detalles de movimiento'])->syncRoles([$role1, $role2,$role3,$role4]);
+        Permission::create(['name' => 'admin.movements.index', 'description' => 'Ver movimientos'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.movements.edit', 'description' => 'Editar movimientos'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.movements.destroy', 'description' => 'Eliminar movimientos'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.movements.create', 'description' => 'Crear movimientos'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.movements.show', 'description' => 'Ver detalles de movimiento'])->syncRoles([$role1, $role2, $role3, $role4]);
         //*transfers
-        Permission::create(['name' => 'admin.transfers.index', 'description' => 'Ver transferencias'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.transfers.edit', 'description' => 'Editar transferencias'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.transfers.destroy', 'description' => 'Eliminar transferencias'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.transfers.create', 'description' => 'Crear transferencias'])->syncRoles([$role1, $role2,$role3,$role4]);
-        Permission::create(['name' => 'admin.transfers.show', 'description' => 'Ver detalles de transferencia'])->syncRoles([$role1, $role2,$role3,$role4]);
+        Permission::create(['name' => 'admin.transfers.index', 'description' => 'Ver transferencias'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.transfers.edit', 'description' => 'Editar transferencias'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.transfers.destroy', 'description' => 'Eliminar transferencias'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.transfers.create', 'description' => 'Crear transferencias'])->syncRoles([$role1, $role2, $role3, $role4]);
+        Permission::create(['name' => 'admin.transfers.show', 'description' => 'Ver detalles de transferencia'])->syncRoles([$role1, $role2, $role3, $role4]);
         //Ventas: Configuraciones,
         //*users
         Permission::create(['name' => 'admin.users.index', 'description' => 'Ver usuarios'])->syncRoles([$role1, $role2]);

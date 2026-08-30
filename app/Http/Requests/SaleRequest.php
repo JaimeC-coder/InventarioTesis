@@ -66,13 +66,7 @@ class SaleRequest extends FormRequest
         };
     }
 
-    /**
-     * $this->validate([
 
-        ], [], [
-
-        ]);
-     */
     protected function rulesPost(): array
     {
         return [

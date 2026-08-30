@@ -5,7 +5,6 @@
 ]" :title="'Crear Rol'">
 
 
-
-    @livewire('admin.create.Create.Rol')
+    @livewire('admin.create.rol')
 
 </x-admin-layout>

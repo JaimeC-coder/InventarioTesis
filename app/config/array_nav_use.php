@@ -27,9 +27,9 @@ class array_nav_use
             ],
             [
                 'name' => 'HELLPER IA',
-                'route' => 'admin.dashboard',
-                'active' => request()->routeIs('admin.dashboard'),
-                'icon' => 'dashboard',
+                'route' => 'admin.chatbot',
+                'active' => request()->routeIs('admin.chatbot'),
+                'icon' => 'messages',
                 'permission' => $user?->can('view-Hellper') ?? false,
             ],
             [
