@@ -28,14 +28,14 @@ class ChatbotQueryService
 
     public function handleUserMessage(User $user, array $conversationHistory): array
     {
-        $decision = $this->llmClient->decide($conversationHistory, $this->buildTools($user));
-        if ($decision->toolCall) {
-            $result = $this->runMetric($user, $decision->toolCall['input']);
-            $text = $this->llmClient->respondWithToolResult($conversationHistory, $decision->toolCall, $result);
+        $llmDecision = $this->llmClient->decide($conversationHistory, $this->buildTools($user));
+        if ($llmDecision->toolCall) {
+            $result = $this->runMetric($user, $llmDecision->toolCall['input']);
+            $text = $this->llmClient->respondWithToolResult($conversationHistory, $llmDecision->toolCall, $result);
             return ['reply' => $text, 'data' => $result['data'] ?? null];
         }
 
-        return ['reply' => $decision->text ?? 'No entendí la consulta.'];
+        return ['reply' => $llmDecision->text ?? 'No entendí la consulta.'];
     }
 
     private function buildTools(User $user): array

@@ -76,6 +76,7 @@ class User extends Component
                 'icon' => 'error',
             ]);
         }
+
         return null;
     }
 
