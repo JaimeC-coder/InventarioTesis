@@ -71,13 +71,13 @@ class registerInfoTest extends Seeder
             while ($currentDate->lte($endOfYear)) {
                 /** @var Warehouse $warehouse */
                 $warehouse = $warehouses->random();
-                Log::info("Ciclo {$cycle} | Almacén: {$warehouse->name} | Fecha: {$currentDate->toDateString()}");
+                Log::info(sprintf('Ciclo %d | Almacén: %s | Fecha: %s', $cycle, $warehouse->name, $currentDate->toDateString()));
                 $shortages = []; // [product_id => cantidad faltante acumulada]
                 for ($i = 0; $i < self::SALES_PER_CYCLE; $i++) {
                     $this->createSale($products, $warehouse, $customerIds, $userIds, $currentDate->copy(), $shortages);
                 }
 
-                if (!empty($shortages)) {
+                if ($shortages !== []) {
                     $this->createReplenishmentPurchases($shortages, $products, $warehouse, $supplierId, $userIds, $currentDate->copy());
                 }
 
@@ -102,7 +102,7 @@ class registerInfoTest extends Seeder
         Carbon $date,
         array &$shortages
     ): void {
-        $available = $products->filter(fn($product) => $this->currentStock($product->id, $warehouse->id) > 0)->values();
+        $available = $products->filter(fn($product): bool => $this->currentStock($product->id, $warehouse->id) > 0)->values();
         if ($available->isEmpty()) {
             return; // no hay nada que vender en este almacén ahora mismo
         }
@@ -110,6 +110,7 @@ class registerInfoTest extends Seeder
         $count = min(random_int(self::PRODUCTS_PER_SALE_MIN, self::PRODUCTS_PER_SALE_MAX), $available->count());
         $selected = $available->random($count);
         $selected = $selected instanceof Collection ? $selected : collect([$selected]);
+
         $lines = [];
         foreach ($selected as $product) {
             $stock = $this->currentStock($product->id, $warehouse->id);
@@ -129,7 +130,7 @@ class registerInfoTest extends Seeder
             ];
         }
 
-        if (empty($lines)) {
+        if ($lines === []) {
             return;
         }
 
@@ -199,7 +200,7 @@ class registerInfoTest extends Seeder
                 ];
             }
 
-            if (empty($lines)) {
+            if ($lines === []) {
                 continue;
             }
 

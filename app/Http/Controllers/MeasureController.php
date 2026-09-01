@@ -9,7 +9,7 @@ class MeasureController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         return view('admin.measures.index');
     }
@@ -17,7 +17,7 @@ class MeasureController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         return view('admin.measures.create');
     }
@@ -25,7 +25,7 @@ class MeasureController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -33,7 +33,7 @@ class MeasureController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($id): void
     {
         //
     }
@@ -41,7 +41,7 @@ class MeasureController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit($id): void
     {
         //
     }
@@ -49,7 +49,7 @@ class MeasureController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): void
     {
         //
     }
@@ -57,7 +57,7 @@ class MeasureController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id): void
     {
         //
     }

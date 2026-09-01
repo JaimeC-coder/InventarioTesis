@@ -5,7 +5,6 @@ namespace App\Livewire\Admin\Dashboard;
 use App\Services\Chatbot\ChatbotQueryService;
 use App\Services\Chatbot\ReportExportService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Livewire\Component;
 
@@ -116,16 +115,11 @@ class Chatbot extends Component
 
         $result = app(ReportExportService::class)->export($format, $this->lastReportTitle, $this->lastReportData);
         $labels = ['pdf' => 'PDF', 'excel' => 'Excel', 'txt' => 'archivo de texto'];
-
         $downloadUrl = URL::temporarySignedRoute(
             'admin.chatbot.download',
             now()->addMinutes(15), // el link deja de funcionar después de 15 min
             ['filename' => basename($result['path'])]
         );
-
-
-
-
         $this->messages[] = [
             'role' => 'assistant',
             'type' => 'file',

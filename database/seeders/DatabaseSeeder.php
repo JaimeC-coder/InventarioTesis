@@ -12,16 +12,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-
         try {
-
             $this->call([
                 // Database2Seeder::class,
                 // InventorySeeder::class,
                 registerInfoTest::class,
             ]);
-        } catch (\Throwable $th) {
-           dump($th->getMessage(), $th->getTraceAsString());
+        } catch (\Throwable $throwable) {
+            dump($throwable->getMessage(), $throwable->getTraceAsString());
         }
     }
 }

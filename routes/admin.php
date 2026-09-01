@@ -32,7 +32,7 @@ Route::get('/chatbot', function (): \Illuminate\Contracts\View\Factory|\Illumina
 })->name('chatbot');
 
 Route::middleware(['auth', 'signed'])
-    ->get('/reportes/descargar/{filename}',[ ChatbotController::class, 'downloadReport'])
+    ->get('/reportes/descargar/{filename}', [ ChatbotController::class, 'downloadReport'])
     ->name('chatbot.download');
 
 Route::get('/settings', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
@@ -46,7 +46,6 @@ Route::get('/logout', function (): \Illuminate\Contracts\View\Factory|\Illuminat
 Route::resource('categories', CategoryController::class)->except(['show']);
 Route::resource('products', ProductController::class)->except(['show']);
 Route::resource('warehouses', WarehouseController::class)->except(['show']);
-
 
 Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.measures');

@@ -40,8 +40,6 @@ class InventorySeeder extends Seeder
                     'user_id' => 11,
                     'observation' => 'Initial stock seeder almacen ID: ' . $warehouse->id . ' - ' . $warehouse->name,
                 ]);
-
-
                 // ProductDetailServices::createDetailproductableOrdenCompra($purchases, $products);
                 foreach ($products as $product) {
                     $purchases->products()->attach($product->id, [

@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Storage;
 
 class ChatbotController extends Controller
 {
-    public function __construct(private ChatbotQueryService $chatbotQueryService) {}
+    public function __construct(private ChatbotQueryService $chatbotQueryService)
+    {
+    }
 
     public function message(Request $request)
     {
@@ -30,7 +32,6 @@ class ChatbotController extends Controller
     public function downloadReport(string $filename)
     {
         $path = 'reportes/' . $filename;
-
         abort_unless(Storage::disk('local')->exists($path), 404);
 
         return Storage::disk('local')->download($path);

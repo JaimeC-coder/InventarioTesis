@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 class ChatbotQueryService
 {
     public $lastReportData;
+
     public function __construct(
         private LlmClient $llmClient,
         private CustomerRepository $customerRepository,
@@ -129,7 +130,6 @@ class ChatbotQueryService
         $filters = $params['filters'] ?? [];
         $direction = $params['sort_direction'] ?? 'desc';
         $limit = min($params['limit'] ?? 10, 50);
-
         ChatbotQueryLog::create([
             'user_id' => $user->id,
             'entity' => $entity,
