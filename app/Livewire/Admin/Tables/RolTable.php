@@ -64,10 +64,12 @@ final class RolTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-            Filter::inputText('name'),
-            Filter::datepicker('created_at_formatted', 'created_at'),
-        ];
+        return [];
+        // return [
+        //     Filter::inputText('name'),
+        //     Filter::datepicker('created_at_formatted', 'created_at'),
+
+        // ];
     }
 
     #[\Livewire\Attributes\On('edit')]
@@ -76,7 +78,7 @@ final class RolTable extends PowerGridComponent
         $this->js('alert('.$rowId.')');
     }
 
-    public function actions(user $user): array
+    public function actions(role $user): array
     {
         return [
             Button::add('edit')

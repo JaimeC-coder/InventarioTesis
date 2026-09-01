@@ -32,26 +32,16 @@
 
 
             <li class="text-yellow-300">
-                configurar roles y permisos
-            </li>
-            <li class="text-yellow-300">
-                Registrar roles y permisos
+                editar roles
             </li>
             <li class="text-yellow-300">
                 agregarlos a array del menu
             </li>
-            <li class="text-yellow-300">
-                provar roles y permisos
-            </li>
+
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos
             </li>
-            <li class="text-yellow-300">
-                considerar registrar unidades de medida
-            </li>
-            <li class="text-yellow-300">
-                considerar editar unidades de medida
-            </li>
+
 
             <li class="text-red-600">
                 terminar el dashboard de compras y ventas

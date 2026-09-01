@@ -7,7 +7,8 @@
 
 
 
-    <livewire:admin.tables.permission-table />
+
+    <livewire:admin.tables.rol-table />
 
 
     @push('scripts')

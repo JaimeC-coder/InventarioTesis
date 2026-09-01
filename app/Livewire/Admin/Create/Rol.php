@@ -8,26 +8,26 @@ class Rol extends Component
 {
     public string $name;
 
-    public array $permissions = [];
+    public array $selectedPermissions = [];
 
     public $allPermissions = [];
 
     public function mount(): void
     {
         $this->allPermissions = \Spatie\Permission\Models\Permission::Select('id', 'description')->get();
-        $this->permissions = [];
+        $this->selectedPermissions = [];
     }
 
     public function save()
     {
-        dd($this);
         $this->validate([
             'name' => 'required|string|max:255|unique:roles,name',
-            'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
+            'selectedPermissions' => 'array',
+            'selectedPermissions.*' => 'exists:permissions,id',
         ]);
         $role = \Spatie\Permission\Models\Role::create(['name' => $this->name]);
-        $role->syncPermissions($this->permissions);
+
+        $role->syncPermissions(array_map('intval', $this->selectedPermissions));
         $this->dispatch('swal', [
             'title' => 'Exitoso',
             'text' => 'La creación del Rol fue exitosa.',
