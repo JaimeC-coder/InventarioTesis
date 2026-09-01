@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\MovementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransferController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +31,10 @@ Route::get('/chatbot', function (): \Illuminate\Contracts\View\Factory|\Illumina
     return view('admin.chatbot');
 })->name('chatbot');
 
+Route::middleware(['auth', 'signed'])
+    ->get('/reportes/descargar/{filename}',[ ChatbotController::class, 'downloadReport'])
+    ->name('chatbot.download');
+
 Route::get('/settings', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.settings');
 })->name('settings');
@@ -40,9 +47,6 @@ Route::resource('categories', CategoryController::class)->except(['show']);
 Route::resource('products', ProductController::class)->except(['show']);
 Route::resource('warehouses', WarehouseController::class)->except(['show']);
 
-Route::get('/units', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-    return view('admin.units');
-})->name('units.index');
 
 Route::get('/measures', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
     return view('admin.measures');
@@ -53,6 +57,8 @@ Route::post('products/{product}/images', [ProductController::class, 'uploadImage
 Route::resource('customers', CustomerController::class)->except(['show']);
 Route::resource('quotes', QuoteController::class)->only(['index', 'create', 'store']);
 Route::resource('sales', SaleController::class)->only(['index', 'create', 'store']);
+Route::resource('measures', MeasureController::class)->except(['show']);
+Route::resource('units', UnitController::class)->except(['show']);
 //Compras
 Route::resource('suppliers', SupplierController::class)->except(['show']);
 Route::resource('purchases-orders', PurchaseOrderController::class)->only(['index', 'create', 'store']);

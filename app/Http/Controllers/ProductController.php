@@ -61,9 +61,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): void
-    {
-    }
+    public function show(Product $product): void {}
 
     /**
      * Show the form for editing the specified resource.
@@ -177,6 +175,7 @@ class ProductController extends Controller
                     'category_code' => $categorie['codigo'],
                     'description' => 'Producto base para ' . $productData['PRODUCTO'],
                     'price_sale_a1' => 0,
+                    'supplier_id' => 1,
                     'price_sale_regular' => 0,
                     'price_purchase' => 0,
                     'stock' => 0,
@@ -235,7 +234,7 @@ class ProductController extends Controller
                     'stock' => 0,
                     'min_stock' => 10,
                     'is_active_product' => 1,
-                    'productBase_id' => $productBase,
+                    'product_base_id' => $productBase,
                     'uuid' => \Illuminate\Support\Str::uuid(),
                     'category_id' => $category->id,
                     'unit_id' => $unit['id'],

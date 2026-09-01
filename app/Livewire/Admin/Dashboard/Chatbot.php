@@ -3,7 +3,10 @@
 namespace App\Livewire\Admin\Dashboard;
 
 use App\Services\Chatbot\ChatbotQueryService;
+use App\Services\Chatbot\ReportExportService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Livewire\Component;
 
 class Chatbot extends Component
@@ -13,6 +16,10 @@ class Chatbot extends Component
     public string $input = '';
 
     public bool $isLoading = false;
+
+    public array $lastReportData = [];
+
+    public string $lastReportTitle = '';
 
     public function mount(): void
     {
@@ -27,19 +34,6 @@ class Chatbot extends Component
             'content' => '¡Hola! ¿En qué puedo ayudarte? Elige una opción o escribe tu pregunta.',
             'suggestions' => $this->suggestions,
         ]];
-    }
-
-    private function formatResult(array $result): array
-    {
-        if (isset($result['error'])) {
-            return ['role' => 'assistant', 'type' => 'text', 'content' => $result['error']];
-        }
-
-        if (isset($result['data'])) {
-            return ['role' => 'assistant', 'type' => 'table', 'content' => $result['data']];
-        }
-
-        return ['role' => 'assistant', 'type' => 'text', 'content' => $result['reply'] ?? 'No entendí la consulta.'];
     }
 
     public function send(?string $quickPrompt = null): void
@@ -58,9 +52,41 @@ class Chatbot extends Component
             ->map(fn($m): array => ['role' => $m['role'], 'content' => is_array($m['content']) ? json_encode($m['content']) : $m['content']])
             ->values()
             ->all();
-        $result = app(ChatbotQueryService::class)->handleUserMessage(auth()->user(), $history);
+        $result = app(ChatbotQueryService::class)->handleUserMessage(Auth::user(), $history, ['title' => $this->lastReportTitle, 'data' => $this->lastReportData]);
         $this->messages[] = $this->formatResult($result);
         $this->isLoading = false;
+    }
+
+    private function formatResult(array $result): array
+    {
+        if (isset($result['error'])) {
+            return ['role' => 'assistant', 'type' => 'text', 'content' => $result['error']];
+        }
+
+        if (isset($result['file'])) {
+            $downloadUrl = URL::temporarySignedRoute(
+                'admin.chatbot.download',
+                now()->addMinutes(15), // el link deja de funcionar después de 15 min
+                ['filename' => basename($result['path'])]
+            );
+
+            return [
+                'role' => 'assistant',
+                'type' => 'file',
+                'content' => 'Tu reporte está listo.',
+                'url' => $downloadUrl,
+            ];
+        }
+
+        if (isset($result['data'])) {
+            // Se guarda para que un futuro "exportar" tenga de dónde sacar los datos
+            $this->lastReportData = $result['data'];
+            $this->lastReportTitle = $result['label'] ?? 'Reporte';
+
+            return ['role' => 'assistant', 'type' => 'table', 'content' => $result['data']];
+        }
+
+        return ['role' => 'assistant', 'type' => 'text', 'content' => $result['reply'] ?? 'No entendí la consulta.'];
     }
 
     public function getSuggestionsProperty(): array
@@ -81,6 +107,37 @@ class Chatbot extends Component
 
         return $groups;
     }
+
+    public function exportReport(string $format): void
+    {
+        if ($this->lastReportData === []) {
+            return;
+        }
+
+        $result = app(ReportExportService::class)->export($format, $this->lastReportTitle, $this->lastReportData);
+        $labels = ['pdf' => 'PDF', 'excel' => 'Excel', 'txt' => 'archivo de texto'];
+
+        $downloadUrl = URL::temporarySignedRoute(
+            'admin.chatbot.download',
+            now()->addMinutes(15), // el link deja de funcionar después de 15 min
+            ['filename' => basename($result['path'])]
+        );
+
+
+
+
+        $this->messages[] = [
+            'role' => 'assistant',
+            'type' => 'file',
+            'content' => sprintf('Tu reporte en %s está listo.', $labels[$format]),
+            'url' => $downloadUrl,
+        ];
+    }
+
+    // public function exportReport(string $format): void
+    // {
+    //     $this->send("Exportar el último reporte a {$format}"); // reutiliza el mismo flujo, pasa por exportLastResult
+    // }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

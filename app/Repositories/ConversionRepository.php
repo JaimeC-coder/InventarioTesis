@@ -6,6 +6,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\Sale;
+use Illuminate\Support\Facades\Log;
 
 class ConversionRepository
 {
@@ -45,7 +46,11 @@ class ConversionRepository
         $this->applyDateFilters($purchasesQuery, $filters, 'date');
         $totalSales = (float) (clone $builder)->sum('total');
         $totalPurchases = (float) (clone $purchasesQuery)->sum('total');
-
+        Log::info('chatbot.query.purchases_vs_sales_total', [
+            'filters' => $filters,
+            'total_sales' => $totalSales,
+            'total_purchases' => $totalPurchases,
+        ]);
         return [
             'total_sales' => $totalSales,
             'total_purchases' => $totalPurchases,

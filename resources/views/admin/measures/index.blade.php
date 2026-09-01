@@ -3,8 +3,8 @@
     ['name' => 'Medidas', 'href' => route('admin.measures.index')],
 ]" :title="'Medidas'">
 
-    <x-slot name="action">
-        Lista de medidas
+     <x-slot name="action">
+        <a href="{{ route('admin.measures.create') }}" class="btn btn-primary">Crear Nueva Medida</a>
     </x-slot>
 
     <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">

@@ -14,7 +14,7 @@ class GetApiController extends Controller
 
     public function products(SearchSelectRequest $searchSelectRequest)
     {
-        $products = \App\Models\Product::select('uuid', 'name')->whereNotNull('productBase_id');
+        $products = \App\Models\Product::select('uuid', 'name')->whereNotNull('product_base_id');
         $result = $this->searchableSelect(
             cachePrefix: 'products',
             validated: $searchSelectRequest->validated(),
@@ -68,7 +68,7 @@ class GetApiController extends Controller
         $builder = \App\Models\Product::select('products.uuid', 'products.name')
             ->join('suppliers', 'suppliers.id', '=', 'products.supplier_id')
             ->where('suppliers.uuid', $suplier_uuid)
-            ->whereNotNull('products.productBase_id');
+            ->whereNotNull('products.product_base_id');
         if ($search) {
             $builder->where(function ($q) use ($search): void {
                 $q->where('products.name', 'like', $search . '%')
@@ -110,7 +110,7 @@ class GetApiController extends Controller
                 ->join('products', 'products.id', '=', 'records.product_id')
                 ->join('warehouses', 'warehouses.id', '=', 'records.warehouse_id')
                 ->where('warehouses.uuid', $warehouse_uuid)
-                ->whereNotNull('products.productBase_id')
+                ->whereNotNull('products.product_base_id')
                 ->select('products.uuid', 'products.name', 'products.barcode');
             if ($search) {
                 $builder->where(function ($q) use ($search): void {
@@ -334,7 +334,7 @@ class GetApiController extends Controller
 
     public function baseProducts(SearchSelectRequest $searchSelectRequest)
     {
-        $productsBase = \App\Models\Product::select('uuid', 'name')->whereNull('productBase_id');
+        $productsBase = \App\Models\Product::select('uuid', 'name')->whereNull('product_base_id');
         $result = $this->searchableSelect(
             cachePrefix: 'productsBase',
             validated: $searchSelectRequest->validated(),

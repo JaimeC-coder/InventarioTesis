@@ -40,7 +40,7 @@ class ProductRepository
         // records es la fuente de verdad, nunca products.stock (que es derivado)
         return Record::query()
             ->select('products.uuid', 'products.name', 'records.warehouse_name')
-            ->selectRaw('SUM(records.quantity_total) as stock_level')
+            ->selectRaw('SUM(records.quantity) as stock_level')
             ->join('products', 'products.id', '=', 'records.product_id')
             ->whereNull('records.deleted_at')
             ->groupBy('products.id', 'products.uuid', 'products.name', 'records.warehouse_name')

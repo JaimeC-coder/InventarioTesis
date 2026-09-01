@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Enum\KardexTypeEnum;
+use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +19,8 @@ class InventorySeeder extends Seeder
     {
         $products = \App\Models\Product::where('is_active_product', 1)->get();
         $warehouses = \App\Models\Warehouse::all();
-        DB::transaction(function () use ($products, $warehouses): void {
+        $stok = 100;
+        DB::transaction(function () use ($products, $warehouses, $stok): void {
             foreach ($warehouses as $warehouse) {
                 Log::info('Seeding initial stock for warehouse ID: ' . $warehouse->id . ' - ' . $warehouse->name);
                 $correlativo = (\App\Models\Purchase::max('correlativo') ?? 0) + 1;
@@ -26,7 +29,7 @@ class InventorySeeder extends Seeder
                     'voucher_type' => 1,
                     'serie' => 'CM01',
                     'correlativo' =>  $correlativo,
-                    'date' => now(),
+                    'date' => Carbon::parse('2025-12-15')->format('Y-m-d'),
                     'supplier_id' => \App\Models\Supplier::first()->id, //fratello
                     'warehouse_id' => $warehouse->id,
                     'status' => 'RECIBIDO',
@@ -37,18 +40,21 @@ class InventorySeeder extends Seeder
                     'user_id' => 11,
                     'observation' => 'Initial stock seeder almacen ID: ' . $warehouse->id . ' - ' . $warehouse->name,
                 ]);
+
+
+                // ProductDetailServices::createDetailproductableOrdenCompra($purchases, $products);
                 foreach ($products as $product) {
                     $purchases->products()->attach($product->id, [
-                        'quantity' => $product->stock,
+                        'quantity' => $stok,
                         'price' => $product->price_purchase,
-                        'subtotal' => $product->stock * $product->price_purchase,
+                        'subtotal' => $stok * $product->price_purchase,
                         'product_name' => $product->name,
                         'price_type' => 'COMPRA',
                     ]);
-                    $subtotal += $product->stock * $product->price_purchase;
+                    $subtotal += $stok * $product->price_purchase;
                     \App\Services\KardexServices::registerEntry(
                         $purchases,
-                        ['id' => $product->id, 'name' => $product->name, 'quantity' => $product->stock],
+                        ['id' => $product->id, 'name' => $product->name, 'quantity' => $stok],
                         $warehouse->id,
                         'Initial stock seeder almacen ID: ' . $warehouse->id . ' - ' . $warehouse->name,
                         KardexTypeEnum::ENTRADA

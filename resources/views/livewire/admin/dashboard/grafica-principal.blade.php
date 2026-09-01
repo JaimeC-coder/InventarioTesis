@@ -3,7 +3,7 @@
     <x-forms.select label="Seleccione un mes" wire:model.live="mesSeleccionado" dark :options="$arrayMeses" option-label="name"
         option-value="id" :searchable="false" />
 
-    <div>
+    <div wire:ignore style="position: relative; height: 350px; width: 100%;">
         <canvas id="ventasChart"></canvas>
     </div>
 
@@ -33,7 +33,22 @@
                                 'rgb(201, 203, 207)'
                             ],
                             borderWidth: 1
-                        }]
+                        }],
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: ''
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true // o true, según prefieras
+                                }
+                            }
+                        }
                     }
                 });
 

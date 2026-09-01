@@ -2,10 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Customer;
-use App\Models\Supplier;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class Database2Seeder extends Seeder
@@ -15,8 +11,8 @@ class Database2Seeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
-        User::factory()->create([
+        \App\Models\User::factory(10)->create();
+        $user = \App\Models\User::factory()->create([
             'name' => 'Eduardo Centurion',
             'email' => 'centurionjaime@gmail.com',
             'password' => bcrypt('admin123'),
@@ -29,8 +25,8 @@ class Database2Seeder extends Seeder
             'phone' => '981268897',
             'address' => 'Jr. Jorge Chavez Nro. 351 (Mcdo de Breña)',
         ]);
-        Customer::factory(100)->create();
-        Supplier::factory(100)->create();
+        \App\Models\Customer::factory(100)->create();
+        \App\Models\Supplier::factory(100)->create();
         $this->call([
             RolSeeder::class,
             CategorySeeder::class,
@@ -40,5 +36,13 @@ class Database2Seeder extends Seeder
             MeasureSeeder::class,
             // Add other seeders here as needed
         ]);
+        \App\Models\Employee::create([
+            'document' => '12345678',
+            'phone' => '987654321',
+            'address' => 'Calle Falsa 123',
+            'fechaNacimiento' => '1990-01-01',
+            'user_id' => $user->id,
+        ]);
+        $user->assignRole('Administrador');
     }
 }

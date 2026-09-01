@@ -156,7 +156,7 @@ class ProductCreate extends Component
                     'stock' => 0,
                     'min_stock' => $this->stock_min,
                     'is_active_product' => true,
-                    'productBase_id' => $productBaseid->id,
+                    'product_base_id' => $productBaseid->id,
                     'category_id' =>  $this->category_id,
                     'unit_id' => \App\Models\Unit::where('uuid', $product['unituuid'])->value('id'),
                     'measure_id' => \App\Models\Measure::where('uuid', $product['measureuuid'])->value('id'),

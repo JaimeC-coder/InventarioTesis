@@ -68,6 +68,26 @@
                                 </tr>
                             @endforeach
                         </table>
+
+                        <div class="mt-3 flex gap-3 text-xs">
+                            <button wire:click="exportReport('pdf')" class="text-blue-600 hover:underline">Exportar a
+                                PDF</button>
+                            <button wire:click="exportReport('excel')" class="text-blue-600 hover:underline">Exportar a
+                                Excel</button>
+                            <button wire:click="exportReport('txt')" class="text-blue-600 hover:underline">Exportar a
+                                texto</button>
+                        </div>
+                    </div>
+                @elseif ($message['type'] === 'file')
+                    <div class="flex justify-start">
+                        <a href="{{ $message['url'] }}"
+                            class="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-blue-600 hover:underline flex items-center gap-2 max-w-[70%]">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H8a2 2 0 01-2-2V5a2 2 0 012-2h6l6 6v10a2 2 0 01-2 2z" />
+                            </svg>
+                            {{ $message['content'] }}
+                        </a>
                     </div>
                 @else
                     <div class="flex justify-start">

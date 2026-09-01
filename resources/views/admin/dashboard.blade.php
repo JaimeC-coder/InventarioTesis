@@ -1,22 +1,25 @@
 <x-admin-layout :breadcrumbs="[
     ['name' => 'Dashboard', 'href' => route('admin.dashboard')],
-    ['name' => 'Prueba', 'href' => route('admin.dashboard')],
 ]" :title="'Hola'">
 
     <x-slot name="action">
-        hola mundo
+        Bienvenido
     </x-slot>
 
     <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
         <div class="grid grid-cols-2 gap-4 border-b pb-4 mb-4 border-gray-950">
             <livewire:admin.dashboard.grafica-principal />
+            <livewire:admin.dashboard.grafica-segunda />
         </div>
+
 
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
             <li class="text-green-500">
                 mejorar todo lo que tiene que ver con apis para tener seguridad -- por probar
             </li>
+
+
             <li class="text-green-500">
                 ver ese error que aparece cuando borro el listado de productos
             </li>
@@ -62,7 +65,7 @@
             </li>
             <li class="text-red-600">
                 agregar filtro a productos por medida y categoria y unidad
-             </li>
+            </li>
 
         </ul>
 

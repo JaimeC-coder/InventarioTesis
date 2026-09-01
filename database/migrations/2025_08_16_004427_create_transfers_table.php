@@ -30,6 +30,7 @@ return new class() extends Migration {
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['serie', 'correlativo', 'origin_warehouse_id','deleted_at'], 'unique_transfer');
         });
     }
 

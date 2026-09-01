@@ -88,4 +88,19 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Employee::class);
     }
+
+    public function IsRole()
+    {
+        return $this->getRoleNames()[0] ?? null;
+    }
+
+    public function getRoleNameAttribute()
+    {
+        return $this->getRoleNames()[0] ?? null;
+    }
+
+    public function chatbotQueryLog()
+    {
+        return $this->hasMany(ChatbotQueryLog::class);
+    }
 }

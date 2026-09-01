@@ -18,6 +18,7 @@ return new class() extends Migration {
             $blueprint->string('code')->nullable();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['name', 'deleted_at']);
         });
     }
 

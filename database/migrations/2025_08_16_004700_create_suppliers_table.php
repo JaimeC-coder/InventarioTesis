@@ -21,6 +21,7 @@ return new class() extends Migration {
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['document_number', 'deleted_at']);
         });
     }
 

@@ -19,7 +19,7 @@ class Product extends BaseModel
         'stock',
         'min_stock',
         'is_active_product',
-        'productBase_id',
+        'product_base_id',
         'uuid',
         'category_id',
         'stock',
@@ -82,7 +82,7 @@ class Product extends BaseModel
     // Relacion con productos base
     public function productBase()
     {
-        return $this->belongsTo(Product::class, 'productBase_id');
+        return $this->belongsTo(Product::class, 'product_base_id');
     }
 
     // Relacion con proveedores

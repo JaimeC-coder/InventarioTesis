@@ -61,7 +61,7 @@ final class ProductTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Product::whereNotNull('productBase_id')
+        return Product::whereNotNull('product_base_id')
             ->with(['category', 'unit', 'measure', 'productBase', 'stockByWarehouse.warehouse']);
     }
 

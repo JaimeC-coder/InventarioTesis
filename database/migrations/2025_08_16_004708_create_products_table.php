@@ -26,12 +26,12 @@ return new class() extends Migration {
             $blueprint->integer('stock')->default(0);
             $blueprint->timestamps();
             $blueprint->integer('min_stock')->default(0);
-            $blueprint->foreignId('productBase_id')->nullable()->constrained('products')->onDelete('cascade');
+            $blueprint->foreignId('product_base_id')->nullable()->constrained('products')->onDelete('cascade');
             $blueprint->foreignId('unit_id')->nullable()->constrained('units')->onDelete('cascade'); //Caja ,Docena,Unidad
             $blueprint->foreignId('measure_id')->nullable()->constrained('measures')->onDelete('cascade');
             $blueprint->boolean('is_active_product')->default(false)->description('Indica si el producto está activo o inactivo para la venta o compra.');
             /**
-             * productBase_id: referencia al producto base
+             * product_base_id: referencia al producto base
              * Un producto base es un producto que se van a desprender otros productos
              *
              * unidades: 1 caja, 1 paquete, 1 docena, 1 litro, 1 kilo

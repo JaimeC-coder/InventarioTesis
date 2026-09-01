@@ -12,7 +12,7 @@ return new class() extends Migration {
     {
         Schema::create('movements', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('type');
+            $blueprint->integer('type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
             $blueprint->date('date');
@@ -30,6 +30,7 @@ return new class() extends Migration {
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['serie', 'correlativo', 'warehouse_id','deleted_at'] );
         });
     }
 
