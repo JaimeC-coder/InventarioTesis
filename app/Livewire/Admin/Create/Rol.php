@@ -26,7 +26,6 @@ class Rol extends Component
             'selectedPermissions.*' => 'exists:permissions,id',
         ]);
         $role = \Spatie\Permission\Models\Role::create(['name' => $this->name]);
-
         $role->syncPermissions(array_map('intval', $this->selectedPermissions));
         $this->dispatch('swal', [
             'title' => 'Exitoso',

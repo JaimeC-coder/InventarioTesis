@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Admin\Tables;
 
-use App\Models\user;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -68,7 +67,6 @@ final class RolTable extends PowerGridComponent
         // return [
         //     Filter::inputText('name'),
         //     Filter::datepicker('created_at_formatted', 'created_at'),
-
         // ];
     }
 
@@ -78,14 +76,14 @@ final class RolTable extends PowerGridComponent
         $this->js('alert('.$rowId.')');
     }
 
-    public function actions(role $user): array
+    public function actions(role $role): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$user->id)
+                ->slot('Edit: '.$role->id)
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $user->id]),
+                ->dispatch('edit', ['rowId' => $role->id]),
         ];
     }
 }

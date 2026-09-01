@@ -27,7 +27,7 @@ class GraficaSegunda extends Component
         $this->cargarGrafica($this->anioSeleccionado);
     }
 
-    public function updatedAnioSeleccionado($value): void
+    public function updatedAnioSeleccionado(string $value): void
     {
         $this->cargarGrafica($value);
     }
