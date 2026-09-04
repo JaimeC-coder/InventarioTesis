@@ -98,6 +98,7 @@ class registerInfoTest extends Seeder
         $count = min(random_int(self::PRODUCTS_PER_SALE_MIN, self::PRODUCTS_PER_SALE_MAX), $available->count());
         $selected = $available->random($count);
         $selected = $selected instanceof Collection ? $selected : collect([$selected]);
+
         $lines = [];
         foreach ($selected as $product) {
             $stock = $this->currentStock($product->id, $warehouse->id);
