@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Models\Product;
-use App\Models\Transfer;
+use App\Models\Transfer as ModelsTransfer;
 use App\Models\Warehouse;
 use App\Services\FileServices;
 use App\Services\KardexServices;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class TransferCreate extends Component
+class Transfer extends Component
 {
     use HandlesSwalMessagesTrait;
 
@@ -79,7 +79,7 @@ class TransferCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Transfer::where('serie', $this->serie)->max('correlativo') + 1;
+        $this->correlativo = ModelsTransfer::where('serie', $this->serie)->max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -146,7 +146,7 @@ class TransferCreate extends Component
             'products.*.price' => 'Precio del producto',
         ]);
         //quiero que esto se tenga en una transacción
-        $Movement = Transfer::create([
+        $Movement = ModelsTransfer::create([
             'type' => $this->type,
             'serie' => $this->serie,
             'correlativo' => $this->correlativo,
@@ -168,7 +168,7 @@ class TransferCreate extends Component
             ]);
             KardexServices::registerExit($Movement, $product, $this->origin_warehouse_id, sprintf('Salida de almacen %s al %s', $this->origin_warehouse_id, $this->destination_warehouse_id));
             KardexServices::registerEntry($Movement, $product, $this->destination_warehouse_id, sprintf('Entrada de almacen %s desde %s', $this->destination_warehouse_id, $this->origin_warehouse_id));
-            $fileDirection = FileServices::generatePdfNow(['model' => Transfer::class, 'uuids' => $Movement->uuid]);
+            $fileDirection = FileServices::generatePdfNow(['model' => ModelsTransfer::class, 'uuids' => $Movement->uuid]);
             $Movement->update(['file_path' => $fileDirection]);
             $Movement->save();
         }
@@ -180,6 +180,6 @@ class TransferCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        return view('livewire.admin.transfer-create');
+        return view('livewire.admin.create.transfer');
     }
 }

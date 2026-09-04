@@ -10,8 +10,8 @@
 
 
 
-    <livewire:products.edit-price />
-    <livewire:products.edit-product />
+    <livewire:admin.edit.product-price />
+    <livewire:admin.edit.product />
     <livewire:export.pdf />
     @push('scripts')
         <script>

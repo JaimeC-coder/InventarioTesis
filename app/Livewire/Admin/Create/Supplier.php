@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Enum\DocumentEnum;
 use App\Http\Requests\SupplierRequest;
-use App\Models\Supplier;
+use App\Models\Supplier as ModelsSupplier;
 use App\Services\DocumentServices;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class SupplierCreate extends Component
+class Supplier extends Component
 {
     public $document_number = '';
 
@@ -81,7 +81,7 @@ class SupplierCreate extends Component
         $supplierRequest = new SupplierRequest();
         $this->validate($supplierRequest->rulesForAction('POST'), $supplierRequest->messages());
         try {
-            Supplier::create([
+            ModelsSupplier::create([
                 'document_number' => $this->document_number,
                 'identity' => $this->identity,
                 'name' => $this->name,
@@ -121,6 +121,6 @@ class SupplierCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.supplier-create');
+        return view('livewire.admin.create.supplier');
     }
 }

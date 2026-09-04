@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\QuoteRequest;
 use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Customer;
 use App\Models\Product;
-use App\Models\Quote;
+use App\Models\Quote as ModelsQuote;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use App\Traits\HandlesSwalMessagesTrait;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class QuoteCreate extends Component
+class Quote extends Component
 {
     use ResolvesUuidsToIds;
 
@@ -79,7 +79,7 @@ class QuoteCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Quote::max('correlativo') + 1;
+        $this->correlativo = ModelsQuote::max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -151,9 +151,9 @@ class QuoteCreate extends Component
         $this->validate($Quote->rulesForAction('POST'), $Quote->messages(), $Quote->attributes());
         DB::beginTransaction();
         try {
-            $correlativo = UtilitisServices::NextCorrelative(Quote::class);
+            $correlativo = UtilitisServices::NextCorrelative(ModelsQuote::class);
             //quiero que esto se tenga en una transacción
-            $Quote = Quote::create([
+            $Quote = ModelsQuote::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
                 'correlativo' => $correlativo,
@@ -168,7 +168,7 @@ class QuoteCreate extends Component
                 'user_id' => Auth::id(),
             ]);
             ProductDetailServices::createDetailproductableCotizacion($Quote, $this->products);
-            UtilitisServices::generateAndAttachPdf(Quote::class, $Quote);
+            UtilitisServices::generateAndAttachPdf(ModelsQuote::class, $Quote);
             DB::commit();
             session()->flash('swal', [
                 'icon' => 'success',
@@ -192,6 +192,6 @@ class QuoteCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.quote-create');
+        return view('livewire.admin.create.quote');
     }
 }

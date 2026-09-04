@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\SaleRequest;
 use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quote;
-use App\Models\Sale;
+use App\Models\Sale as ModelsSale;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use App\Traits\HandlesSwalMessagesTrait;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class SalesCreate extends Component
+class Sale extends Component
 {
     use ResolvesUuidsToIds;
 
@@ -80,7 +80,7 @@ class SalesCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Sale::max('correlativo') + 1;
+        $this->correlativo = ModelsSale::max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -194,8 +194,8 @@ class SalesCreate extends Component
         $this->validate($Sale->rulesForAction('POST'), $Sale->messages(), $Sale->attributes());
         DB::beginTransaction();
         try {
-            $correlativo = UtilitisServices::NextCorrelative(Sale::class);
-            $Sale = Sale::create([
+            $correlativo = UtilitisServices::NextCorrelative(ModelsSale::class);
+            $Sale = ModelsSale::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
                 'quote_id' => $this->quote_id,
@@ -213,7 +213,7 @@ class SalesCreate extends Component
                 'user_id' => Auth::id(),
             ]);
             ProductDetailServices::createDetailproductableExit($Sale, $this->products, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
-            UtilitisServices::generateAndAttachPdf(Sale::class, $Sale);
+            UtilitisServices::generateAndAttachPdf(ModelsSale::class, $Sale);
             DB::commit();
             $this->successSwal('La venta se ha creado exitosamente.', type: 'session');
 
@@ -249,6 +249,6 @@ class SalesCreate extends Component
             ['id' => 'CREDITO', 'name' => 'Crédito'],
         ];
 
-        return view('livewire.admin.sales-create', ['comprobante' => $comprobante, 'metodo_pago' => $metodo_pago, 'tipo_pago' => $tipo_pago]);
+        return view('livewire.admin.create.sale', ['comprobante' => $comprobante, 'metodo_pago' => $metodo_pago, 'tipo_pago' => $tipo_pago]);
     }
 }

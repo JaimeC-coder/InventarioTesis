@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Warehouses;
+namespace App\Livewire\Admin\Edit;
 
-use App\Models\Warehouse;
+use App\Models\Warehouse as ModelsWarehouse;
 use Livewire\Component;
 
-class EditModal extends Component
+class Warehouse extends Component
 {
     public $warehouseId;
 
@@ -18,7 +18,7 @@ class EditModal extends Component
     #[\Livewire\Attributes\On('editWarehouse')]
     public function loadWarehouse($warehouseId): void
     {
-        $warehouse = Warehouse::where('uuid', $warehouseId)->first();
+        $warehouse = ModelsWarehouse::where('uuid', $warehouseId)->first();
         if ($warehouse) {
             $this->warehouseId = $warehouse->id;
             $this->name = $warehouse->name;
@@ -33,7 +33,7 @@ class EditModal extends Component
             'name' => 'required|string|max:255',
             'location' => 'nullable|string',
         ]);
-        $warehouse = Warehouse::find($this->warehouseId);
+        $warehouse = ModelsWarehouse::find($this->warehouseId);
         if ($warehouse) {
             $warehouse->update([
                 'name' => $this->name,
@@ -46,6 +46,6 @@ class EditModal extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.warehouses.edit-modal');
+        return view('livewire.admin.edit.warehouse');
     }
 }

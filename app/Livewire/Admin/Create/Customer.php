@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
-use App\Models\Customer;
+use App\Models\Customer as ModelsCustomer;
 use App\Services\DocumentServices;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class CustomerCreate extends Component
+class Customer extends Component
 {
     public $document_number = '';
 
@@ -97,7 +97,7 @@ class CustomerCreate extends Component
         $customerRequest = new CustomerRequest();
         $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
         try {
-            Customer::create([
+            ModelsCustomer::create([
                 'document_number' => $this->document_number,
                 'identity' => $this->identity,
                 'name' => $this->name,
@@ -139,6 +139,6 @@ class CustomerCreate extends Component
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
 
-        return view('livewire.admin.customer-create');
+        return view('livewire.admin.create.customer');
     }
 }

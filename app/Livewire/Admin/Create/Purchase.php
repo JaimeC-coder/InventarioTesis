@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\PurchaseRequest;
 use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Product;
-use App\Models\Purchase;
+use App\Models\Purchase as ModelsPurchase;
 use App\Models\PurchaseOrder;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class PurchasesCreate extends Component
+class Purchase extends Component
 {
     use ResolvesUuidsToIds;
 
@@ -77,7 +77,7 @@ class PurchasesCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Purchase::max('correlativo') + 1;
+        $this->correlativo = ModelsPurchase::max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -151,8 +151,8 @@ class PurchasesCreate extends Component
         $this->validate($purchaseRequest->rulesForAction('POST'), $purchaseRequest->messages(), $purchaseRequest->attributes());
         DB::beginTransaction();
         try {
-            $correlativo = UtilitisServices::NextCorrelative(Purchase::class);
-            $Purchase = Purchase::create([
+            $correlativo = UtilitisServices::NextCorrelative(ModelsPurchase::class);
+            $Purchase = ModelsPurchase::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
                 'purchase_order_id' => $this->purchase_order_id,
@@ -170,7 +170,7 @@ class PurchasesCreate extends Component
                 'payment_type' => $this->payment_type,
             ]);
             ProductDetailServices::createDetailproductableOrdenCompra($Purchase, $this->products);
-            UtilitisServices::generateAndAttachPdf(Purchase::class, $Purchase);
+            UtilitisServices::generateAndAttachPdf(ModelsPurchase::class, $Purchase);
             DB::commit();
             $this->successSwal('La compra se ha creado exitosamente.', type: 'session');
             return redirect()->route('admin.purchases.index');
@@ -209,6 +209,6 @@ class PurchasesCreate extends Component
             ['id' => 'CREDITO', 'name' => 'Crédito'],
         ];
 
-        return view('livewire.admin.purchases-create', ['comprobante' => $comprobante, 'metodo_pago' => $metodo_pago, 'tipo_pago' => $tipo_pago]);
+        return view('livewire.admin.create.purchase', ['comprobante' => $comprobante, 'metodo_pago' => $metodo_pago, 'tipo_pago' => $tipo_pago]);
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Models\Inventorie;
-use App\Models\Movement;
+use App\Models\Movement as ModelsMovement;
 use App\Models\Product;
 use App\Models\Reason;
 use App\Models\Warehouse;
@@ -12,7 +12,7 @@ use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-class MovementCreate extends Component
+class Movement extends Component
 {
     use HandlesSwalMessagesTrait;
 
@@ -81,7 +81,7 @@ class MovementCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = Movement::where('serie', $this->serie)->max('correlativo') + 1;
+        $this->correlativo = ModelsMovement::where('serie', $this->serie)->max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -155,7 +155,7 @@ class MovementCreate extends Component
             'products.*.price' => 'Precio del producto',
         ]);
         //quiero que esto se tenga en una transacción
-        $Movement = Movement::create([
+        $Movement = ModelsMovement::create([
             'type' => $this->type,
             'serie' => $this->serie,
             'correlativo' => $this->correlativo,
@@ -215,7 +215,7 @@ class MovementCreate extends Component
             }
         }
 
-        $fileDirection = FileServices::generatePdfNow(['model' => Movement::class, 'uuids' => $Movement->uuid]);
+        $fileDirection = FileServices::generatePdfNow(['model' => ModelsMovement::class, 'uuids' => $Movement->uuid]);
         $Movement->update(['file_path' => $fileDirection]);
         $Movement->save();
         $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
@@ -236,6 +236,6 @@ class MovementCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.movement-create');
+        return view('livewire.admin.create.movement');
     }
 }

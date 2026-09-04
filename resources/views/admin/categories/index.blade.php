@@ -10,7 +10,7 @@
     <livewire:admin.tables.category-table />
 
 
-    <livewire:categories.edit-modal />
+    <livewire:admin.edit.category />
 
     <livewire:export.pdf />
 

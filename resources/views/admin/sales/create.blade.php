@@ -6,6 +6,6 @@
 
 
 
-    @livewire('admin.sales-create')
+    @livewire('admin.create.sale')
 
 </x-admin-layout>

@@ -7,7 +7,7 @@
 
 
     <livewire:admin.tables.supplier-table />
-    <livewire:modal.edit-suppliers />
+    <livewire:admin.edit.supplier />
 
     <livewire:export.pdf />
     @push('scripts')

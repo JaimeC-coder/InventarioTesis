@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire\Modal;
+namespace App\Livewire\Admin\Create;
 
 use Livewire\Component;
 
-class EditSuppliers extends Component
+class Warehouse extends Component
 {
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.modal.edit-suppliers');
+        return view('livewire.admin.create.warehouse');
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\PurchaseOrderRequest;
 use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Product;
-use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrder as ModelsPurchaseOrder;
 use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use App\Traits\HandlesSwalMessagesTrait;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class PurchaseOrderCreate extends Component
+class PurchaseOrder extends Component
 {
     use ResolvesUuidsToIds;
 
@@ -70,7 +70,7 @@ class PurchaseOrderCreate extends Component
 
     public function mount(): void
     {
-        $this->correlativo = PurchaseOrder::max('correlativo') + 1;
+        $this->correlativo = ModelsPurchaseOrder::max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
     }
 
@@ -119,8 +119,8 @@ class PurchaseOrderCreate extends Component
         $this->validate($PurchaseOrder->rulesForAction('POST'), $PurchaseOrder->messages(), $PurchaseOrder->attributes());
         DB::beginTransaction();
         try {
-            $correlativo = UtilitisServices::NextCorrelative(PurchaseOrder::class);
-            $PurchaseOrder = PurchaseOrder::create([
+            $correlativo = UtilitisServices::NextCorrelative(ModelsPurchaseOrder::class);
+            $PurchaseOrder = ModelsPurchaseOrder::create([
                 'voucher_type' => $this->voucher_type,
                 'warehouse_id' => $this->warehouse_id,
                 'serie' => $this->serie,
@@ -135,7 +135,7 @@ class PurchaseOrderCreate extends Component
                 'user_id' => Auth::id(),
             ]);
             ProductDetailServices::createDetailproductableOrdenCompra($PurchaseOrder, $this->products);
-            UtilitisServices::generateAndAttachPdf(PurchaseOrder::class, $PurchaseOrder);
+            UtilitisServices::generateAndAttachPdf(ModelsPurchaseOrder::class, $PurchaseOrder);
             DB::commit();
             $this->successSwal('La orden de compra se ha creado exitosamente.', type: 'session');
             return redirect()->route('admin.purchases-orders.index');
@@ -154,6 +154,6 @@ class PurchaseOrderCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.purchase-order-create');
+        return view('livewire.admin.create.purchase-order');
     }
 }

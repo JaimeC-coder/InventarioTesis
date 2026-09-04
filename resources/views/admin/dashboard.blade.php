@@ -20,7 +20,7 @@
                 ver ese error que aparece cuando borro el listado de productos
             </li>
             <li class="text-green-500">
-                agregar el boton de limpiar en los formularios
+                agregar el boton de limpiar en los formularios - implementar en el resto de formularios
             </li>
 
 
@@ -28,7 +28,7 @@
             <li class="text-yellow-300">
                 editar roles
             </li>
-           
+
 
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos

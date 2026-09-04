@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Livewire\Products;
+namespace App\Livewire\Admin\Edit;
 
 use Livewire\Component;
 
-class EditProduct extends Component
+class Product extends Component
 {
     public $productuuid;
 
@@ -166,6 +166,6 @@ class EditProduct extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.products.edit-product');
+        return view('livewire.admin.edit.product');
     }
 }

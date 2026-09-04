@@ -8,7 +8,7 @@
 
     <livewire:admin.tables.warehouse-table />
 
-    <livewire:warehouses.edit-modal />
+    <livewire:admin.edit.warehouse />
 
     <livewire:export.pdf />
 

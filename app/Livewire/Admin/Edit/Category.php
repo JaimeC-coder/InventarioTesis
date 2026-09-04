@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Categories;
+namespace App\Livewire\Admin\Edit;
 
-use App\Models\Category;
+use App\Models\Category as ModelsCategory;
 use Livewire\Component;
 
-class EditModal extends Component
+class Category extends Component
 {
     public $categoryId;
 
@@ -20,7 +20,7 @@ class EditModal extends Component
     #[\Livewire\Attributes\On('editCategory')]
     public function loadCategory($categoryId): void
     {
-        $category = Category::where('uuid', $categoryId)->first();
+        $category = ModelsCategory::where('uuid', $categoryId)->first();
         if ($category) {
             $this->categoryId = $category->uuid;
             $this->name = $category->name;
@@ -32,7 +32,7 @@ class EditModal extends Component
 
     public function save(): void
     {
-        $category = Category::where('uuid', $this->categoryId)->first();
+        $category = ModelsCategory::where('uuid', $this->categoryId)->first();
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -51,6 +51,6 @@ class EditModal extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.categories.edit-modal');
+        return view('livewire.admin.edit.category');
     }
 }

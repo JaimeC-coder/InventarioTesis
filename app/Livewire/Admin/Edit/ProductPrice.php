@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Products;
+namespace App\Livewire\Admin\Edit;
 
 use App\Models\Product;
 use Livewire\Component;
 
-class EditPrice extends Component
+class ProductPrice extends Component
 {
     public $productuuid;
 
@@ -74,6 +74,6 @@ class EditPrice extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.products.edit-price');
+        return view('livewire.admin.edit.product-price');
     }
 }

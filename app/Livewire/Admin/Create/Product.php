@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\ProductRequest;
 use App\Livewire\Concerns\ResolvesUuidsToIds;
 use App\Models\Measure;
-use App\Models\Product;
+use App\Models\Product as ModelsProduct;
 use App\Models\Unit;
 use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class ProductCreate extends Component
+class Product extends Component
 {
     use ResolvesUuidsToIds;
 
@@ -129,7 +129,7 @@ class ProductCreate extends Component
         $this->validate($productRequest->rulesForAction('POST'), $productRequest->messages(), $productRequest->attributes());
         DB::beginTransaction();
         try {
-            $productBaseid = Product::create([
+            $productBaseid = ModelsProduct::create([
                 'supplier_id' => $this->supplier_id,
                 'name' => $this->productBaseName,
                 'category_code' => $this->category_code,
@@ -144,7 +144,7 @@ class ProductCreate extends Component
             ]);
             // luego vamos a crear los productos dependientes
             foreach ($this->products as $product) {
-                Product::create([
+                ModelsProduct::create([
                     'supplier_id' => $this->supplier_id,
                     'name' => $product['name'],
                     'category_code' => $this->category_code,
@@ -215,6 +215,6 @@ class ProductCreate extends Component
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        return view('livewire.admin.product-create');
+        return view('livewire.admin.create.product');
     }
 }
