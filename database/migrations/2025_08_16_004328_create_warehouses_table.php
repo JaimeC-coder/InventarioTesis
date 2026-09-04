@@ -15,8 +15,10 @@ return new class() extends Migration {
             $blueprint->string('name')->unique();
             $blueprint->string('location')->nullable();
             $blueprint->uuid('uuid')->unique();
+            $blueprint->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['name', 'deleted_at']);
         });
     }
 

@@ -12,7 +12,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 
 final class UserTable extends PowerGridComponent
 {
-    public string $tableName = 'user-table-xouoew-table';
+    public string $tableName = 'user-table-d57rsx-table';
 
     public function setUp(): array
     {
@@ -29,7 +29,7 @@ final class UserTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return User::query();
+        return User::query()->with(['employee']);
     }
 
     public function relationSearch(): array
@@ -43,19 +43,37 @@ final class UserTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('email')
+            ->add('employee.document')
+            ->add('employee.phone')
+            ->add('employee.address')
+            ->add('role_name')
+            ->add('employee.fechaNacimiento')
             ->add('created_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')
-                ->sortable()
-                ->searchable(),
+            Column::make('Id', 'id'),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),
             Column::make('Email', 'email')
+                ->sortable()
+                ->searchable(),
+            Column::make('Documento', 'employee.document')
+                ->sortable()
+                ->searchable(),
+            Column::make('Teléfono', 'employee.phone')
+                ->sortable()
+                ->searchable(),
+            Column::make('Dirección', 'employee.address')
+                ->sortable()
+                ->searchable(),
+            Column::make('Fecha de Nacimiento', 'employee.fechaNacimiento')
+                ->sortable()
+                ->searchable(),
+            Column::make('Rol', 'role_name')
                 ->sortable()
                 ->searchable(),
             Column::make('Created at', 'created_at_formatted', 'created_at')

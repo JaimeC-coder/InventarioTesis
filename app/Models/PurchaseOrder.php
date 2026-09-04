@@ -12,8 +12,15 @@ class PurchaseOrder extends BaseModel
         'correlativo',
         'date',
         'supplier_id',
+        'warehouse_id',
+        'status',
+        'subtotal',
+        'igv',
         'total',
+        'total_string',
+        'user_id',
         'observation',
+        'file_path',
         'uuid',
     ];
 
@@ -29,12 +36,24 @@ class PurchaseOrder extends BaseModel
         return $this->hasMany(PurchaseOrder::class); //relacion uno a muchos
     }
 
+    // Relación con usuarios
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Relación con almacenes
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
     //Relacion muchos a muchos polimorfica
     public function products()
     {
         return $this->morphToMany(Product::class, 'productable', 'productables', 'productable_id', 'product_id')
             ->using(Productable::class)
-            ->withPivot('quantity', 'price', 'subtotal')
+            ->withPivot('quantity', 'price', 'subtotal', 'price_type', 'product_name')
             ->withTimestamps();
     }
 }

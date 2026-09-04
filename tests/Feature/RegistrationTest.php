@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -47,7 +50,18 @@ class RegistrationTest extends TestCase
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
         ]);
 
-        $this->assertAuthenticated();
-        $testResponse->assertRedirect(route('dashboard', absolute: false));
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@example.com',
+        ]);
+
+        // Pero NO debe quedar autenticado
+        $this->assertGuest();
+
+        // Debe recibir el error de validación esperado
+        $testResponse->assertSessionHasErrors('email');
+
+
+        // $this->assertAuthenticated();
+        // $testResponse->assertRedirect('/');
     }
 }

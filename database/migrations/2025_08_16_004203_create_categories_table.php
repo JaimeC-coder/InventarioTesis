@@ -13,10 +13,12 @@ return new class() extends Migration {
         Schema::create('categories', function (Blueprint $blueprint): void {
             $blueprint->id();
             $blueprint->string('name')->unique();
+            $blueprint->integer('codigo')->unique();
             $blueprint->text('description')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['name', 'deleted_at']);
         });
     }
 

@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Livewire\Admin\Edit;
+
+use App\Models\Warehouse as ModelsWarehouse;
+use Livewire\Component;
+
+class Warehouse extends Component
+{
+    public $warehouseId;
+
+    public $name;
+
+    public $location;
+
+    public $showModal = false;
+
+    #[\Livewire\Attributes\On('editWarehouse')]
+    public function loadWarehouse($warehouseId): void
+    {
+        $warehouse = ModelsWarehouse::where('uuid', $warehouseId)->first();
+        if ($warehouse) {
+            $this->warehouseId = $warehouse->id;
+            $this->name = $warehouse->name;
+            $this->location = $warehouse->location;
+            $this->showModal = true;
+        }
+    }
+
+    public function save(): void
+    {
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string',
+        ]);
+        $warehouse = ModelsWarehouse::find($this->warehouseId);
+        if ($warehouse) {
+            $warehouse->update([
+                'name' => $this->name,
+                'location' => $this->location,
+            ]);
+            $this->showModal = false;
+            $this->dispatch('pg:eventRefresh-warehouse-table-itbilq-table'); // refresca tabla PowerGrid
+        }
+    }
+
+    public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+    {
+        return view('livewire.admin.edit.warehouse');
+    }
+}

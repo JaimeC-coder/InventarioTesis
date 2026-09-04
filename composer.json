@@ -10,14 +10,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "laravel-lang/common": "^6.7",
         "laravel/framework": "^12.0",
         "laravel/jetstream": "^5.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6.4",
+        "maatwebsite/excel": "^3.1",
         "picqer/php-barcode-generator": "^3.2",
         "power-components/livewire-powergrid": "^6.6",
+        "spatie/laravel-permission": "^8.3",
+        "tymon/jwt-auth": "^2.2",
         "wireui/wireui": "^2.4"
     },
     "require-dev": {

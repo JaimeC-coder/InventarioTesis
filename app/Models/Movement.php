@@ -11,8 +11,14 @@ class Movement extends BaseModel
         'serie',
         'correlativo',
         'date',
-        'observaciones',
+        'observation',
+        'status',
+        'subtotal',
+        'igv',
         'total',
+        'total_string',
+        'user_id',
+        'file_path',
         'warehouse_id',
         'reason_id',
         'uuid',
@@ -23,7 +29,7 @@ class Movement extends BaseModel
     {
         return $this->morphToMany(Product::class, 'productable')
             ->using(Productable::class)
-            ->withPivot('quantity', 'price', 'subtotal')
+            ->withPivot('quantity', 'price', 'subtotal', 'price_type', 'product_name')
             ->withTimestamps();
     }
 
@@ -37,6 +43,12 @@ class Movement extends BaseModel
     public function reason()
     {
         return $this->belongsTo(Reason::class);
+    }
+
+    // Relación con usuarios
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     //Relacion uno a muchos polimorfica

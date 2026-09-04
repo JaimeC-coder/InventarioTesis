@@ -12,15 +12,17 @@ return new class() extends Migration {
     {
         Schema::create('customers', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->foreignId('identity_id')->constrained('identities')->onDelete('cascade');
+            $blueprint->string('identity');
             $blueprint->string('document_number')->unique();
             $blueprint->string('name');
             $blueprint->string('address')->nullable();
             $blueprint->string('email')->nullable();
             $blueprint->string('phone')->nullable();
+            $blueprint->enum('type', ['A1', 'GENERAL'])->default('GENERAL');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['document_number', 'deleted_at']);
         });
     }
 

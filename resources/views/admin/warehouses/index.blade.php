@@ -8,27 +8,12 @@
 
     <livewire:admin.tables.warehouse-table />
 
-    @push('scripts')
-        <script>
-            let formEliminar = document.querySelectorAll('.delete-form');
+    <livewire:admin.edit.warehouse />
 
-            formEliminar.forEach(form => {
-                form.addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Esta acción no se puede deshacer.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        </script>
+    <livewire:export.pdf />
+
+
+    @push('scripts')
+
     @endpush
 </x-admin-layout>

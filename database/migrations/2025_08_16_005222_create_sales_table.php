@@ -15,15 +15,25 @@ return new class() extends Migration {
             $blueprint->string('voucher_type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
-            $blueprint->timestamp('date');
+            $blueprint->date('date');
             $blueprint->foreignId('quote_id')->nullable()->constrained('quotes')->onDelete('cascade');
             $blueprint->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $blueprint->decimal('total', 10, 2);
+            $blueprint->string('status')->default('REGISTRADO');
+            $blueprint->decimal('subtotal', 15, 2);
+            $blueprint->decimal('igv', 15, 2);
+            $blueprint->decimal('total', 15, 2)->default(0.00);
+            $blueprint->string('total_string');
+            $blueprint->string('currency')->default('SOLES');
+            $blueprint->string('payment_method')->default('EFECTIVO');
+            $blueprint->string('payment_type')->default('CONTADO');
+            $blueprint->string('file_path')->nullable();
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->string('observation')->nullable();
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['serie', 'correlativo', 'warehouse_id','deleted_at']);
         });
     }
 

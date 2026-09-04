@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class() extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('measures', function (Blueprint $blueprint): void {
+            $blueprint->id();
+            $blueprint->string('name')->unique();
+            $blueprint->string('abbreviation')->unique();
+            $blueprint->string('code')->nullable();
+            $blueprint->string('description_for_product')->nullable();
+            $blueprint->enum('category', ['LIQUIDO', 'PESO'])->default('PESO');
+            $blueprint->uuid('uuid')->unique();
+            $blueprint->timestamps();
+            $blueprint->softDeletes();
+            $blueprint->unique(['name', 'deleted_at']);
+            $blueprint->unique(['abbreviation', 'deleted_at']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('measures');
+    }
+};

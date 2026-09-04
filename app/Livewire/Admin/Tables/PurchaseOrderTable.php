@@ -3,7 +3,10 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\PurchaseOrder;
+use App\Services\FileServices;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -41,20 +44,23 @@ final class PurchaseOrderTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('voucher_type')
+            ->add('voucher_type_formatted', fn($user): string => ($user->voucher_type === 1 ? 'Factura' : ($user->voucher_type === 2 ? 'Boleta' : 'Otros')))
             ->add('serie')
             ->add('correlativo')
             ->add('date')
+            ->add('date_formatted', fn($user): string => Carbon::parse($user->date)->format('d/m/Y'))
             ->add('supplier.name')
             ->add('total')
             ->add('observation')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Voucher type', 'voucher_type')
+            Column::make('Tipo de comprobante', 'voucher_type_formatted', 'voucher_type')
                 ->sortable()
                 ->searchable(),
             Column::make('Serie', 'serie')
@@ -63,12 +69,9 @@ final class PurchaseOrderTable extends PowerGridComponent
             Column::make('Correlativo', 'correlativo')
                 ->sortable()
                 ->searchable(),
-            Column::make('Date', 'date_formatted', 'date')
+            Column::make('Fecha', 'date_formatted', 'date')
                 ->sortable(),
-            Column::make('Date', 'date')
-                ->sortable()
-                ->searchable(),
-            Column::make('Supplier id', 'supplier.name')
+            Column::make('Proveedor', 'supplier.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')
@@ -79,10 +82,9 @@ final class PurchaseOrderTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()
+                ->hidden()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),
@@ -91,24 +93,43 @@ final class PurchaseOrderTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('pdf')]
+    public function pdf(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $purchaseOrder = PurchaseOrder::whereUuid($rowId)->first();
+        Log::info('GENERANDO PDF EN TABLA DE ORDENES DE COMPRA PARA: ', [$purchaseOrder]);
+        if (is_null($purchaseOrder->file_path) || $purchaseOrder->file_path === '') {
+            $model = PurchaseOrder::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE ORDENES DE COMPRA: ' . $file);
+            $routeFile = $file;
+            $purchaseOrder->file_path = $routeFile;
+            $purchaseOrder->save();
+        } else {
+            $routeFile = $purchaseOrder->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(PurchaseOrder $purchaseOrder): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$purchaseOrder->id)
-                ->id()
+            Button::add('pdf')
+                ->slot('PDF: ' . $purchaseOrder->serie)
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $purchaseOrder->id]),
+                ->dispatch('pdf', ['rowId' => $purchaseOrder->uuid]),
         ];
     }
 

@@ -6,6 +6,6 @@
 
 
 
-    @livewire('admin.transfer-create')
+    @livewire('admin.create.transfer')
 
 </x-admin-layout>

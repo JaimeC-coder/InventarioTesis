@@ -7,15 +7,27 @@ use Illuminate\Support\Facades\Storage;
 
 class Product extends BaseModel
 {
+    protected $table = 'products';
+
     protected $fillable = [
         'name',
-        'sku',
+        'code',
+        'category_code',
         'barcode',
         'description',
-        'price',
+        'price_sale_regular',
+        'price_sale_a1',
+        'price_purchase',
+        'stock',
+        'min_stock',
+        'is_active_product',
+        'product_base_id',
         'uuid',
         'category_id',
         'stock',
+        'supplier_id',
+        'unit_id',
+        'measure_id',
     ];
 
     //Accesores
@@ -55,5 +67,41 @@ class Product extends BaseModel
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    // Relacion con unidad
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    // Relacion con medida
+    public function measure()
+    {
+        return $this->belongsTo(Measure::class);
+    }
+
+    // Relacion con productos base
+    public function productBase()
+    {
+        return $this->belongsTo(Product::class, 'product_base_id');
+    }
+
+    // Relacion con proveedores
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    // Relacion inversa con Record para obtener el stock por almacén
+    public function records()
+    {
+        return $this->hasMany(Record::class, 'product_id');
+    }
+
+    public function stockByWarehouse()
+    {
+        return $this->hasMany(Record::class, 'product_id')
+            ->with('warehouse');
     }
 }

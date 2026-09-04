@@ -2,124 +2,81 @@
 
 namespace App\Services;
 
-use App\Models\Inventorie;
+use App\Enum\KardexTypeEnum;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class KardexServices
 {
-    public static function getLastRecord($product_id, $warehouse_id): array
+    public static function getLastRecord(int $product_id): string
     {
-        $lastRecort = Inventorie::where('product_id', $product_id)
-            ->where('warehouse_id', $warehouse_id)
-            ->latest()
-            ->first();
-
-        return [
-            'quantity_balance' => $lastRecort?->quantity_balance ?? 0,
-            'total_balance' => $lastRecort?->total_balance ?? 0,
-            'cost_balance' => $lastRecort?->cost_balance ?? 0,
-            'date' => $lastRecort?->created_at ?? null,
-        ];
+        return Product::find($product_id)?->name ?? '';
     }
 
-    public static function registerEntry($model, array $product, $warehouse_id, $detail): void
-    {
-        $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
-        $newQuantity = $lastRecord['quantity_balance'] + $product['quantity'];
-        $newTotal = $lastRecord['total_balance'] + ($product['quantity'] * $product['price']);
-        $costBalance = $newTotal / $newQuantity;
-        $newregister = [
+    public static function registerEntry(
+        $model,
+        array $product,
+        int $warehouse_id,
+        string $detail,
+        KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::ENTRADA
+    ): void {
+        $lastRecord = self::getLastRecord($product['id']);
+        self::registerData($model, [
             'detail' => $detail,
             'quantity_in' => $product['quantity'],
-            'cost_in' => $product['price'],
-            'total_in' => $product['quantity'] * $product['price'],
-            'quantity_balance' => $newQuantity,
-            'cost_balance' => $costBalance,
-            'total_balance' => $newTotal,
+            'product_name' => $product['name'] ?? $lastRecord,
+            'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
-        ];
-        self::registerData($model, $newregister);
-        self::updateProductStock($product['id'], $product['quantity'], 'add');
+        ], isEntry: true);
     }
 
-    public static function registerExit($model, array $product, $warehouse_id, $detail): void
-    {
-        $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
-        $newQuantity = $lastRecord['quantity_balance'] - $product['quantity'];
-        $newTotal = $lastRecord['total_balance'] - ($product['quantity'] * $lastRecord['cost_balance']);
-        $costBalance = $newTotal / ($newQuantity ?: 1);
-        $newregister = [
+    public static function registerExit(
+        $model,
+        array $product,
+        int $warehouse_id,
+        string $detail,
+        KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::SALIDA
+    ): void {
+        $lastRecord = self::getLastRecord($product['id']);
+        self::registerData($model, [
             'detail' => $detail,
-            'cost_out' => $lastRecord['cost_balance'],
-            'total_out' => $product['quantity'] * $lastRecord['cost_balance'],
             'quantity_out' => $product['quantity'],
-            'quantity_balance' => $newQuantity,
-            'cost_balance' => $costBalance,
-            'total_balance' => $newTotal,
+            'product_name' => $product['name'] ?? $lastRecord,
+            'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
-        ];
-        self::registerData($model, $newregister);
-        self::updateProductStock($product['id'], $product['quantity'], 'subtract');
+        ], isEntry: false);
     }
 
-    public static function registerMovement($model, array $product, $warehouse_id, $detail, $type): void
+    protected static function registerData($model, array $data, bool $isEntry): void
     {
-        $lastRecord = self::getLastRecord($product['id'], $warehouse_id);
-        if ($type == 1) { // Entry
-            $newQuantity = $lastRecord['quantity_balance'] + $product['quantity'];
-            $newTotal = $lastRecord['total_balance'] + ($product['quantity'] * $product['price']);
-            $costBalance = $newTotal / $newQuantity;
-        } elseif ($type == 2) { // Exit
-            $newQuantity = $lastRecord['quantity_balance'] - $product['quantity'];
-            $newTotal = $lastRecord['total_balance'] - ($product['quantity'] * $lastRecord['cost_balance']);
-            $costBalance = $newTotal / ($newQuantity ?: 1);
-        }
-
-        $newregister = [
-            'detail' => $detail,
-            'quantity_in' => $product['quantity'],
-            'cost_in' => $product['price'],
-            'total_in' => $product['quantity'] * $product['price'],
-            'quantity_balance' => $newQuantity,
-            'cost_balance' => $costBalance,
-            'total_balance' => $newTotal,
-            'product_id' => $product['id'],
-            'warehouse_id' => $warehouse_id,
-        ];
-        self::registerData($model, $newregister);
-    }
-
-    protected static function registerData($model, array $data)
-    {
-        $model->inventories()->create([
-            'detail' => $data['detail'] ?: '',
-            'quantity_in' => $data['quantity_in'] ?: 0,
-            'cost_in' => $data['cost_in'] ?: 0,
-            'total_in' => $data['total_in'] ?: 0,
-            'quantity_out' => $data['quantity_out'] ?: 0,
-            'cost_out' => $data['cost_out'] ?: 0,
-            'total_out' => $data['total_out'] ?: 0,
-            'quantity_balance' => $data['quantity_balance'] ?: 0,
-            'cost_balance' => $data['cost_balance'] ?: 0,
-            'total_balance' => $data['total_balance'] ?: 0,
-            'product_id' => $data['product_id'] ?: 0,
-            'warehouse_id' => $data['warehouse_id'] ?: 0,
-        ]);
-    }
-
-    public function updateProductStock($productId, $quantity, $operation): void
-    {
-        $product = Product::find($productId);
-        if ($product) {
-            if ($operation === 'add') {
-                $product->stock += $quantity;
-            } elseif ($operation === 'subtract') {
-                $product->stock -= $quantity;
-            }
-
-            $product->save();
-        }
+        Log::info('Registering inventory movement', $data);
+        DB::transaction(function () use ($model, $data, $isEntry): void {
+            // 1. Bloquea (o crea) la fila resumen de este producto+almacén — este es el "mutex" real
+            $summary = DB::table('records')
+                ->where('product_id', $data['product_id'])
+                ->where('warehouse_id', $data['warehouse_id'])
+                ->lockForUpdate()
+                ->first();
+            $previousTotal = $summary->quantity ?? 0;
+            $newQuantity = $isEntry
+                ? $previousTotal + $data['quantity_in']
+                : $previousTotal - $data['quantity_out'];
+            // 2. Inserta el movimiento histórico (esto dispara el Observer -> created)
+            $model->inventories()->create([
+                'detail' => $data['detail'],
+                'quantity_in' => $isEntry ? $data['quantity_in'] : 0,
+                'quantity_out' => $isEntry ? 0 : $data['quantity_out'],
+                'quantity_total' => $newQuantity,
+                'product_name' => $data['product_name'] ?? $summary->product_name ?? '',
+                'type' => $data['type'] ?? KardexTypeEnum::OTROS->value,
+                'product_id' => $data['product_id'],
+                'warehouse_id' => $data['warehouse_id'],
+            ]);
+            // el Observer se encarga de sincronizar stock_summaries y products.stock
+            // usando exactamente este mismo quantity_total, así que no hay doble cálculo
+        });
     }
 }

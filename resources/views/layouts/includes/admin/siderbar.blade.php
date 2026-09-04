@@ -56,8 +56,9 @@
                                 {{ Auth::user()->name }}
 
                             </p>
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                                {{ Auth::user()->email }}
+
+                            <p class="text-sm font-medium text-gray-500 truncate dark:text-gray-300" role="none">
+                                {{ Auth::user()->IsRole() }}
                             </p>
                         </div>
                         <ul class="py-1" role="none">

@@ -3,7 +3,10 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Transfer;
+use App\Services\FileServices;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -45,11 +48,12 @@ final class TransferTable extends PowerGridComponent
             ->add('correlativo')
             ->add('date')
             ->add('total')
-            ->add('observaciones')
+            ->add('observation')
             ->add('originWarehouse.name')
             ->add('destinationWarehouse.name')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -72,7 +76,7 @@ final class TransferTable extends PowerGridComponent
             Column::make('Total', 'total')
                 ->sortable()
                 ->searchable(),
-            Column::make('Observaciones', 'observaciones')
+            Column::make('observation', 'observation')
                 ->sortable()
                 ->searchable(),
             Column::make('Origin warehouse id', 'originWarehouse.name')
@@ -84,9 +88,7 @@ final class TransferTable extends PowerGridComponent
             Column::make('Uuid', 'uuid')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),
@@ -99,20 +101,40 @@ final class TransferTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('pdf')]
+    public function pdf(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $transfer = Transfer::whereUuid($rowId)->first();
+        Log::info('GENERANDO PDF EN TABLA DE VENTAS PARA: ', [$transfer]);
+        if (is_null($transfer->file_path) || $transfer->file_path === '') {
+            $model = Transfer::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE TRANSFERENCIAS: ' . $file);
+            $routeFile = $file;
+            $transfer->file_path = $routeFile;
+            $transfer->save();
+        } else {
+            $routeFile = $transfer->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(Transfer $transfer): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$transfer->id)
-                ->id()
+            Button::add('pdf')
+                ->slot('PDF: ' . $transfer->serie)
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $transfer->id]),
+                ->dispatch('pdf', ['rowId' => $transfer->uuid]),
         ];
     }
 

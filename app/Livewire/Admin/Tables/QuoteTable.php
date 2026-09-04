@@ -3,11 +3,12 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Quote;
+use App\Services\FileServices;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
@@ -43,6 +44,7 @@ final class QuoteTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('voucher_type')
+            ->add('voucher_type_formatted', fn($user): string => ($user->voucher_type === '1' ? 'Factura' : ($user->voucher_type === '2' ? 'Boleta' : 'Otros')))
             ->add('serie')
             ->add('correlativo')
             ->add('date_formatted', fn(Quote $quote): string => Carbon::parse($quote->date)->format('d/m/Y'))
@@ -50,13 +52,14 @@ final class QuoteTable extends PowerGridComponent
             ->add('observation')
             ->add('customer.name')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at') ->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Voucher type', 'voucher_type')
+            Column::make('Tipo de comprobante', 'voucher_type_formatted', 'voucher_type')
                 ->sortable()
                 ->searchable(),
             Column::make('Serie', 'serie')
@@ -65,7 +68,7 @@ final class QuoteTable extends PowerGridComponent
             Column::make('Correlativo', 'correlativo')
                 ->sortable()
                 ->searchable(),
-            Column::make('Date', 'date_formatted', 'date')
+            Column::make('Fecha', 'date_formatted', 'date')
                 ->sortable(),
             Column::make('Total', 'total')
                 ->sortable()
@@ -73,15 +76,14 @@ final class QuoteTable extends PowerGridComponent
             Column::make('Observation', 'observation')
                 ->sortable()
                 ->searchable(),
-            Column::make('Customer id', 'customer.name')
+            Column::make('Cliente', 'customer.name')
                 ->sortable()
                 ->searchable(),
             Column::make('Uuid', 'uuid')
                 ->sortable()
+                ->hidden()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),
@@ -91,24 +93,43 @@ final class QuoteTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datepicker('date'),
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('pdf')]
+    public function pdf(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $quote = Quote::whereUuid($rowId)->first();
+        Log::info('GENERANDO PDF EN TABLA DE VENTAS PARA: ', [$quote]);
+        if (is_null($quote->file_path) || $quote->file_path === '') {
+            $model = Quote::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE VENTAS: ' . $file);
+            $routeFile = $file;
+            $quote->file_path = $routeFile;
+            $quote->save();
+        } else {
+            $routeFile = $quote->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(Quote $quote): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$quote->id)
-                ->id()
+            Button::add('pdf')
+                ->slot('PDF: ' . $quote->serie)
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $quote->id]),
+                ->dispatch('pdf', ['rowId' => $quote->uuid]),
         ];
     }
 

@@ -3,7 +3,10 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Models\Movement;
+use App\Services\FileServices;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
@@ -44,12 +47,13 @@ final class MovementTable extends PowerGridComponent
             ->add('serie')
             ->add('correlativo')
             ->add('date')
-            ->add('observaciones')
+            ->add('observation')
             ->add('total')
             ->add('warehouse.name')
             ->add('reason.name')
             ->add('uuid')
-            ->add('created_at');
+            ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
+        ;
     }
 
     public function columns(): array
@@ -69,7 +73,7 @@ final class MovementTable extends PowerGridComponent
             Column::make('Date', 'date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Observaciones', 'observaciones')
+            Column::make('observation', 'observation')
                 ->sortable()
                 ->searchable(),
             Column::make('Total', 'total')
@@ -84,9 +88,7 @@ final class MovementTable extends PowerGridComponent
             Column::make('Uuid', 'uuid')
                 ->sortable()
                 ->searchable(),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-            Column::make('Created at', 'created_at')
+            Column::make('Creado el', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
             Column::action('Action'),
@@ -95,24 +97,43 @@ final class MovementTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    #[\Livewire\Attributes\On('pdf')]
+    public function pdf(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $movement = Movement::whereUuid($rowId)->first();
+        Log::info('GENERANDO PDF EN TABLA DE MOVIMIENTOS PARA: ', [$movement]);
+        if (is_null($movement->file_path) || $movement->file_path === '') {
+            $model = Movement::class;
+            $payload = [
+                'model' => $model,
+                'uuids' => $rowId,
+            ];
+            $file = FileServices::generatePdfNow($payload);
+            Log::info('PDF GENERADO EN TABLA DE MOVIMIENTOS: ' . $file);
+            $routeFile = $file;
+            $movement->file_path = $routeFile;
+            $movement->save();
+        } else {
+            $routeFile = $movement->file_path;
+        }
+
+        $routeFile = FileServices::url($routeFile);
+        $this->js("
+            const pdfUrl = '{$routeFile}';
+            window.open(pdfUrl, '_blank');
+        ");
     }
 
     public function actions(Movement $movement): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$movement->id)
-                ->id()
+            Button::add('pdf')
+                ->slot('PDF: ' . $movement->serie)
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $movement->id]),
+                ->dispatch('pdf', ['rowId' => $movement->uuid]),
         ];
     }
 

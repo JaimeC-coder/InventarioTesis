@@ -12,17 +12,25 @@ return new class() extends Migration {
     {
         Schema::create('movements', function (Blueprint $blueprint): void {
             $blueprint->id();
-            $blueprint->string('type');
+            $blueprint->integer('type');
             $blueprint->string('serie');
             $blueprint->integer('correlativo');
-            $blueprint->timestamp('date');
+            $blueprint->date('date');
             $blueprint->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $blueprint->decimal('total', 10, 2)->default(0.00);
-            $blueprint->string('observaciones')->nullable();
+            $blueprint->string('status')->nullable();
+            $blueprint->decimal('subtotal', 15, 2)->nullable();
+            $blueprint->decimal('igv', 15, 2)->nullable();
+            $blueprint->decimal('total', 15, 2)->nullable();
+            $blueprint->string('total_string')->nullable();
+            $blueprint->string('currency')->default('SOLES');
+            $blueprint->string('file_path')->nullable();
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $blueprint->string('observation')->nullable();
             $blueprint->foreignId('reason_id')->constrained('reasons')->onDelete('cascade');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
+            $blueprint->unique(['serie', 'correlativo', 'warehouse_id','deleted_at']);
         });
     }
 

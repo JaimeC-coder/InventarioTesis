@@ -2,25 +2,22 @@
 
 namespace App\Models;
 
+use App\Enum\DocumentEnum;
+
 class Customer extends BaseModel
 {
     protected $table = 'customers';
 
     protected $fillable = [
         'document_number',
-        'identity_id',
+        'identity',
         'name',
         'email',
         'phone',
         'address',
+        'type',
         'uuid',
     ];
-
-    //relacion con identidad
-    public function identity()
-    {
-        return $this->belongsTo(Identity::class); //relacion uno a muchos
-    }
 
     // Relación con ventas
     public function sales()
@@ -32,5 +29,10 @@ class Customer extends BaseModel
     public function quotes()
     {
         return $this->hasMany(Quote::class);
+    }
+
+    public function getIdentityTypeLabelAttribute()
+    {
+        return DocumentEnum::tryFrom(trim($this->identity))?->label() ?? '';
     }
 }

@@ -11,10 +11,16 @@ class Transfer extends BaseModel
         'serie',
         'correlativo',
         'date',
+        'status',
+        'subtotal',
+        'igv',
         'total',
-        'observaciones',
+        'total_string',
+        'user_id',
+        'observation',
         'origin_warehouse_id',
         'destination_warehouse_id',
+        'file_path',
         'uuid',
     ];
 
@@ -35,13 +41,13 @@ class Transfer extends BaseModel
     {
         return $this->morphToMany(Product::class, 'productable')
             ->using(Productable::class)
-            ->withPivot('quantity', 'price', 'subtotal')
+            ->withPivot('quantity', 'price', 'subtotal', 'price_type', 'product_name')
             ->withTimestamps();
     }
 
     //Relacion uno a muchos polimorfica
-    public function inventories()
+    public function records()
     {
-        return $this->morphMany(Inventorie::class, 'inventoryable');
+        return $this->morphMany(Record::class, 'inventoryable');
     }
 }

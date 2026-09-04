@@ -6,6 +6,6 @@
 
 
 
-    @livewire('admin.movement-create')
+    @livewire('admin.create.movement')
 
 </x-admin-layout>

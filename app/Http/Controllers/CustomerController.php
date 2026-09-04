@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
+use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -20,7 +25,10 @@ class CustomerController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
-        $identities = \App\Models\Identity::select('name', 'uuid')->get(); // Assuming you have an Identity model
+        $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
+            'id' => $mes->value,
+            'name' => $mes->label(),
+        ])->toArray();
         return view('admin.customers.create', ['identities' => $identities]);
     }
 
@@ -31,20 +39,14 @@ class CustomerController extends Controller
     {
         try {
             Customer::create($customerRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La creación del cliente fue exitosa.',
-                'icon' => 'success',
-            ]);
+            $this->successSwal('La creación del cliente fue exitosa.', type: 'session');
+            return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al crear el cliente.',
-                'icon' => 'error',
-            ]);
+            Log::info('Error al crear cliente: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al crear el cliente.', type: 'session');
+            return redirect()->back();
         }
 
-        return redirect()->route('admin.customers.index');
     }
 
     /**
@@ -59,31 +61,31 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer): \Illuminate\View\View
     {
-        $identities = \App\Models\Identity::select('name', 'uuid')->get(); // Assuming you have an Identity model
-        return view('admin.customers.edit', ['customer' => $customer, 'identities' => $identities]);
+        $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
+            'uuid' => $mes->value,
+            'name' => $mes->label(),
+        ])->toArray(); // Assuming you have an Identity model
+        $type = [
+            ['uuid' => 'GENERAL', 'name' => 'GENERAL'],
+            ['uuid' => 'A1', 'name' => 'A1'],
+        ];
+
+        return view('admin.customers.edit', ['customer' => $customer, 'identities' => $identities, 'types' => $type]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(CustomerRequest $customerRequest, Customer $customer): \Illuminate\Http\RedirectResponse
+    public function update(CustomerRequest $customerRequest, Customer $customer)
     {
         try {
             $customer->update($customerRequest->validated());
-            session()->flash('swal', [
-                'title' => 'Exitoso',
-                'text' => 'La actualización del cliente fue exitosa.',
-                'icon' => 'success',
-            ]);
-
+            $this->successSwal('La actualización del cliente fue exitosa.', type: 'session');
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el cliente.',
-                'icon' => 'error',
-            ]);
-            return redirect()->route('admin.customers.index');
+            Log::info('Error al actualizar cliente: ' . $exception->getMessage());
+            $this->errorSwal('Hubo un problema al actualizar el cliente.', type: 'session');
+            return redirect()->back();
         }
     }
 
@@ -93,20 +95,12 @@ class CustomerController extends Controller
     public function destroy(Customer $customer): \Illuminate\Http\RedirectResponse
     {
         if ($customer->sales()->exists() || $customer->quotes()->exists()) {
-            session()->flash('swal', [
-                'title' => 'Error',
-                'text' => 'No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.',
-                'icon' => 'error',
-            ]);
+            $this->warningSwal('No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.', type: 'session');
             return redirect()->route('admin.customers.index');
         }
 
         $customer->delete();
-        session()->flash('swal', [
-            'title' => 'Exitoso',
-            'text' => 'El cliente fue eliminado exitosamente.',
-            'icon' => 'success',
-        ]);
+        $this->successSwal('El cliente fue eliminado exitosamente.', type: 'session');
 
         return redirect()->route('admin.customers.index');
     }

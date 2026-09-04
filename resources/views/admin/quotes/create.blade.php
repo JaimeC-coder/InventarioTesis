@@ -6,6 +6,6 @@
 
 
 
-    @livewire('admin.quote-create')
+    @livewire('admin.create.quote')
 
 </x-admin-layout>

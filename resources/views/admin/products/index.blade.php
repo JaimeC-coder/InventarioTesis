@@ -8,27 +8,14 @@
 
     <livewire:admin.tables.product-table />
 
+
+
+    <livewire:admin.edit.product-price />
+    <livewire:admin.edit.product />
+    <livewire:export.pdf />
     @push('scripts')
         <script>
-            let formEliminar = document.querySelectorAll('.delete-form');
 
-            formEliminar.forEach(form => {
-                form.addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Esta acción no se puede deshacer.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
         </script>
     @endpush
 </x-admin-layout>
