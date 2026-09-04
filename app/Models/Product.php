@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 
 class Product extends BaseModel
 {
+    protected $table = 'products';
+
     protected $fillable = [
         'name',
         'code',

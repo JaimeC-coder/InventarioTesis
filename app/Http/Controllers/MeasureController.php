@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Measure;
 use Illuminate\Http\Request;
 
 class MeasureController extends Controller
@@ -33,7 +34,7 @@ class MeasureController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): void
+    public function show(Measure $measure): void
     {
         //
     }
@@ -41,7 +42,7 @@ class MeasureController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): void
+    public function edit(Measure $measure): void
     {
         //
     }
@@ -49,7 +50,7 @@ class MeasureController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id): void
+    public function update(Request $request, Measure $measure): void
     {
         //
     }
@@ -57,7 +58,7 @@ class MeasureController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id): void
+    public function destroy(Measure $measure): void
     {
         //
     }

@@ -22,29 +22,17 @@ use Illuminate\Support\Facades\Log;
 
 class registerInfoTest extends Seeder
 {
-    /**
-     * ASUNCIONES (ajustar aquí si no calzan con tu negocio real):
-     * - Cada ciclo (10 ventas + reposición) ocurre en UN solo almacén elegido
-     *   al azar entre todos los existentes (no un almacén distinto por venta).
-     * - Cada venta incluye entre 1 y 4 productos distintos, con cantidades
-     *   entre 1 y 5 unidades por línea (limitado al stock disponible).
-     * - "Faltante" = producto cuyo stock en Record llegó a 0 tras una venta.
-     * - Cantidad a reponer = lo faltante + un extra aleatorio (hasta el doble
-     *   de lo faltante), para evitar compras desproporcionadas.
-     * - supplier_id fijo = el indicado (por defecto Supplier::first()->id, pero
-     *   puedes forzarlo a 1 si tu Supplier con id=1 es el proveedor de prueba).
-     */
-    private const SALES_PER_CYCLE = 10;
+    private const SALES_PER_CYCLE = 25;
 
-    private const PURCHASES_PER_CYCLE = 2;
+    private const PURCHASES_PER_CYCLE = 5;
 
-    private const PRODUCTS_PER_SALE_MIN = 1;
+    private const PRODUCTS_PER_SALE_MIN = 15;
 
-    private const PRODUCTS_PER_SALE_MAX = 15;
+    private const PRODUCTS_PER_SALE_MAX = 25;
 
-    private const QTY_PER_LINE_MIN = 1;
+    private const QTY_PER_LINE_MIN = 30;
 
-    private const QTY_PER_LINE_MAX = 10;
+    private const QTY_PER_LINE_MAX = 60;
 
     private int $saleCorrelativo;
 
@@ -65,7 +53,7 @@ class registerInfoTest extends Seeder
         $this->saleCorrelativo = (Sale::max('correlativo') ?? 0) + 1;
         $this->purchaseCorrelativo = (Purchase::max('correlativo') ?? 0) + 1;
         $currentDate = Carbon::create(2026, 1, 1, 9, 0, 0);
-        $endOfYear = Carbon::create(2026, 12, 31, 23, 59, 59);
+        $endOfYear = Carbon::create(2026, 10, 31, 23, 59, 59);
         DB::transaction(function () use ($products, $warehouses, $customerIds, $userIds, $supplierId, &$currentDate, $endOfYear): void {
             $cycle = 1;
             while ($currentDate->lte($endOfYear)) {
@@ -118,7 +106,7 @@ class registerInfoTest extends Seeder
                 continue;
             }
 
-            $qty = random_int(self::QTY_PER_LINE_MIN, min(self::QTY_PER_LINE_MAX, $stock));
+            $qty = random_int(min(self::QTY_PER_LINE_MIN, $stock), min(self::QTY_PER_LINE_MAX, $stock));
             $price = (float) $product->price_sale_regular;
             $lines[] = [
                 'id' => $product->id,

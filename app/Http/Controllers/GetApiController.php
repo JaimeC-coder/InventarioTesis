@@ -95,7 +95,6 @@ class GetApiController extends Controller
     public function productsWarehouses(SearchSelectRequest $searchSelectRequest)
     {
         $warehouse_uuid = $searchSelectRequest->warehouse_uuid ?? $searchSelectRequest->input('warehouse_uuid');
-        // Si el search es muy corto, lo tratamos como si no existiera
         $search = $searchSelectRequest->filled('search') && mb_strlen($searchSelectRequest->search) >= 3
             ? $searchSelectRequest->search
             : null;
@@ -106,12 +105,11 @@ class GetApiController extends Controller
         );
 
         return Cache::remember($cacheKey, 300, function () use ($searchSelectRequest, $warehouse_uuid, $search) {
-            $builder = \App\Models\Record::builder()
+            $builder = \App\Models\Record::select('products.uuid', 'products.name', 'products.barcode')
                 ->join('products', 'products.id', '=', 'records.product_id')
                 ->join('warehouses', 'warehouses.id', '=', 'records.warehouse_id')
                 ->where('warehouses.uuid', $warehouse_uuid)
-                ->whereNotNull('products.product_base_id')
-                ->select('products.uuid', 'products.name', 'products.barcode');
+                ->whereNotNull('products.product_base_id');
             if ($search) {
                 $builder->where(function ($q) use ($search): void {
                     $q->where('products.name', 'like', $search . '%')

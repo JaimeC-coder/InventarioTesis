@@ -41,6 +41,13 @@ class SupplierCreate extends Component
         $this->active = $this->identity === DocumentEnum::RUC->value;
     }
 
+    public function limpiar(): void
+    {
+        $this->reset(['document_number', 'identity', 'name', 'email', 'phone', 'address', 'active']);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function generateDocumentNumber(): void
     {
         if ($this->identity === DocumentEnum::RUC->value) {

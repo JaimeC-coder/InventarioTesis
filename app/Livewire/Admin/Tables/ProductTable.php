@@ -3,13 +3,17 @@
 namespace App\Livewire\Admin\Tables;
 
 use App\Exports\GenericExport;
+use App\Models\Category;
+use App\Models\Measure;
 use App\Models\Product;
+use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
@@ -28,7 +32,7 @@ final class ProductTable extends PowerGridComponent
 
         return [
             PowerGrid::header()
-                ->showToggleColumns()
+                ->showToggleColumns()->withoutLoading()
                 ->showSearchInput(),
             PowerGrid::footer()
                 ->showPerPage()
@@ -94,6 +98,10 @@ final class ProductTable extends PowerGridComponent
             ->add('unit_name', fn(Product $product) => $product->unit?->name)
             ->add('measure_name', fn(Product $product) => $product->measure?->name)
             ->add('productBase_name', fn(Product $product) => $product->productBase?->name)
+            ->add('category_id', fn(Product $product): int => intval($product->category_id))
+            ->add('unit_id', fn(Product $product): int => intval($product->unit_id))
+            ->add('measure_id', fn(Product $product): int => intval($product->measure_id))
+            ->add('product_base_id', fn(Product $product): int => intval($product->product_base_id))
             ->add('stock')
             ->add('min_stock')
             ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
@@ -130,19 +138,19 @@ final class ProductTable extends PowerGridComponent
             // Column::make('Uuid', 'uuid')
             //     ->sortable()
             //
-            Column::make('Category', 'category_name')
+            Column::make('Category', 'category_name', 'category_id')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(visible: true),
-            Column::make('Unidad', 'unit_name')
+            Column::make('Unidad', 'unit_name', 'unit_id')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(visible: true),
-            Column::make('Medida', 'measure_name')
+            Column::make('Medida', 'measure_name', 'measure_id')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(visible: true),
-            Column::make('Producto base', 'productBase_name')
+            Column::make('Producto base', 'productBase_name', 'product_base_id')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(visible: true),
@@ -163,7 +171,24 @@ final class ProductTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [];
+        return [
+            Filter::select('category_id')
+                ->dataSource(Category::all())
+                ->optionLabel('name')
+                ->optionValue('id'),
+            Filter::select('unit_id')
+                ->dataSource(Unit::all())
+                ->optionLabel('name')
+                ->optionValue('id'),
+            Filter::select('measure_id')
+                ->dataSource(Measure::all())
+                ->optionLabel('name')
+                ->optionValue('id'),
+            Filter::select('product_base_id')
+                ->dataSource(Product::whereNull('product_base_id')->get())
+                ->optionLabel('name')
+                ->optionValue('id'),
+        ];
     }
 
     protected function getListeners()

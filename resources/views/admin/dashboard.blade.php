@@ -1,6 +1,4 @@
-<x-admin-layout :breadcrumbs="[
-    ['name' => 'Dashboard', 'href' => route('admin.dashboard')],
-]" :title="'Hola'">
+<x-admin-layout :breadcrumbs="[['name' => 'Dashboard', 'href' => route('admin.dashboard')]]" :title="'Hola'">
 
     <x-slot name="action">
         Bienvenido
@@ -18,25 +16,19 @@
             <li class="text-green-500">
                 mejorar todo lo que tiene que ver con apis para tener seguridad -- por probar
             </li>
-
-
             <li class="text-green-500">
                 ver ese error que aparece cuando borro el listado de productos
             </li>
             <li class="text-green-500">
                 agregar el boton de limpiar en los formularios
             </li>
-            <li class="text-green-500">
-                agregar ver como agregar los permisos a la hora de crear los roles
-            </li>
+
 
 
             <li class="text-yellow-300">
                 editar roles
             </li>
-            <li class="text-yellow-300">
-                agregarlos a array del menu
-            </li>
+           
 
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos
@@ -46,16 +38,12 @@
             <li class="text-red-600">
                 terminar el dashboard de compras y ventas
                 -Lista de productos que ya no tiene stock por almacen
-                -Vista de cantidad de ventas con ingreso -
-                -vista de cantidad de compras con egreso -
-                -Lista de movimientos
+                -tabla de comparacion de ventas , compras y moviminetos
             </li>
             <li class="text-red-600">
                 terminar con movimiento y transferencia de productos
             </li>
-            <li class="text-red-600">
-                agregar filtro a productos por medida y categoria y unidad
-            </li>
+
 
         </ul>
 
