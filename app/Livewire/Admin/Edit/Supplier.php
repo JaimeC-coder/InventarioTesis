@@ -27,16 +27,15 @@ class Supplier extends Component
 
     public $identities = [];
 
-    public function mount(ModelsSupplier $supplier): void
+    public function mount(ModelsSupplier $modelsSupplier): void
     {
-        $this->supplier = $supplier;
-        $this->document_number = $supplier->document_number;
-        $this->identity = $supplier->identity;
-        $this->name = $supplier->name;
-        $this->email = $supplier->email;
-        $this->phone = $supplier->phone;
-        $this->address = $supplier->address;
-
+        $this->supplier = $modelsSupplier;
+        $this->document_number = $modelsSupplier->document_number;
+        $this->identity = $modelsSupplier->identity;
+        $this->name = $modelsSupplier->name;
+        $this->email = $modelsSupplier->email;
+        $this->phone = $modelsSupplier->phone;
+        $this->address = $modelsSupplier->address;
         $this->identities = [[
             'id' => DocumentEnum::RUC->value,
             'name' => DocumentEnum::RUC->label(),
