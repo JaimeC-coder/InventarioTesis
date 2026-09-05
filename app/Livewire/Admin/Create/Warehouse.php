@@ -3,13 +3,13 @@
 namespace App\Livewire\Admin\Create;
 
 use App\Models\Warehouse as ModelsWarehouse;
-
-
 use Livewire\Component;
 
 class Warehouse extends Component
 {
-    public string $name, $location;
+    public string $name;
+
+    public string $location;
 
     public function limpiar(): void
     {

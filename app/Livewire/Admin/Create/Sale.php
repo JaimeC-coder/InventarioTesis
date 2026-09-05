@@ -56,7 +56,6 @@ class Sale extends Component
 
     public $products = [];
 
-
     public function limpiar(): void
     {
         $this->reset([
@@ -70,8 +69,7 @@ class Sale extends Component
             'warehouse_id',
             'product_id',
             'products',
-            'observation'
-
+            'observation',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();

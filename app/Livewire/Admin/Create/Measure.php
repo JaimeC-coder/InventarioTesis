@@ -23,7 +23,6 @@ class Measure extends Component
         $this->resetValidation();
     }
 
-
     public function save(): void
     {
         $this->validate([
@@ -44,8 +43,6 @@ class Measure extends Component
         // Reset the form fields
         $this->limpiar();
     }
-
-
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

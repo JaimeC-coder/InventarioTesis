@@ -76,7 +76,6 @@ class Supplier extends Component
         }
     }
 
-
     public function save()
     {
         $supplierRequest = new SupplierRequest();
@@ -95,7 +94,6 @@ class Supplier extends Component
                 'text' => 'La creación del proveedor fue exitosa.',
                 'icon' => 'success',
             ]);
-
             $this->limpiar();
 
             return redirect()->route('admin.suppliers.index');

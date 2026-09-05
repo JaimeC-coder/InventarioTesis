@@ -12,13 +12,12 @@ class Unit extends Component
 
     public string $code;
 
-
     public function limpiar(): void
     {
         $this->reset([
             'name',
             'abbreviation',
-            'code'
+            'code',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();
@@ -38,7 +37,6 @@ class Unit extends Component
         ]);
         session()->flash('message', 'Unidad creada exitosamente.');
         $this->limpiar();
-
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

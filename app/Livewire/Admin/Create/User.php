@@ -28,8 +28,6 @@ class User extends Component
 
     public string $fechaNacimiento;
 
-
-
     public function limpiar(): void
     {
         $this->reset([
@@ -41,12 +39,11 @@ class User extends Component
             'document',
             'phone',
             'address',
-            'fechaNacimiento'
+            'fechaNacimiento',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();
     }
-
 
     public function save()
     {
@@ -73,7 +70,6 @@ class User extends Component
                 'text' => 'La creación del Empleado fue exitosa.',
                 'icon' => 'success',
             ]);
-
             $this->limpiar();
             return redirect()->route('admin.users.index');
         } catch (\Exception $exception) {

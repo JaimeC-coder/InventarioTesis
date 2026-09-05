@@ -67,10 +67,10 @@ class Quote extends Component
                 ]);
             }
 
-
         });
     }
-       public function limpiar(): void
+
+    public function limpiar(): void
     {
         $this->reset([
             'customer_uuid',
@@ -81,8 +81,7 @@ class Quote extends Component
             'warehouse_id',
             'product_id',
             'products',
-            'observation'
-
+            'observation',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();

@@ -56,7 +56,6 @@ class Product extends Component
 
     public $products = [];
 
-
     public function limpiar(): void
     {
         $this->reset([
@@ -76,7 +75,7 @@ class Product extends Component
             'code',
             'stock_min',
             'category_code',
-            'products'
+            'products',
         ]);
         $this->locked = false;
         $this->codedisabled = false;
@@ -197,7 +196,6 @@ class Product extends Component
                 'text' => 'Los productos se han guardado correctamente.',
                 'icon' => 'success',
             ]);
-
             $this->limpiar();
 
             return redirect()->route('admin.products.index');

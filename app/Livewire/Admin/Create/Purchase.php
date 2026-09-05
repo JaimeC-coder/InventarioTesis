@@ -89,8 +89,7 @@ class Purchase extends Component
             'payment_method',
             'payment_type',
             'products',
-            'observation'
-
+            'observation',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();

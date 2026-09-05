@@ -98,6 +98,7 @@ class Customer extends Component
         $this->resetErrorBag();
         $this->resetValidation();
     }
+
     public function save()
     {
         $customerRequest = new CustomerRequest();

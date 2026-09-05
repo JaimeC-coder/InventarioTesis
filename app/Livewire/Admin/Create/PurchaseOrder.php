@@ -57,8 +57,7 @@ class PurchaseOrder extends Component
             'warehouse_id',
             'product_id',
             'products',
-            'observation'
-
+            'observation',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();

@@ -42,7 +42,6 @@ class Transfer extends Component
 
     public $products = [];
 
-
     public function limpiar(): void
     {
         $this->reset([
@@ -54,7 +53,7 @@ class Transfer extends Component
             'product_uuid',
             'product_id',
             'products',
-            'observation'
+            'observation',
         ]);
         $this->resetErrorBag();
         $this->resetValidation();
