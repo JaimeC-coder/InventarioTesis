@@ -6,7 +6,7 @@
 
     <div
         class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-        <livewire:admin.edit.supplier :supplier="$supplier" />
+        <livewire:admin.edit.supplier :models-supplier="$supplier" />
     </div>
 
 
