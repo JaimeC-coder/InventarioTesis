@@ -19,9 +19,7 @@
             <li class="text-green-500">
                 ver ese error que aparece cuando borro el listado de productos
             </li>
-            <li class="text-green-500">
-                agregar el boton de limpiar en los formularios - implementar en el resto de formularios
-            </li>
+           
             <li class="text-green-500">
                 Agregar transacciones a los save que falten
             </li>
