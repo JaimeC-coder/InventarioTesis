@@ -56,6 +56,34 @@ class Product extends Component
 
     public $products = [];
 
+
+    public function limpiar(): void
+    {
+        $this->reset([
+            'measures_uuid',
+            'units_uuid',
+            'category_uuid',
+            'category_id',
+            'supplier_uuid',
+            'name',
+            'name_specific',
+            'description',
+            'supplier_id',
+            'price_sale',
+            'price_purchase',
+            'productBaseName',
+            'stock',
+            'code',
+            'stock_min',
+            'category_code',
+            'products'
+        ]);
+        $this->locked = false;
+        $this->codedisabled = false;
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function updated(string $property, ?string $value): void
     {
         Log::info('Property updated: ' . $property . ' with value: ' . $value);
@@ -169,17 +197,9 @@ class Product extends Component
                 'text' => 'Los productos se han guardado correctamente.',
                 'icon' => 'success',
             ]);
-            $this->reset(['name', 'name_specific', 'units_uuid', 'measures_uuid', 'category_uuid', 'supplier_id', 'supplier_uuid', 'description', 'code', 'stock_min', 'category_code']);
-            $this->locked = false;
-            $this->codedisabled = false;
-            $this->productBaseName = '';
-            $this->category_code = 0;
-            $this->code = '';
-            $this->name = '';
-            $this->name_specific = '';
-            $this->description = '';
-            $this->stock_min = 0;
-            $this->products = [];
+
+            $this->limpiar();
+
             return redirect()->route('admin.products.index');
         } catch (\Illuminate\Validation\ValidationException  $throwable) {
             DB::rollBack();

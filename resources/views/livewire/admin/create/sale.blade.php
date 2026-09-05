@@ -62,7 +62,7 @@
                 wire:model.live="customer_uuid" :async-data="['api' => route('admin.customers'), 'method' => 'POST']" option-label="name" option-value="uuid"
                 option-description="type" :disabled="count($products) > 0" />
             <x-forms.select label="Almacen" placeholder="Escribe el nombre o documento..." :async-data="['api' => route('admin.warehouses'), 'method' => 'POST', 'params' => ['limit' => 10]]"
-                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0 "
+                option-label="name" option-value="uuid" wire:model.live="warehouse_uuid" :disabled="count($products) > 0"
                 :min-term-length="3" :delay="500" />
         </div>
 
@@ -148,10 +148,20 @@
                 </x-button>
 
             </a>
-            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+
+
+
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="secondary" class="mt-4" wire:click="limpiar">
+                    Limpiar
+                </x-button>
+                <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
                 :disabled="count($errors) > 0 || count($products) === 0">
                 Crear Venta
             </x-button>
+
+            </div>
+
 
         </div>
 

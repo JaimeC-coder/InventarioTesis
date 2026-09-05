@@ -42,6 +42,24 @@ class Transfer extends Component
 
     public $products = [];
 
+
+    public function limpiar(): void
+    {
+        $this->reset([
+            'origin_warehouse_uuid',
+            'origin_warehouse_id',
+            'destination_warehouse_uuid',
+            'destination_warehouse_id',
+            'total',
+            'product_uuid',
+            'product_id',
+            'products',
+            'observation'
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function boot(): void
     {
         $this->withValidator(function ($validator): void {
@@ -104,7 +122,7 @@ class Transfer extends Component
             'name' => $product->name,
             'quantity' => 1,
             'price' => $kardex['cost_balance'] ?? 0,
-            'subtotal' => $kardex['cost_balance'],
+            'subtotal' => $kardex['cost_balance'] ?? 0,
         ];
         $this->reset('product_uuid');
     }
@@ -174,7 +192,7 @@ class Transfer extends Component
         }
 
         $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
-
+        $this->limpiar();
         return redirect()->route('admin.transfers.index');
     }
 

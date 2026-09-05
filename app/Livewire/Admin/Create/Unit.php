@@ -12,6 +12,18 @@ class Unit extends Component
 
     public string $code;
 
+
+    public function limpiar(): void
+    {
+        $this->reset([
+            'name',
+            'abbreviation',
+            'code'
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function save(): void
     {
         $this->validate([
@@ -25,8 +37,8 @@ class Unit extends Component
             'code' => $this->code,
         ]);
         session()->flash('message', 'Unidad creada exitosamente.');
-        // Reset the form fields
-        $this->reset(['name', 'abbreviation', 'code']);
+        $this->limpiar();
+
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

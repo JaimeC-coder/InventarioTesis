@@ -67,14 +67,25 @@ class Quote extends Component
                 ]);
             }
 
-            // $validator->after(function ($validator) {
-            //     $total = 0;
-            //     foreach ($this->products as $product) {
-            //         $total += $product['quantity'] * $product['price'];
-            //     }
-            //     $this->total = $total;
-            // });
+
         });
+    }
+       public function limpiar(): void
+    {
+        $this->reset([
+            'customer_uuid',
+            'customer_id',
+            'total',
+            'product_uuid',
+            'warehouse_uuid',
+            'warehouse_id',
+            'product_id',
+            'products',
+            'observation'
+
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
     }
 
     public function mount(): void
@@ -175,6 +186,7 @@ class Quote extends Component
                 'title' => 'Cotización creada',
                 'text' => 'La cotización se ha creado exitosamente.',
             ]);
+            $this->limpiar();
 
             return redirect()->route('admin.quotes.index');
         } catch (\Exception $throwable) {

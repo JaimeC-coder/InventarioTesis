@@ -75,6 +75,27 @@ class Purchase extends Component
         });
     }
 
+    public function limpiar(): void
+    {
+        $this->reset([
+            'supplier_uuid',
+            'supplier_id',
+            'purchase_order_uuid',
+            'purchase_order_id',
+            'total',
+            'product_uuid',
+            'warehouse_uuid',
+            'warehouse_id',
+            'payment_method',
+            'payment_type',
+            'products',
+            'observation'
+
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function mount(): void
     {
         $this->correlativo = ModelsPurchase::max('correlativo') + 1;
@@ -173,6 +194,7 @@ class Purchase extends Component
             UtilitisServices::generateAndAttachPdf(ModelsPurchase::class, $Purchase);
             DB::commit();
             $this->successSwal('La compra se ha creado exitosamente.', type: 'session');
+            $this->limpiar();
             return redirect()->route('admin.purchases.index');
         } catch (\Exception $exception) {
             DB::rollBack();

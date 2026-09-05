@@ -92,6 +92,12 @@ class Customer extends Component
         }
     }
 
+    public function limpiar(): void
+    {
+        $this->reset(['document_number', 'identity', 'name', 'email', 'phone', 'address', 'type']);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
     public function save()
     {
         $customerRequest = new CustomerRequest();
@@ -106,6 +112,7 @@ class Customer extends Component
                 'address' => $this->address,
                 'type' => $this->type,
             ]);
+            $this->limpiar();
             $this->dispatch('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La creación del cliente fue exitosa.',

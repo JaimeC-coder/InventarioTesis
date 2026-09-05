@@ -56,6 +56,27 @@ class Sale extends Component
 
     public $products = [];
 
+
+    public function limpiar(): void
+    {
+        $this->reset([
+            'customer_uuid',
+            'customer_id',
+            'quote_id',
+            'quote_uuid',
+            'total',
+            'product_uuid',
+            'warehouse_uuid',
+            'warehouse_id',
+            'product_id',
+            'products',
+            'observation'
+
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function boot(): void
     {
         $this->withValidator(function ($validator): void {
@@ -216,7 +237,7 @@ class Sale extends Component
             UtilitisServices::generateAndAttachPdf(ModelsSale::class, $Sale);
             DB::commit();
             $this->successSwal('La venta se ha creado exitosamente.', type: 'session');
-
+            $this->limpiar();
             return redirect()->route('admin.sales.index');
         } catch (\Exception $throwable) {
             DB::rollBack();

@@ -46,6 +46,24 @@ class PurchaseOrder extends Component
 
     public $products = [];
 
+    public function limpiar(): void
+    {
+        $this->reset([
+            'supplier_uuid',
+            'supplier_id',
+            'total',
+            'product_uuid',
+            'warehouse_uuid',
+            'warehouse_id',
+            'product_id',
+            'products',
+            'observation'
+
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function boot(): void
     {
         $this->withValidator(function ($validator): void {
@@ -138,6 +156,7 @@ class PurchaseOrder extends Component
             UtilitisServices::generateAndAttachPdf(ModelsPurchaseOrder::class, $PurchaseOrder);
             DB::commit();
             $this->successSwal('La orden de compra se ha creado exitosamente.', type: 'session');
+            $this->limpiar();
             return redirect()->route('admin.purchases-orders.index');
         } catch (\Exception $throwable) {
             DB::rollBack();

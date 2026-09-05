@@ -18,6 +18,16 @@ class Rol extends Component
         $this->selectedPermissions = [];
     }
 
+    public function limpiar(): void
+    {
+        $this->reset([
+            'name',
+            'selectedPermissions',
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function save()
     {
         $this->validate([
@@ -32,7 +42,7 @@ class Rol extends Component
             'text' => 'La creación del Rol fue exitosa.',
             'icon' => 'success',
         ]);
-        $this->reset();
+        $this->limpiar();
 
         return redirect()->route('admin.roles.index');
     }

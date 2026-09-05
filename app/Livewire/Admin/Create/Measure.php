@@ -16,6 +16,14 @@ class Measure extends Component
 
     public string $description_for_product;
 
+    public function limpiar(): void
+    {
+        $this->reset(['name', 'abbreviation', 'code', 'category', 'description_for_product']);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
+
     public function save(): void
     {
         $this->validate([
@@ -34,8 +42,10 @@ class Measure extends Component
         ]);
         session()->flash('message', 'Unidad creada exitosamente.');
         // Reset the form fields
-        $this->reset(['name', 'abbreviation', 'code', 'category', 'description_for_product']);
+        $this->limpiar();
     }
+
+
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {

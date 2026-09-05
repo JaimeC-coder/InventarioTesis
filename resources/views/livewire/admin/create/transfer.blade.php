@@ -12,7 +12,7 @@
 }">
     <form wire:submit='save' class="space-y-4">
         <div class="grid lg:grid-cols-4 gap-4">
-            <x-forms.native-select label="Tipo de movimiento" wire:model.live="type" >
+            <x-forms.native-select label="Tipo de movimiento" wire:model.live="type">
                 <option value="">Seleccione Tipo de Movimiento</option>
                 <option value="1" @if ($type === 1) selected @endif>Ingreso</option>
                 <option value="2" @if ($type === 2) selected @endif>Salida</option>
@@ -82,12 +82,12 @@
 
         <div class="flex item-center space-x-4">
             <x-forms.input label="Observaciones" name="observation" type="text" placeholder="Observaciones"
-               observation class="flex-1" />
+                observation class="flex-1" />
         </div>
         <div class="flex items-end pt-4 justify-end text-2xl">
             Total: S/. <span x-text="total"></span>
         </div>
-            <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center">
 
             <a href="{{ route('admin.transfers.index') }}" class="ml-2">
                 <x-button type="button" variant="secondary" class="mt-4">
@@ -95,10 +95,18 @@
                 </x-button>
 
             </a>
-            <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled" :disabled="count($errors) > 0 || count($products) === 0">
-                Crear Transferencia
-            </x-button>
 
+
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="secondary" class="mt-4" wire:click="limpiar">
+                    Limpiar
+                </x-button>
+                <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+                    :disabled="count($errors) > 0 || count($products) === 0">
+                    Crear Transferencia
+                </x-button>
+
+            </div>
         </div>
 
     </form>
