@@ -31,16 +31,16 @@ class Customer extends Component
 
     public $types = [];
 
-    public function mount(ModelsCustomer $customer): void
+    public function mount(ModelsCustomer $modelsCustomer): void
     {
-        $this->customer = $customer;
-        $this->document_number = $customer->document_number;
-        $this->identity = $customer->identity;
-        $this->name = $customer->name;
-        $this->email = $customer->email;
-        $this->phone = $customer->phone;
-        $this->address = $customer->address;
-        $this->type = $customer->type;
+        $this->customer = $modelsCustomer;
+        $this->document_number = $modelsCustomer->document_number;
+        $this->identity = $modelsCustomer->identity;
+        $this->name = $modelsCustomer->name;
+        $this->email = $modelsCustomer->email;
+        $this->phone = $modelsCustomer->phone;
+        $this->address = $modelsCustomer->address;
+        $this->type = $modelsCustomer->type;
         $this->identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
             'id' => $mes,
             'name' => $mes->label(),
@@ -94,9 +94,9 @@ class Customer extends Component
             ]);
 
             return redirect()->route('admin.customers.index');
-        } catch (\Throwable $exception) {
-            Log::error('Error al actualizar el cliente: ' . $exception->getMessage(), [
-                'stack' => $exception->getTraceAsString(),
+        } catch (\Throwable $throwable) {
+            Log::error('Error al actualizar el cliente: ' . $throwable->getMessage(), [
+                'stack' => $throwable->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
                 'title' => 'Error',
