@@ -8,8 +8,6 @@
 
     <livewire:admin.tables.movement-table />
 
-     <livewire:admin.edit.supplier />
-
     <livewire:export.pdf />
     @push('scripts')
         <script>

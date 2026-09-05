@@ -27,15 +27,15 @@ class Supplier extends Component
 
     public $identities = [];
 
-    public function mount(ModelsSupplier $modelsSupplier): void
+    public function mount(ModelsSupplier $supplier): void
     {
-        $this->supplier = $modelsSupplier;
-        $this->document_number = $modelsSupplier->document_number;
-        $this->identity = $modelsSupplier->identity;
-        $this->name = $modelsSupplier->name;
-        $this->email = $modelsSupplier->email;
-        $this->phone = $modelsSupplier->phone;
-        $this->address = $modelsSupplier->address;
+        $this->supplier = $supplier;
+        $this->document_number = $supplier->document_number;
+        $this->identity = $supplier->identity;
+        $this->name = $supplier->name;
+        $this->email = $supplier->email;
+        $this->phone = $supplier->phone;
+        $this->address = $supplier->address;
         $this->identities = [[
             'id' => DocumentEnum::RUC->value,
             'name' => DocumentEnum::RUC->label(),
@@ -82,15 +82,6 @@ class Supplier extends Component
             ]);
 
             return redirect()->route('admin.suppliers.index');
-        } catch (\Exception $exception) {
-            Log::error('Error al actualizar el proveedor: ' . $exception->getMessage(), [
-                'stack' => $exception->getTraceAsString(),
-            ]);
-            $this->dispatch('swal', [
-                'title' => 'Error',
-                'text' => 'Hubo un problema al actualizar el proveedor.',
-                'icon' => 'error',
-            ]);
         } catch (\Throwable $exception) {
             Log::error('Error al actualizar el proveedor: ' . $exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
