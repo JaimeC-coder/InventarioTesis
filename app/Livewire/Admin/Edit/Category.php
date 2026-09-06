@@ -10,11 +10,11 @@ class Category extends Component
 {
     public ModelsCategory $category;
 
-    public  $name = '', $description  = '';
+    public $name = '';
 
-    public  $codigo = 0;
+    public $description  = '';
 
-
+    public $codigo = 0;
 
     public function mount(ModelsCategory $modelsCategory): void
     {
@@ -31,16 +31,13 @@ class Category extends Component
         $this->codigo = $this->category->codigo;
     }
 
-
     public function save(): void
     {
-
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'codigo' => 'required|integer|unique:categories,codigo,' . $this->category->id,
         ]);
-
         DB::beginTransaction();
         try {
             $this->category->update([
@@ -49,17 +46,15 @@ class Category extends Component
                 'codigo' => $this->codigo,
             ]);
             DB::commit();
-
             $this->dispatch('pg:eventRefresh-category-table-itbilq-table'); // refresca tabla PowerGrid
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al actualizar categoría: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al actualizar categoría: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Ocurrió un error al actualizar la categoría.',
             ]);
-
         }
     }
 

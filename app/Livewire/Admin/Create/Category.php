@@ -3,14 +3,19 @@
 namespace App\Livewire\Admin\Create;
 
 use App\Http\Requests\CategoryRequest;
+use App\Models\Category as ModelsCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\Category as ModelsCategory;
 use Livewire\Component;
 
 class Category extends Component
 {
-    public string $name , $description, $codigo;
+    public string $name ;
+
+    public string $description;
+
+    public string $codigo;
+
     public function limpiar(): void
     {
         $this->reset(['name', 'description', 'codigo']);
@@ -20,8 +25,8 @@ class Category extends Component
 
     public function save()
     {
-        $customerRequest = new CategoryRequest();
-        $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
+        $categoryRequest = new CategoryRequest();
+        $this->validate($categoryRequest->rulesForAction('POST'), $categoryRequest->messages());
         DB::beginTransaction();
         try {
             ModelsCategory::create([
@@ -63,7 +68,7 @@ class Category extends Component
         return null;
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         return view('livewire.admin.create.category');
     }

@@ -29,23 +29,23 @@ class Warehouse extends Component
             'location' => 'nullable|string|max:255',
         ]);
         DB::beginTransaction();
-      try {
-          ModelsWarehouse::create([
-            'name' => $this->name,
-            'location' => $this->location,
-        ]);
-        DB::commit();
-        session()->flash('message', 'Almacén creado exitosamente.');
-        $this->limpiar();
-      } catch (\Throwable $th) {
+        try {
+            ModelsWarehouse::create([
+                'name' => $this->name,
+                'location' => $this->location,
+            ]);
+            DB::commit();
+            session()->flash('message', 'Almacén creado exitosamente.');
+            $this->limpiar();
+        } catch (\Throwable $throwable) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear almacén: ' . $th->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear almacén: ' . $throwable->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Ocurrió un error al crear el almacén.',
             ]);
-      }
+        }
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

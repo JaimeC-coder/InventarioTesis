@@ -59,9 +59,9 @@ class ProductPrice extends Component
                 $this->showModal = false;
                 $this->dispatch('pg:eventRefresh-product-table-itbilq-table'); // refresca tabla PowerGrid
             }
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al actualizar precio del producto: ' . $e->getMessage());
+            Log::error('Error al actualizar precio del producto: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

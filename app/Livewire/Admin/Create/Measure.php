@@ -47,9 +47,9 @@ class Measure extends Component
             session()->flash('message', 'Unidad creada exitosamente.');
             // Reset the form fields
             $this->limpiar();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear medida: ' . $e->getMessage());
+            Log::error('Error al crear medida: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

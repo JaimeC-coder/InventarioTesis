@@ -25,7 +25,6 @@ class Database2Seeder extends Seeder
             'user_id' => $user->id,
         ]);
         $user->assignRole('Administrador');
-
         \App\Models\Supplier::create([
             'document_number' => '20108832887',
             'identity' => 'RUC',

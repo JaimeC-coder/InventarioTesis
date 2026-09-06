@@ -221,6 +221,7 @@ final class WarehouseTable extends PowerGridComponent
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
+
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {

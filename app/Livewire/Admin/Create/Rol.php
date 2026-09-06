@@ -29,23 +29,23 @@ class Rol extends Component
         $this->resetValidation();
     }
 
-    public function save()
+    public function save(): void
     {
         $this->validate([
             'name' => 'required|string|max:255|unique:roles,name',
             'selectedPermissions' => 'array',
             'selectedPermissions.*' => 'exists:permissions,id',
         ]);
-          DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $role = \Spatie\Permission\Models\Role::create(['name' => $this->name]);
             $role->syncPermissions($this->selectedPermissions);
             DB::commit();
             session()->flash('message', 'Rol creado exitosamente.');
             $this->limpiar();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear rol: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear rol: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

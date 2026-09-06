@@ -29,11 +29,10 @@ class EmployeeFactory extends Factory
 
     public function configure(): static
     {
-        return $this->afterCreating(function (Employee $employee) {
-              $roles = Role::all();
-                $randomRole = $roles->random();
-
-                $employee->user->assignRole($randomRole);
+        return $this->afterCreating(function (Employee $employee): void {
+            $roles = Role::all();
+            $randomRole = $roles->random();
+            $employee->user->assignRole($randomRole);
         });
     }
 }

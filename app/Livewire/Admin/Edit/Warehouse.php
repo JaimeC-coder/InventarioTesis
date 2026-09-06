@@ -9,8 +9,8 @@ use Livewire\Component;
 
 class Warehouse extends Component
 {
+    public ModelsWarehouse $warehouse;
 
-  public ModelsWarehouse $warehouse;
     public $warehouseId;
 
     public $name;
@@ -33,7 +33,6 @@ class Warehouse extends Component
         $this->name = $this->warehouse->name;
         $this->location = $this->warehouse->location;
     }
-
 
     public function save()
     {
@@ -67,6 +66,7 @@ class Warehouse extends Component
                 'text' => 'Ocurrió un error al actualizar el almacén.',
             ]);
         }
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

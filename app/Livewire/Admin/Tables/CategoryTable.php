@@ -229,7 +229,7 @@ final class CategoryTable extends PowerGridComponent
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
 
-  #[\Livewire\Attributes\On('edit')]
+    #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {
         $category = Category::where('uuid', $rowId)->first();

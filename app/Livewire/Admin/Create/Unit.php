@@ -42,9 +42,9 @@ class Unit extends Component
             session()->flash('message', 'Unidad creada exitosamente.');
             // Reset the form fields
             $this->limpiar();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear unidad: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear unidad: ' . $exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
