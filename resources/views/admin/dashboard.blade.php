@@ -19,16 +19,13 @@
             <li class="text-green-500">
                 ver ese error que aparece cuando borro el listado de productos
             </li>
-           
-            <li class="text-green-500">
-                Agregar transacciones a los save que falten
-            </li>
 
 
 
             <li class="text-yellow-300">
-                editar roles
+                -Modificar Edit y Crear  units y mermenchuse
             </li>
+
 
 
             <li class="text-yellow-300">

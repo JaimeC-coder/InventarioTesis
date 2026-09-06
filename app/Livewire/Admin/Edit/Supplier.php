@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Edit;
 use App\Enum\DocumentEnum;
 use App\Http\Requests\SupplierRequest;
 use App\Models\Supplier as ModelsSupplier;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Enum;
 use Livewire\Component;
@@ -67,6 +68,7 @@ class Supplier extends Component
     public function save()
     {
         $this->validate($this->rules(), (new SupplierRequest())->messages());
+        DB::beginTransaction();
         try {
             $this->supplier->update([
                 'identity' => $this->identity,
@@ -75,6 +77,7 @@ class Supplier extends Component
                 'phone' => $this->phone,
                 'address' => $this->address,
             ]);
+            DB::commit();
             $this->dispatch('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La actualización del proveedor fue exitosa.',
@@ -83,6 +86,7 @@ class Supplier extends Component
 
             return redirect()->route('admin.suppliers.index');
         } catch (\Throwable $throwable) {
+            DB::rollBack();
             Log::error('Error al actualizar el proveedor: ' . $throwable->getMessage(), [
                 'stack' => $throwable->getTraceAsString(),
             ]);

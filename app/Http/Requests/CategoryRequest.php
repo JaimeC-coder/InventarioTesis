@@ -63,6 +63,7 @@ class CategoryRequest extends FormRequest
     {
         return array_merge($this->sharedRules(), [
             'name' => 'required|string|max:255|unique:categories,name',
+            'codigo' => 'required|string|max:255|unique:categories,codigo',
         ]);
     }
 

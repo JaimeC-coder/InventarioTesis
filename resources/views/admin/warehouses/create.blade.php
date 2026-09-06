@@ -4,35 +4,10 @@
     ['name' => 'Crear'],
 ]" :title="'Almacenes'">
 
-
-
-
-
     <div
         class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-        <form action="{{ route('admin.warehouses.store') }}" method="POST">
-            @csrf
-            <x-forms.input label="Nombre del Almacén" name="name" type="text" value="{{ old('name') }}"
-                placeholder="Nombre del Almacén" />
-            <x-forms.input label="Ubicación del Almacén" name="location" type="text" value="{{ old('location') }}"
-                placeholder="Ubicación del Almacén" />
+        <livewire:admin.create.warehouse />
 
-            <div class="flex justify-between items-center">
-
-                <a href="{{ route('admin.warehouses.index') }}" class="ml-2">
-                    <x-button type="button" variant="secondary" class="mt-4">
-                        Volver
-                    </x-button>
-
-                </a>
-                <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
-                    :disabled="count($errors) > 0 ">
-                    Crear Almacén
-                </x-button>
-
-            </div>
-
-        </form>
     </div>
 
 </x-admin-layout>

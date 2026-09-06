@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin\Create;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class Measure extends Component
@@ -32,16 +34,28 @@ class Measure extends Component
             'category' => 'required|string|in:LIQUIDO,PESO',
             'description_for_product' => 'nullable|string|max:255',
         ]);
-        \App\Models\Measure::create([
-            'name' => $this->name,
-            'abbreviation' => $this->abbreviation,
-            'code' => $this->code,
-            'category' => $this->category,
-            'description_for_product' => $this->description_for_product,
-        ]);
-        session()->flash('message', 'Unidad creada exitosamente.');
-        // Reset the form fields
-        $this->limpiar();
+        DB::beginTransaction();
+        try {
+            \App\Models\Measure::create([
+                'name' => $this->name,
+                'abbreviation' => $this->abbreviation,
+                'code' => $this->code,
+                'category' => $this->category,
+                'description_for_product' => $this->description_for_product,
+            ]);
+            DB::commit();
+            session()->flash('message', 'Unidad creada exitosamente.');
+            // Reset the form fields
+            $this->limpiar();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al crear medida: ' . $e->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al crear la medida.',
+            ]);
+        }
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

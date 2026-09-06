@@ -1,14 +1,12 @@
 <div>
-    <form wire:submit.prevent="save" class="space-y-4">
-
+      <form wire:submit='save' class="space-y-4">
 
         <div class="grid grid-cols gap-4 mb-4">
 
-            <x-forms.input label="Nombre de la categoría" name="name" type="text" placeholder="Nombre de la categoría"
-                wire:model.live="name" />
-            <x-forms.input label="Descripción" name="description" type="text" placeholder="Descripción"
-                wire:model.live="description" />
-            <x-forms.input label="Código" name="codigo" type="number" placeholder="Código" wire:model="codigo" />
+            <x-forms.input label="Nombre de la categoría" name="name" type="text" placeholder="Nombre de la categoría" wire:model.live="name" />
+            <x-forms.input label="Descripción" name="description" type="text" placeholder="Descripción" wire:model.live="description" />
+            <x-forms.input label="Código" name="codigo" type="number" placeholder="Código" wire:model="codigo"/>
+
 
 
         </div>
@@ -33,9 +31,6 @@
             </div>
 
         </div>
-
-
-
 
     </form>
 </div>

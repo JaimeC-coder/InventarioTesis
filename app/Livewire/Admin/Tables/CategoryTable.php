@@ -229,6 +229,22 @@ final class CategoryTable extends PowerGridComponent
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
 
+  #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
+    {
+        $category = Category::where('uuid', $rowId)->first();
+        if (!$category) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Categoría no encontrada.',
+            ]);
+            return;
+        }
+
+        redirect()->route('admin.categories.edit', $category);
+    }
+
     public function actions(Category $category): array
     {
         return [
@@ -236,7 +252,7 @@ final class CategoryTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('editCategory', ['categoryId' => $category->uuid]),
+                ->dispatch('edit', ['rowId' => $category->uuid]),
             Button::add('delete')
                 ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')

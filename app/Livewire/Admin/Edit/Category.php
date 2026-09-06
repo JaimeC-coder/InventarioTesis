@@ -3,49 +3,63 @@
 namespace App\Livewire\Admin\Edit;
 
 use App\Models\Category as ModelsCategory;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Category extends Component
 {
-    public $categoryId;
+    public ModelsCategory $category;
 
-    public $name;
+    public  $name = '', $description  = '';
 
-    public $description;
+    public  $codigo = 0;
 
-    public $codigo;
 
-    public $showModal = false;
 
-    #[\Livewire\Attributes\On('editCategory')]
-    public function loadCategory($categoryId): void
+    public function mount(ModelsCategory $modelsCategory): void
     {
-        $category = ModelsCategory::where('uuid', $categoryId)->first();
-        if ($category) {
-            $this->categoryId = $category->uuid;
-            $this->name = $category->name;
-            $this->description = $category->description;
-            $this->codigo = $category->codigo;
-            $this->showModal = true;
-        }
+        $this->category = $modelsCategory;
+        $this->name = $modelsCategory->name;
+        $this->description = $modelsCategory->description;
+        $this->codigo = $modelsCategory->codigo;
     }
+
+    public function limpiar(): void
+    {
+        $this->name = $this->category->name;
+        $this->description = $this->category->description;
+        $this->codigo = $this->category->codigo;
+    }
+
 
     public function save(): void
     {
-        $category = ModelsCategory::where('uuid', $this->categoryId)->first();
+
         $this->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'codigo' => 'required|integer|unique:categories,codigo,' . $category->id,
+            'codigo' => 'required|integer|unique:categories,codigo,' . $this->category->id,
         ]);
-        if ($category) {
-            $category->update([
+
+        DB::beginTransaction();
+        try {
+            $this->category->update([
                 'name' => $this->name,
                 'description' => $this->description,
                 'codigo' => $this->codigo,
             ]);
-            $this->showModal = false;
-            $this->dispatch('pg:eventRefresh-category-table-oc8dnv-table'); // refresca tabla PowerGrid
+            DB::commit();
+
+            $this->dispatch('pg:eventRefresh-category-table-itbilq-table'); // refresca tabla PowerGrid
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error al actualizar categoría: ' . $e->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al actualizar la categoría.',
+            ]);
+
         }
     }
 

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Create;
 
 use App\Models\Warehouse as ModelsWarehouse;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Warehouse extends Component
@@ -27,12 +28,24 @@ class Warehouse extends Component
             'name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
         ]);
-        ModelsWarehouse::create([
+        DB::beginTransaction();
+      try {
+          ModelsWarehouse::create([
             'name' => $this->name,
             'location' => $this->location,
         ]);
+        DB::commit();
         session()->flash('message', 'Almacén creado exitosamente.');
         $this->limpiar();
+      } catch (\Throwable $th) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error al crear almacén: ' . $th->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al crear el almacén.',
+            ]);
+      }
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

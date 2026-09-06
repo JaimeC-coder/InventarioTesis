@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Create;
 
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Rol extends Component
@@ -35,16 +36,22 @@ class Rol extends Component
             'selectedPermissions' => 'array',
             'selectedPermissions.*' => 'exists:permissions,id',
         ]);
-        $role = \Spatie\Permission\Models\Role::create(['name' => $this->name]);
-        $role->syncPermissions(array_map('intval', $this->selectedPermissions));
-        $this->dispatch('swal', [
-            'title' => 'Exitoso',
-            'text' => 'La creación del Rol fue exitosa.',
-            'icon' => 'success',
-        ]);
-        $this->limpiar();
-
-        return redirect()->route('admin.roles.index');
+          DB::beginTransaction();
+        try {
+            $role = \Spatie\Permission\Models\Role::create(['name' => $this->name]);
+            $role->syncPermissions($this->selectedPermissions);
+            DB::commit();
+            session()->flash('message', 'Rol creado exitosamente.');
+            $this->limpiar();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error al crear rol: ' . $e->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al crear el rol.',
+            ]);
+        }
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

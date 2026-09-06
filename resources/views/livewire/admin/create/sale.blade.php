@@ -140,6 +140,7 @@
         <div class="flex items-end pt-4 justify-end text-2xl">
             Total: S/. <span x-text="total"></span>
         </div>
+
         <div class="flex justify-between items-center">
 
             <a href="{{ route('admin.sales.index') }}" class="ml-2">

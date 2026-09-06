@@ -1,37 +1,33 @@
 <div>
-    @if ($warehouseId)
-        <div x-data="{ open: @entangle('showModal') }">
-            <div x-show="open" class="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center">
-                <div class="bg-white p-6 rounded shadow-lg w-96">
-                    <h2 class="text-lg font-semibold mb-4">Editar Almacén</h2>
+    <form wire:submit.prevent="save" class="space-y-4">
 
-                    <form wire:submit.prevent="save">
-                        <div class="mb-3">
-                            <label>Nombre</label>
-                            <input type="text" wire:model.defer="name" class="w-full border p-2 rounded">
-                            @error('name')
-                                <span class="text-red-500">{{ $message }}</span>
-                            @enderror
-                        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <x-forms.input label="Nombre del Almacén" name="name" type="text" placeholder="Nombre del Almacén"
+                wire:model.defer="name" />
+            <x-forms.input label="Ubicación" name="location" type="text" placeholder="Ubicación"
+                wire:model.defer="location" />
 
-                        <div class="mb-3">
-                            <label>Ubicación</label>
-                            <textarea wire:model.defer="location" class="w-full border p-2 rounded"></textarea>
-                        </div>
-
-                        <div class="flex justify-end space-x-2">
-                            <button type="button" @click="open = false"
-                                class="bg-gray-500 text-white px-3 py-1 rounded">
-                                Cancelar
-                            </button>
-                            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded">
-                                Guardar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
-    @endif
-</div>
 
+
+        <div class="flex justify-between items-center">
+            <a href="{{ route('admin.warehouses.index') }}" class="ml-2">
+                <x-button type="button" variant="secondary" class="mt-4">
+                    Volver
+                </x-button>
+            </a>
+
+
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="secondary" class="mt-4" wire:click="limpiar">
+                    Limpiar
+                </x-button>
+                <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+                    :disabled="count($errors) > 0">
+                    Editar Almacén
+                </x-button>
+            </div>
+
+        </div>
+    </form>
+</div>

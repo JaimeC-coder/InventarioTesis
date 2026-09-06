@@ -221,6 +221,21 @@ final class WarehouseTable extends PowerGridComponent
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
     }
+    #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
+    {
+        $customer = Warehouse::where('uuid', $rowId)->first();
+        if (!$customer) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Cliente no encontrado.',
+            ]);
+            return;
+        }
+
+        redirect()->route('admin.warehouses.edit', $customer);
+    }
 
     public function actions(Warehouse $warehouse): array
     {
@@ -229,7 +244,7 @@ final class WarehouseTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('editWarehouse', ['warehouseId' => $warehouse->uuid]),
+                ->dispatch('edit', ['rowId' => $warehouse->uuid]),
             Button::add('delete')
                 ->slot('Eliminar')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')

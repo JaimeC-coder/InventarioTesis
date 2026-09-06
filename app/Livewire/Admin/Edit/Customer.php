@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Edit;
 use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer as ModelsCustomer;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Enum;
 use Livewire\Component;
@@ -78,6 +79,7 @@ class Customer extends Component
     public function save()
     {
         $this->validate($this->rules(), (new CustomerRequest())->messages());
+        DB::beginTransaction();
         try {
             $this->customer->update([
                 'identity' => $this->identity,
@@ -87,14 +89,15 @@ class Customer extends Component
                 'address' => $this->address,
                 'type' => $this->type,
             ]);
+            DB::commit();
             $this->dispatch('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La actualización del cliente fue exitosa.',
                 'icon' => 'success',
             ]);
-
             return redirect()->route('admin.customers.index');
         } catch (\Throwable $throwable) {
+            DB::rollBack();
             Log::error('Error al actualizar el cliente: ' . $throwable->getMessage(), [
                 'stack' => $throwable->getTraceAsString(),
             ]);
