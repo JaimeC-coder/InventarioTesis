@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enum\KardexTypeEnum;
 use App\Models\Product;
 use App\Models\Purchase;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,6 +18,8 @@ use Throwable;
 
 class SeedWarehouseStockBlock implements ShouldQueue
 {
+    use Batchable;
+
     use Dispatchable;
 
     use InteractsWithQueue;
