@@ -22,9 +22,13 @@ use Throwable;
 class ProcessSalesCycle implements ShouldQueue
 {
     use Batchable;
+
     use Dispatchable;
+
     use InteractsWithQueue;
+
     use Queueable;
+
     use SerializesModels;
 
     public int $tries = 10;
@@ -51,11 +55,11 @@ class ProcessSalesCycle implements ShouldQueue
             // "Ping" para forzar que Azure SQL Serverless despierte de su
             // auto-pause antes de intentar el ciclo real.
             DB::select('select 1 as ping');
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             // El worker es un proceso de larga duración: si la conexión se
             // cortó, hay que forzar una reconexión antes del próximo intento.
             DB::disconnect();
-            throw $exception;
+            throw $throwable;
         }
 
         $products = Product::where('is_active_product', 1)->get();
@@ -63,7 +67,6 @@ class ProcessSalesCycle implements ShouldQueue
         $customerIds = Customer::pluck('id')->toArray();
         $userIds = User::pluck('id')->toArray();
         $supplierId = Supplier::first()?->id ?? 1;
-
         if ($products->isEmpty() || $warehouses->isEmpty() || $customerIds === [] || $userIds === []) {
             Log::error('ProcessSalesCycle: faltan datos base (products/warehouses/customers/users). Ciclo ' . $this->cycleNumber . ' omitido.');
             return;
@@ -72,7 +75,6 @@ class ProcessSalesCycle implements ShouldQueue
         /** @var Warehouse $warehouse */
         $warehouse = $warehouses->random();
         Log::info(sprintf('Ciclo %d | Almacén: %s | Fecha: %s', $this->cycleNumber, $warehouse->name, $this->date));
-
         (new SalesCycleSimulator())->runCycle(
             $warehouse,
             Carbon::parse($this->date),
@@ -83,14 +85,14 @@ class ProcessSalesCycle implements ShouldQueue
         );
     }
 
-    public function failed(?Throwable $exception): void
+    public function failed(?Throwable $throwable): void
     {
         Log::error(sprintf(
             'ProcessSalesCycle agotó los %d intentos. Ciclo %d, fecha %s. Error: %s',
             $this->tries,
             $this->cycleNumber,
             $this->date,
-            $exception?->getMessage() ?? 'desconocido'
+            $throwable?->getMessage() ?? 'desconocido'
         ));
     }
 }

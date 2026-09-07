@@ -19,7 +19,6 @@ class DispatchSalesCycleJobs extends Command
     public function handle(): int
     {
         $this->waitForDatabase();
-
         $dates = [];
         $currentDate = Carbon::create(2026, 1, 1, 9, 0, 0);
         $endOfYear = Carbon::create(2026, 12, 31, 23, 59, 59);
@@ -36,15 +35,14 @@ class DispatchSalesCycleJobs extends Command
         $batch = Bus::batch($jobs)
             ->name('sales-cycles-2026')
             ->onQueue('sales-cycles')
-            ->catch(function (Throwable $e): void {
-                Log::error('Batch de ciclos de ventas con fallas: ' . $e->getMessage());
+            ->catch(function (Throwable $throwable): void {
+                Log::error('Batch de ciclos de ventas con fallas: ' . $throwable->getMessage());
             })
             ->dispatch();
-
         $this->info(sprintf('Despachado batch %s: %d ciclos (jobs) a la cola sales-cycles.', $batch->id, count($jobs)));
         $this->warn('IMPORTANTE: cada ciclo calcula su propio correlativo leyendo MAX(correlativo) al iniciar. Debe procesarse con UN SOLO worker (sin concurrencia), o dos ciclos podrian generar el mismo correlativo.');
         $this->info('Para procesarlos: php artisan queue:work redis --queue=sales-cycles');
-        $this->info('Para ver el progreso: SELECT name, total_jobs, pending_jobs, failed_jobs FROM job_batches WHERE name = \'sales-cycles-2026\';');
+        $this->info("Para ver el progreso: SELECT name, total_jobs, pending_jobs, failed_jobs FROM job_batches WHERE name = 'sales-cycles-2026';");
 
         return self::SUCCESS;
     }
@@ -57,14 +55,12 @@ class DispatchSalesCycleJobs extends Command
     private function waitForDatabase(int $maxAttempts = 10): void
     {
         $delaysInSeconds = [3, 5, 8, 10, 15, 15, 20, 20, 30];
-
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
                 DB::select('select 1 as ping');
                 return;
             } catch (Throwable $exception) {
                 DB::disconnect();
-
                 if ($attempt === $maxAttempts) {
                     throw $exception;
                 }

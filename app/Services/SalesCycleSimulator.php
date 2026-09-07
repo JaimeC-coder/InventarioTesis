@@ -51,7 +51,6 @@ class SalesCycleSimulator
             ->all();
         $this->saleCorrelativo = (Sale::max('correlativo') ?? 0) + 1;
         $this->purchaseCorrelativo = (Purchase::max('correlativo') ?? 0) + 1;
-
         DB::transaction(function () use ($products, $warehouse, $customerIds, $userIds, $supplierId, $date): void {
             $shortages = []; // [product_id => cantidad faltante acumulada]
             for ($i = 0; $i < self::SALES_PER_CYCLE; $i++) {

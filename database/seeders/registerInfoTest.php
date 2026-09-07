@@ -41,15 +41,13 @@ class registerInfoTest extends Seeder
             $currentDate = Carbon::create(2026, 1, 1, 9, 0, 0);
         }
 
-        $simulator = new SalesCycleSimulator();
+        $salesCycleSimulator = new SalesCycleSimulator();
         $cycle = 1;
         while ($currentDate->lte($endOfYear)) {
             /** @var Warehouse $warehouse */
             $warehouse = $warehouses->random();
             Log::info(sprintf('Ciclo %d | Almacén: %s | Fecha: %s', $cycle, $warehouse->name, $currentDate->toDateString()));
-
-            $simulator->runCycle($warehouse, $currentDate->copy(), $products, $customerIds, $userIds, $supplierId);
-
+            $salesCycleSimulator->runCycle($warehouse, $currentDate->copy(), $products, $customerIds, $userIds, $supplierId);
             $this->saveCheckpoint($currentDate);
             $currentDate->addDays(random_int(3, 4));
             $cycle++;
