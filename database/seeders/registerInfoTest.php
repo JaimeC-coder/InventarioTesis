@@ -64,7 +64,6 @@ class registerInfoTest extends Seeder
 
         $this->saleCorrelativo = (Sale::max('correlativo') ?? 0) + 1;
         $this->purchaseCorrelativo = (Purchase::max('correlativo') ?? 0) + 1;
-
         foreach ($warehouses as $warehouse) {
             $this->stock[$warehouse->id] = DB::table('records')
                 ->where('warehouse_id', $warehouse->id)
@@ -74,7 +73,7 @@ class registerInfoTest extends Seeder
 
         $endOfYear = Carbon::create(2026, 10, 31, 23, 59, 59);
         $currentDate = $this->loadCheckpoint();
-        if ($currentDate) {
+        if ($currentDate instanceof \Carbon\Carbon) {
             $this->command->info('Reanudando desde: ' . $currentDate->toDateString());
         } else {
             $currentDate = Carbon::create(2026, 1, 1, 9, 0, 0);
@@ -85,7 +84,6 @@ class registerInfoTest extends Seeder
             /** @var Warehouse $warehouse */
             $warehouse = $warehouses->random();
             Log::info(sprintf('Ciclo %d | Almacén: %s | Fecha: %s', $cycle, $warehouse->name, $currentDate->toDateString()));
-
             DB::transaction(function () use ($products, $warehouse, $customerIds, $userIds, $supplierId, $currentDate): void {
                 $shortages = []; // [product_id => cantidad faltante acumulada]
                 for ($i = 0; $i < self::SALES_PER_CYCLE; $i++) {
@@ -96,7 +94,6 @@ class registerInfoTest extends Seeder
                     $this->createReplenishmentPurchases($shortages, $products, $warehouse, $supplierId, $userIds, $currentDate->copy());
                 }
             });
-
             $this->saveCheckpoint($currentDate);
             $currentDate->addDays(random_int(3, 4));
             $cycle++;

@@ -18,8 +18,11 @@ use Throwable;
 class SeedWarehouseStockBlock implements ShouldQueue
 {
     use Dispatchable;
+
     use InteractsWithQueue;
+
     use Queueable;
+
     use SerializesModels;
 
     public int $tries = 10;
@@ -53,31 +56,27 @@ class SeedWarehouseStockBlock implements ShouldQueue
             // "Ping" para forzar que Azure SQL Serverless despierte de su
             // auto-pause antes de intentar el trabajo real de este bloque.
             DB::select('select 1 as ping');
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             // El worker es un proceso de larga duración: si la conexión se
             // cortó, hay que forzar una reconexión antes del próximo intento,
             // o el siguiente ping fallaría contra el mismo handle roto.
             DB::disconnect();
-            throw $exception;
+            throw $throwable;
         }
 
         $products = Product::whereIn('id', $this->productIds)
             ->select(['id', 'name', 'code', 'price_purchase'])
             ->get()
             ->keyBy('id');
-
         $observation = 'Initial stock seeder almacen ID: ' . $this->warehouseId . ' - ' . $this->warehouseName;
         $now = now();
-
         $existingQuantities = DB::table('records')
             ->where('warehouse_id', $this->warehouseId)
             ->whereIn('product_id', $this->productIds)
             ->pluck('quantity', 'product_id');
-
         DB::transaction(function () use ($products, $observation, $now, $existingQuantities): void {
             $productableRows = [];
             $inventoryRows = [];
-
             foreach ($products as $product) {
                 $productableRows[] = [
                     'product_id' => $product->id,
@@ -92,7 +91,6 @@ class SeedWarehouseStockBlock implements ShouldQueue
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
-
                 $inventoryRows[] = [
                     'detail' => $observation,
                     'quantity_in' => $this->stok,
@@ -112,7 +110,6 @@ class SeedWarehouseStockBlock implements ShouldQueue
 
             DB::table('productables')->insert($productableRows);
             DB::table('inventories')->insert($inventoryRows);
-
             // El insert masivo no dispara el modelo Eloquent (ni su Observer),
             // así que recuperamos los IDs recién generados por uuid para poder
             // enlazar records.inventory_id, y replicamos manualmente lo que
@@ -120,7 +117,6 @@ class SeedWarehouseStockBlock implements ShouldQueue
             $insertedInventories = DB::table('inventories')
                 ->whereIn('uuid', array_column($inventoryRows, 'uuid'))
                 ->get(['id', 'product_id', 'quantity_total']);
-
             $recordRows = $insertedInventories->map(function ($inventory) use ($products, $observation, $now): array {
                 $product = $products->get($inventory->product_id);
 
@@ -138,18 +134,16 @@ class SeedWarehouseStockBlock implements ShouldQueue
                     'updated_at' => $now,
                 ];
             })->all();
-
             DB::table('records')->upsert(
                 $recordRows,
                 ['product_id', 'warehouse_id'],
                 ['warehouse_name', 'quantity', 'product_name', 'product_code', 'observation', 'inventory_id', 'updated_at']
             );
-
             Product::whereIn('id', $this->productIds)->increment('stock', $this->stok);
         });
     }
 
-    public function failed(?Throwable $exception): void
+    public function failed(?Throwable $throwable): void
     {
         Log::error(sprintf(
             'SeedWarehouseStockBlock agotó los %d intentos. Almacén: %d (%s), productos: %s. Error: %s',
@@ -157,7 +151,7 @@ class SeedWarehouseStockBlock implements ShouldQueue
             $this->warehouseId,
             $this->warehouseName,
             implode(',', $this->productIds),
-            $exception?->getMessage() ?? 'desconocido'
+            $throwable?->getMessage() ?? 'desconocido'
         ));
     }
 }

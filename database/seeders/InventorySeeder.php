@@ -45,10 +45,8 @@ class InventorySeeder extends Seeder
         $warehouses = Warehouse::all();
         $stok = 100;
         $supplierId = Supplier::first()->id; // fratello
-
         $checkpoint = $this->loadCheckpoint();
         $this->completedWarehouseIds = $checkpoint['completed_warehouse_ids'] ?? [];
-
         foreach ($warehouses as $warehouse) {
             if (in_array($warehouse->id, $this->completedWarehouseIds, true)) {
                 continue;
@@ -57,9 +55,7 @@ class InventorySeeder extends Seeder
             $resume = ($checkpoint['in_progress']['warehouse_id'] ?? null) === $warehouse->id
                 ? $checkpoint['in_progress']
                 : null;
-
             $this->seedWarehouseStock($warehouse, $products, $stok, $supplierId, $resume);
-
             $this->completedWarehouseIds[] = $warehouse->id;
             $this->saveCheckpoint(['completed_warehouse_ids' => $this->completedWarehouseIds, 'in_progress' => null]);
         }
@@ -71,7 +67,6 @@ class InventorySeeder extends Seeder
     private function seedWarehouseStock(Warehouse $warehouse, Collection $products, int $stok, int $supplierId, ?array $resume): void
     {
         $observation = 'Initial stock seeder almacen ID: ' . $warehouse->id . ' - ' . $warehouse->name;
-
         if ($resume !== null) {
             $purchase = Purchase::findOrFail($resume['purchase_id']);
             $startChunkIndex = $resume['next_chunk_index'];
@@ -81,7 +76,6 @@ class InventorySeeder extends Seeder
             $subtotal = $products->sum(fn(Product $product): float => $stok * $product->price_purchase);
             $igv = $subtotal * 0.18;
             $total = $subtotal + $igv;
-
             $purchase = Purchase::create([
                 'voucher_type' => 1,
                 'serie' => 'CM01',
@@ -98,7 +92,6 @@ class InventorySeeder extends Seeder
                 'observation' => $observation,
             ]);
             $startChunkIndex = 0;
-
             // Se guarda ya mismo: si el proceso muere antes de terminar el
             // primer lote, la próxima corrida debe reutilizar esta compra en
             // vez de crear una segunda cabecera duplicada para el almacén.
@@ -114,10 +107,8 @@ class InventorySeeder extends Seeder
         $existingQuantities = DB::table('records')
             ->where('warehouse_id', $warehouse->id)
             ->pluck('quantity', 'product_id');
-
         $now = now();
         $chunks = $products->chunk(self::CHUNK_SIZE)->values();
-
         foreach ($chunks as $chunkIndex => $chunk) {
             if ($chunkIndex < $startChunkIndex) {
                 continue; // ya confirmado en una corrida anterior
@@ -125,10 +116,8 @@ class InventorySeeder extends Seeder
 
             DB::transaction(function () use ($chunk, $warehouse, $purchase, $stok, $observation, $existingQuantities, $now): void {
                 $productsById = $chunk->keyBy('id');
-
                 $productableRows = [];
                 $inventoryRows = [];
-
                 foreach ($chunk as $product) {
                     $productableRows[] = [
                         'product_id' => $product->id,
@@ -143,7 +132,6 @@ class InventorySeeder extends Seeder
                         'created_at' => $now,
                         'updated_at' => $now,
                     ];
-
                     $inventoryRows[] = [
                         'detail' => $observation,
                         'quantity_in' => $stok,
@@ -163,7 +151,6 @@ class InventorySeeder extends Seeder
 
                 DB::table('productables')->insert($productableRows);
                 DB::table('inventories')->insert($inventoryRows);
-
                 // El insert masivo no dispara el modelo Eloquent (ni su Observer),
                 // así que recuperamos los IDs recién generados por uuid para poder
                 // enlazar records.inventory_id, y replicamos manualmente lo que
@@ -171,7 +158,6 @@ class InventorySeeder extends Seeder
                 $insertedInventories = DB::table('inventories')
                     ->whereIn('uuid', array_column($inventoryRows, 'uuid'))
                     ->get(['id', 'product_id', 'quantity_total']);
-
                 $recordRows = $insertedInventories->map(function ($inventory) use ($warehouse, $productsById, $observation, $now): array {
                     $product = $productsById->get($inventory->product_id);
 
@@ -189,16 +175,13 @@ class InventorySeeder extends Seeder
                         'updated_at' => $now,
                     ];
                 })->all();
-
                 DB::table('records')->upsert(
                     $recordRows,
                     ['product_id', 'warehouse_id'],
                     ['warehouse_name', 'quantity', 'product_name', 'product_code', 'observation', 'inventory_id', 'updated_at']
                 );
-
                 Product::whereIn('id', $chunk->pluck('id'))->increment('stock', $stok);
             });
-
             $this->saveCheckpoint([
                 'completed_warehouse_ids' => $this->completedWarehouseIds,
                 'in_progress' => ['warehouse_id' => $warehouse->id, 'purchase_id' => $purchase->id, 'next_chunk_index' => $chunkIndex + 1],

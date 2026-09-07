@@ -15,7 +15,6 @@ class InventorieObserver
     {
         //
         Log::info('Registro de inventario de tipo: ' . $inventorie->type . ' creado para el producto: ' . $inventorie->product_name . ' en el almacén: ' . $inventorie->warehouse->name);
-
         if (in_array($inventorie->type, ['ENTRADA', 'TRASLADO-IGD'], true)) {
             DB::table('products')->where('id', $inventorie->product_id)->increment('stock', $inventorie->quantity_in);
         } else {

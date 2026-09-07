@@ -28,11 +28,9 @@ class DispatchInventorySeedJobs extends Command
     public function handle(): int
     {
         $this->waitForDatabase();
-
         $productIds = Product::where('is_active_product', 1)->orderBy('id')->pluck('id');
         $warehouses = Warehouse::all();
         $supplierId = Supplier::first()?->id;
-
         if ($productIds->isEmpty() || $warehouses->isEmpty() || !$supplierId) {
             $this->error('Faltan productos activos, almacenes o proveedor. Se aborta.');
             return self::FAILURE;
@@ -41,7 +39,6 @@ class DispatchInventorySeedJobs extends Command
         $subtotal = DB::table('products')->where('is_active_product', 1)->sum('price_purchase') * self::STOCK_PER_PRODUCT;
         $igv = $subtotal * 0.18;
         $total = $subtotal + $igv;
-
         foreach ($warehouses as $warehouse) {
             $purchase = Purchase::create([
                 'voucher_type' => 1,
@@ -58,9 +55,8 @@ class DispatchInventorySeedJobs extends Command
                 'user_id' => 11,
                 'observation' => 'Initial stock seeder almacen ID: ' . $warehouse->id . ' - ' . $warehouse->name,
             ]);
-
             $jobs = $productIds->chunk(self::CHUNK_SIZE)
-                ->map(fn($chunk) => new SeedWarehouseStockBlock(
+                ->map(fn($chunk): \App\Jobs\SeedWarehouseStockBlock => new SeedWarehouseStockBlock(
                     $warehouse->id,
                     $warehouse->name,
                     $purchase->id,
@@ -68,18 +64,16 @@ class DispatchInventorySeedJobs extends Command
                     self::STOCK_PER_PRODUCT,
                 ))
                 ->all();
-
             $batch = Bus::batch($jobs)
                 ->name('inventory-seed-almacen-' . $warehouse->id)
                 ->onQueue('inventory-seed')
                 ->then(function (): void {
                     // Corre en el worker, no en esta consola: usar Log, no $this->info().
                 })
-                ->catch(function (Throwable $e) use ($warehouse): void {
-                    Log::error('Batch de inventario fallido para almacén ' . $warehouse->id . ': ' . $e->getMessage());
+                ->catch(function (Throwable $throwable) use ($warehouse): void {
+                    Log::error('Batch de inventario fallido para almacén ' . $warehouse->id . ': ' . $throwable->getMessage());
                 })
                 ->dispatch();
-
             $this->info(sprintf(
                 'Despachado batch %s para almacén "%s": %d bloques de %d productos',
                 $batch->id,
@@ -104,14 +98,12 @@ class DispatchInventorySeedJobs extends Command
     private function waitForDatabase(int $maxAttempts = 10): void
     {
         $delaysInSeconds = [3, 5, 8, 10, 15, 15, 20, 20, 30];
-
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
                 DB::select('select 1 as ping');
                 return;
             } catch (Throwable $exception) {
                 DB::disconnect();
-
                 if ($attempt === $maxAttempts) {
                     throw $exception;
                 }

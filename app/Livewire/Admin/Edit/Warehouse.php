@@ -66,6 +66,7 @@ class Warehouse extends Component
                 'text' => 'Ocurrió un error al actualizar el almacén.',
             ]);
         }
+
         return null;
     }
 
