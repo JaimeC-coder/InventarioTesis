@@ -1,0 +1,26 @@
+#!/bin/sh
+# Corrige estilo (CS Fixer + Rector) en los archivos PHP staged antes de cada commit.
+
+FILES=$(git diff --cached --name-only --diff-filter=ACMR -- '*.php')
+
+if [ -z "$FILES" ]; then
+    exit 0
+fi
+
+echo "Running PHP CS Fixer on staged files..."
+echo "$FILES" | tr '\n' '\0' | xargs -0 php vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --quiet --
+if [ $? -ne 0 ]; then
+    echo "PHP CS Fixer fallo. Commit abortado."
+    exit 1
+fi
+
+echo "Running Rector on staged files..."
+echo "$FILES" | tr '\n' '\0' | xargs -0 php vendor/bin/rector process --config=rector.php --no-progress-bar
+if [ $? -ne 0 ]; then
+    echo "Rector fallo. Commit abortado."
+    exit 1
+fi
+
+echo "$FILES" | tr '\n' '\0' | xargs -0 git add --
+
+exit 0
