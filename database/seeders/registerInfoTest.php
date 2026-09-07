@@ -6,7 +6,6 @@ use App\Enum\KardexTypeEnum;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Purchase;
-use App\Models\Record;
 use App\Models\Sale;
 use App\Models\Supplier;
 use App\Models\User;
@@ -19,6 +18,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class registerInfoTest extends Seeder
 {
@@ -34,9 +34,21 @@ class registerInfoTest extends Seeder
 
     private const QTY_PER_LINE_MAX = 60;
 
+    /**
+     * Permite reanudar el seeder si se interrumpe a mitad de la corrida,
+     * en vez de repetir el año completo desde cero.
+     */
+    private const CHECKPOINT_FILE = 'seeders/registerInfoTest_checkpoint.json';
+
     private int $saleCorrelativo;
 
     private int $purchaseCorrelativo;
+
+    /**
+     * Espejo en memoria de records.quantity por [warehouse_id][product_id],
+     * para no consultar la BD por cada producto en cada venta/compra.
+     */
+    private array $stock = [];
 
     public function run(): void
     {
@@ -52,14 +64,29 @@ class registerInfoTest extends Seeder
 
         $this->saleCorrelativo = (Sale::max('correlativo') ?? 0) + 1;
         $this->purchaseCorrelativo = (Purchase::max('correlativo') ?? 0) + 1;
-        $currentDate = Carbon::create(2026, 1, 1, 9, 0, 0);
+
+        foreach ($warehouses as $warehouse) {
+            $this->stock[$warehouse->id] = DB::table('records')
+                ->where('warehouse_id', $warehouse->id)
+                ->pluck('quantity', 'product_id')
+                ->all();
+        }
+
         $endOfYear = Carbon::create(2026, 10, 31, 23, 59, 59);
-        DB::transaction(function () use ($products, $warehouses, $customerIds, $userIds, $supplierId, &$currentDate, $endOfYear): void {
-            $cycle = 1;
-            while ($currentDate->lte($endOfYear)) {
-                /** @var Warehouse $warehouse */
-                $warehouse = $warehouses->random();
-                Log::info(sprintf('Ciclo %d | Almacén: %s | Fecha: %s', $cycle, $warehouse->name, $currentDate->toDateString()));
+        $currentDate = $this->loadCheckpoint();
+        if ($currentDate) {
+            $this->command->info('Reanudando desde: ' . $currentDate->toDateString());
+        } else {
+            $currentDate = Carbon::create(2026, 1, 1, 9, 0, 0);
+        }
+
+        $cycle = 1;
+        while ($currentDate->lte($endOfYear)) {
+            /** @var Warehouse $warehouse */
+            $warehouse = $warehouses->random();
+            Log::info(sprintf('Ciclo %d | Almacén: %s | Fecha: %s', $cycle, $warehouse->name, $currentDate->toDateString()));
+
+            DB::transaction(function () use ($products, $warehouse, $customerIds, $userIds, $supplierId, $currentDate): void {
                 $shortages = []; // [product_id => cantidad faltante acumulada]
                 for ($i = 0; $i < self::SALES_PER_CYCLE; $i++) {
                     $this->createSale($products, $warehouse, $customerIds, $userIds, $currentDate->copy(), $shortages);
@@ -68,13 +95,15 @@ class registerInfoTest extends Seeder
                 if ($shortages !== []) {
                     $this->createReplenishmentPurchases($shortages, $products, $warehouse, $supplierId, $userIds, $currentDate->copy());
                 }
+            });
 
-                $currentDate->addDays(random_int(3, 4));
-                $cycle++;
-            }
+            $this->saveCheckpoint($currentDate);
+            $currentDate->addDays(random_int(3, 4));
+            $cycle++;
+        }
 
-            $this->command->info('Seeder de ciclos compra/venta 2026 completado exitosamente.');
-        });
+        $this->clearCheckpoint();
+        $this->command->info('Seeder de ciclos compra/venta 2026 completado exitosamente.');
     }
 
     /**
@@ -116,6 +145,10 @@ class registerInfoTest extends Seeder
                 'price_type' => 'GENERAL',
                 'subtotal' => $qty * $price,
             ];
+            // Reflejamos la venta en el espejo de stock ANTES de seguir con la
+            // siguiente línea, para que el resto de la venta (y las siguientes
+            // ventas del mismo ciclo) vean la cantidad ya descontada.
+            $this->adjustStock($product->id, $warehouse->id, -$qty);
         }
 
         if ($lines === []) {
@@ -145,8 +178,7 @@ class registerInfoTest extends Seeder
         $sale->forceFill(['created_at' => $date, 'updated_at' => $date])->saveQuietly();
         ProductDetailServices::createDetailproductableExit($sale, $lines, $warehouse->id, 'Venta seeder ID: ' . $sale->id);
         foreach ($lines as $line) {
-            $remaining = $this->currentStock($line['id'], $warehouse->id);
-            if ($remaining <= 0) {
+            if ($this->currentStock($line['id'], $warehouse->id) <= 0) {
                 $shortages[$line['id']] = ($shortages[$line['id']] ?? 0) + $line['quantity'];
             }
         }
@@ -228,17 +260,47 @@ class registerInfoTest extends Seeder
                     'Compra de reposición seeder ID: ' . $purchase->id,
                     KardexTypeEnum::ENTRADA
                 );
+                $this->adjustStock($line['id'], $warehouse->id, $line['quantity']);
             }
         }
     }
 
     /**
-     * Stock actual de un producto en un almacén, según el resumen en Record.
+     * Stock actual de un producto en un almacén, leído del espejo en memoria
+     * (se precarga una vez por almacén en run() y se mantiene al día con
+     * adjustStock()) en vez de consultar la BD en cada venta/compra.
      */
     private function currentStock(int $productId, int $warehouseId): int
     {
-        return (int) (Record::where('product_id', $productId)
-            ->where('warehouse_id', $warehouseId)
-            ->value('quantity') ?? 0);
+        return (int) ($this->stock[$warehouseId][$productId] ?? 0);
+    }
+
+    private function adjustStock(int $productId, int $warehouseId, int $delta): void
+    {
+        $this->stock[$warehouseId][$productId] = $this->currentStock($productId, $warehouseId) + $delta;
+    }
+
+    private function loadCheckpoint(): ?Carbon
+    {
+        if (!Storage::exists(self::CHECKPOINT_FILE)) {
+            return null;
+        }
+
+        $data = json_decode(Storage::get(self::CHECKPOINT_FILE), true);
+        if (!isset($data['last_completed_date'])) {
+            return null;
+        }
+
+        return Carbon::parse($data['last_completed_date'])->addDays(random_int(3, 4));
+    }
+
+    private function saveCheckpoint(Carbon $date): void
+    {
+        Storage::put(self::CHECKPOINT_FILE, json_encode(['last_completed_date' => $date->toDateString()]));
+    }
+
+    private function clearCheckpoint(): void
+    {
+        Storage::delete(self::CHECKPOINT_FILE);
     }
 }

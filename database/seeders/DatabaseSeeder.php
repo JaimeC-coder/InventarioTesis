@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
         try {
             $this->call([
                 // Database2Seeder::class,
-                // InventorySeeder::class,
-                registerInfoTest::class,
+                InventorySeeder::class,
+                 registerInfoTest::class,
             ]);
         } catch (\Throwable $throwable) {
             dump($throwable->getMessage(), $throwable->getTraceAsString());
