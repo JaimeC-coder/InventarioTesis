@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
 use Rector\Config\RectorConfig;
 // Reglas puntuales
 // Sets generales
@@ -15,11 +16,15 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/tests',
     ]);
     // Evita tocar Blade, vendor, storage, etc.
+    // NewlineBeforeNewAssignSetRector: contradice a php-cs-fixer (uno agrega la
+    // línea en blanco que el otro saca), causando un ping-pong infinito entre
+    // ambas herramientas. Se deshabilita para que php-cs-fixer decida esto.
     $rectorConfig->skip([
         __DIR__ . '/vendor/*',
         __DIR__ . '/storage/*',
         __DIR__ . '/bootstrap/*',
         __DIR__ . '/resources/views/*',
+        NewlineBeforeNewAssignSetRector::class,
     ]);
     // Conjuntos recomendados (ajusta a tu versión de PHP)
     $rectorConfig->sets([
