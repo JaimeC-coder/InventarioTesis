@@ -7,7 +7,6 @@
 
 
     <livewire:admin.tables.purchase-order-table />
-    <livewire:admin.edit.supplier />
 
     <livewire:export.pdf />
     @push('scripts')

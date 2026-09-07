@@ -25,12 +25,12 @@ return new class() extends Migration {
             $blueprint->string('currency')->default('SOLES');
             $blueprint->string('file_path')->nullable();
             $blueprint->string('observation')->nullable();
-            $blueprint->foreignId('origin_warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $blueprint->foreignId('destination_warehouse_id')->constrained('warehouses')->onDelete('cascade');
+            $blueprint->foreignId('origin_warehouse_id')->constrained('warehouses')->onDelete('CASCADE');
+            $blueprint->foreignId('destination_warehouse_id')->constrained('warehouses')->onDelete('NO ACTION');
             $blueprint->uuid('uuid')->unique();
             $blueprint->timestamps();
             $blueprint->softDeletes();
-            $blueprint->unique(['serie', 'correlativo', 'origin_warehouse_id','deleted_at'], 'unique_transfer');
+            $blueprint->unique(['serie', 'correlativo', 'origin_warehouse_id', 'deleted_at'], 'unique_transfer');
         });
     }
 

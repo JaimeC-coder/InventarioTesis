@@ -3,10 +3,14 @@
 namespace App\Livewire\Admin\Edit;
 
 use App\Models\Warehouse as ModelsWarehouse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class Warehouse extends Component
 {
+    public ModelsWarehouse $warehouse;
+
     public $warehouseId;
 
     public $name;
@@ -15,33 +19,55 @@ class Warehouse extends Component
 
     public $showModal = false;
 
-    #[\Livewire\Attributes\On('editWarehouse')]
-    public function loadWarehouse($warehouseId): void
+    public function mount(ModelsWarehouse $modelsWarehouse): void
     {
-        $warehouse = ModelsWarehouse::where('uuid', $warehouseId)->first();
-        if ($warehouse) {
-            $this->warehouseId = $warehouse->id;
-            $this->name = $warehouse->name;
-            $this->location = $warehouse->location;
-            $this->showModal = true;
-        }
+        $this->warehouse = $modelsWarehouse;
+        $this->warehouseId = $modelsWarehouse->id;
+        $this->name = $modelsWarehouse->name;
+        $this->location = $modelsWarehouse->location;
+        $this->showModal = true;
     }
 
-    public function save(): void
+    public function limpiar(): void
+    {
+        $this->name = $this->warehouse->name;
+        $this->location = $this->warehouse->location;
+    }
+
+    public function save()
     {
         $this->validate([
             'name' => 'required|string|max:255',
             'location' => 'nullable|string',
         ]);
-        $warehouse = ModelsWarehouse::find($this->warehouseId);
-        if ($warehouse) {
+        DB::beginTransaction();
+        try {
+            $warehouse = ModelsWarehouse::find($this->warehouseId);
             $warehouse->update([
                 'name' => $this->name,
                 'location' => $this->location,
             ]);
             $this->showModal = false;
-            $this->dispatch('pg:eventRefresh-warehouse-table-itbilq-table'); // refresca tabla PowerGrid
+            DB::commit();
+            $this->dispatch('swal', [
+                'title' => 'Exitoso',
+                'text' => 'La actualización del almacén fue exitosa.',
+                'icon' => 'success',
+            ]);
+            return redirect()->route('admin.warehouses.index');
+        } catch (\Throwable $throwable) {
+            DB::rollBack();
+            Log::error('Error al actualizar el almacén: ' . $throwable->getMessage(), [
+                'stack' => $throwable->getTraceAsString(),
+            ]);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al actualizar el almacén.',
+            ]);
         }
+
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

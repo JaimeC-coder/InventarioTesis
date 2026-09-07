@@ -47,7 +47,7 @@ class Product extends Component
     public $price_sale_regular_final;
 
     #[\Livewire\Attributes\On('editProduct')]
-    public function loadProduct($productuuid): void
+    public function loadProduct(string $productuuid): void
     {
         $this->resetErrorBag();
         $product = \App\Models\Product::where('uuid', $productuuid)->first();

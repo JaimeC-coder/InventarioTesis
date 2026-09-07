@@ -21,11 +21,10 @@ class KardexServices
         string $detail,
         KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::ENTRADA
     ): void {
-        $lastRecord = self::getLastRecord($product['id']);
         self::registerData($model, [
             'detail' => $detail,
             'quantity_in' => $product['quantity'],
-            'product_name' => $product['name'] ?? $lastRecord,
+            'product_name' => $product['name'] ?? self::getLastRecord($product['id']),
             'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,
@@ -39,11 +38,10 @@ class KardexServices
         string $detail,
         KardexTypeEnum $kardexTypeEnum = KardexTypeEnum::SALIDA
     ): void {
-        $lastRecord = self::getLastRecord($product['id']);
         self::registerData($model, [
             'detail' => $detail,
             'quantity_out' => $product['quantity'],
-            'product_name' => $product['name'] ?? $lastRecord,
+            'product_name' => $product['name'] ?? self::getLastRecord($product['id']),
             'type' => $kardexTypeEnum->value,
             'product_id' => $product['id'],
             'warehouse_id' => $warehouse_id,

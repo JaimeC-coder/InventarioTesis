@@ -37,7 +37,6 @@
                 <x-button type="button" variant="secondary" class="mt-4">
                     Volver
                 </x-button>
-
             </a>
             <div class="flex items-center gap-2">
                 <x-button type="button" variant="secondary" class="mt-4" wire:click="limpiar">

@@ -50,21 +50,22 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
         $testResponse->assertRedirect('/');
     }
+
     public function test_users_without_role_or_employee_cannot_login(): void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('password'),
         ]);
         // Sin rol y sin employee asignado
 
-        $response = $this->post('/login', [
+        $testResponse = $this->post('/login', [
             'email' => 'test@example.com',
             'password' => 'password',
         ]);
 
         $this->assertGuest();
-        $response->assertSessionHasErrors('email');
+        $testResponse->assertSessionHasErrors('email');
     }
 
     public function test_users_with_role_and_employee_can_login(): void
@@ -81,7 +82,7 @@ class AuthenticationTest extends TestCase
             'address' => 'test',
             'fechaNacimiento' => '1990-01-01',
         ]);
-        $response = $this->post('/login', [
+        $this->post('/login', [
             'email' => 'test@example.com',
             'password' => 'password',
         ]);

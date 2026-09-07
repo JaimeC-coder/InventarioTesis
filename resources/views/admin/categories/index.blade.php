@@ -10,7 +10,7 @@
     <livewire:admin.tables.category-table />
 
 
-    <livewire:admin.edit.category />
+    {{-- <livewire:admin.edit.category /> --}}
 
     <livewire:export.pdf />
 

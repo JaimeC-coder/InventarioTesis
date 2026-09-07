@@ -6,6 +6,7 @@ use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer as ModelsCustomer;
 use App\Services\DocumentServices;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -92,10 +93,18 @@ class Customer extends Component
         }
     }
 
+    public function limpiar(): void
+    {
+        $this->reset(['document_number', 'identity', 'name', 'email', 'phone', 'address', 'type']);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function save()
     {
         $customerRequest = new CustomerRequest();
         $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
+        DB::beginTransaction();
         try {
             ModelsCustomer::create([
                 'document_number' => $this->document_number,
@@ -106,14 +115,17 @@ class Customer extends Component
                 'address' => $this->address,
                 'type' => $this->type,
             ]);
+            DB::commit();
             $this->dispatch('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La creación del cliente fue exitosa.',
                 'icon' => 'success',
             ]);
+            $this->limpiar();
 
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
+            DB::rollBack();
             Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
@@ -123,6 +135,7 @@ class Customer extends Component
                 'icon' => 'error',
             ]);
         } catch (\Throwable $exception) {
+            DB::rollBack();
             Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);

@@ -38,7 +38,7 @@ class Movement extends Component
 
     public $product_uuid = '';
 
-    public ?int $product_id ;
+    public ?int $product_id;
 
     public $products = [];
 
@@ -61,15 +61,14 @@ class Movement extends Component
                     'text' => $html,
                 ]);
             }
-
-            // $validator->after(function ($validator) {
-            //     $total = 0;
-            //     foreach ($this->products as $product) {
-            //         $total += $product['quantity'] * $product['price'];
-            //     }
-            //     $this->total = $total;
-            // });
         });
+    }
+
+    public function limpiar(): void
+    {
+        $this->reset(['observation', 'total', 'reason_id', 'reason_uuid', 'warehouse_id', 'warehouse_uuid', 'product_uuid', 'product_id', 'products']);
+        $this->resetErrorBag();
+        $this->resetValidation();
     }
 
     public function updated($property, $value): void
@@ -218,6 +217,7 @@ class Movement extends Component
         $fileDirection = FileServices::generatePdfNow(['model' => ModelsMovement::class, 'uuids' => $Movement->uuid]);
         $Movement->update(['file_path' => $fileDirection]);
         $Movement->save();
+        $this->limpiar();
         $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
 
         return redirect()->route('admin.movements.index');

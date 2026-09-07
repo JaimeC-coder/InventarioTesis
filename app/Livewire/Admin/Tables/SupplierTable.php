@@ -117,6 +117,22 @@ final class SupplierTable extends PowerGridComponent
         return [];
     }
 
+    #[\Livewire\Attributes\On('editSupplier')]
+    public function edit($supplierId): void
+    {
+        $supplier = Supplier::where('uuid', $supplierId)->first();
+        if (!$supplier) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Proveedor no encontrado.',
+            ]);
+            return;
+        }
+
+        redirect()->route('admin.suppliers.edit', $supplier);
+    }
+
     // DELETE
     #[\Livewire\Attributes\On('delete')]
     public function delete($rowId): void

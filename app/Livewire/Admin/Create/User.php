@@ -28,6 +28,23 @@ class User extends Component
 
     public string $fechaNacimiento;
 
+    public function limpiar(): void
+    {
+        $this->reset([
+            'name',
+            'lastname',
+            'email',
+            'password',
+            'role_id',
+            'document',
+            'phone',
+            'address',
+            'fechaNacimiento',
+        ]);
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function save()
     {
         $userRequest = new UserRequest();
@@ -53,8 +70,8 @@ class User extends Component
                 'text' => 'La creación del Empleado fue exitosa.',
                 'icon' => 'success',
             ]);
-
-            return redirect()->route('admin.customers.index');
+            $this->limpiar();
+            return redirect()->route('admin.users.index');
         } catch (\Exception $exception) {
             DB::rollBack();
             Log::error('Error al crear el cliente: ' . $exception->getMessage(), [

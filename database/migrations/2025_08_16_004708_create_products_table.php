@@ -26,7 +26,7 @@ return new class() extends Migration {
             $blueprint->integer('stock')->default(0);
             $blueprint->timestamps();
             $blueprint->integer('min_stock')->default(0);
-            $blueprint->foreignId('product_base_id')->nullable()->constrained('products')->onDelete('cascade');
+            $blueprint->foreignId('product_base_id')->nullable()->constrained('products')->onDelete('no action')->description('Referencia al producto base del cual se desprende este producto');
             $blueprint->foreignId('unit_id')->nullable()->constrained('units')->onDelete('cascade'); //Caja ,Docena,Unidad
             $blueprint->foreignId('measure_id')->nullable()->constrained('measures')->onDelete('cascade');
             $blueprint->boolean('is_active_product')->default(false)->description('Indica si el producto está activo o inactivo para la venta o compra.');

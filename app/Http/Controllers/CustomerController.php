@@ -61,16 +61,7 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer): \Illuminate\View\View
     {
-        $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
-            'uuid' => $mes->value,
-            'name' => $mes->label(),
-        ])->toArray(); // Assuming you have an Identity model
-        $type = [
-            ['uuid' => 'GENERAL', 'name' => 'GENERAL'],
-            ['uuid' => 'A1', 'name' => 'A1'],
-        ];
-
-        return view('admin.customers.edit', ['customer' => $customer, 'identities' => $identities, 'types' => $type]);
+        return view('admin.customers.edit', ['customer' => $customer]);
     }
 
     /**

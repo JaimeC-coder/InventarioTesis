@@ -1,3 +1,47 @@
 <div>
-   hola
+    <form wire:submit='save' class="space-y-4">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <x-forms.select label="Tipo de Identidad" name="identity" :options="$identities" option-label="name"
+                option-value="id" placeholder="Seleccione un tipo de identidad" wire:model="identity" />
+            <x-forms.input label="Número de Documento" name="document_number" type="number"
+                placeholder="Número de Documento" wire:model="document_number" disabled />
+        </div>
+        <div class="grid grid-cols-1 gap-4 mb-4">
+
+            <x-forms.input label="Nombre" name="name" type="text" placeholder="Nombre" wire:model="name" />
+
+
+        </div>
+
+        <x-forms.input label="Dirección" name="address" type="text" placeholder="Dirección" class="mb-4"
+            wire:model="address" />
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <x-forms.input label="Teléfono" name="phone" type="text" placeholder="Teléfono" wire:model="phone" />
+            <x-forms.input label="Correo Electrónico" name="email" type="email" placeholder="Correo Electrónico"
+                wire:model="email" />
+        </div>
+
+        <div class="flex justify-between items-center">
+
+
+            <a href="{{ route('admin.suppliers.index') }}" class="ml-2">
+                <x-button type="button" variant="secondary" class="mt-4">
+                    Volver
+                </x-button>
+            </a>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="secondary" class="mt-4" wire:click="limpiar">
+                    Limpiar
+                </x-button>
+                <x-button type="submit" class="mt-4" spinner="save" wire:target="save" wire:loading.attr="disabled"
+                    :disabled="count($errors) > 0">
+                    Actualizar Proveedor
+                </x-button>
+            </div>
+
+        </div>
+
+
+    </form>
 </div>

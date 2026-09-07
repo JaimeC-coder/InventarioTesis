@@ -62,8 +62,7 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier): \Illuminate\View\View
     {
-        $identities = \App\Models\Identity::select('name', 'uuid')->get(); // Assuming you have an Identity model
-        return view('admin.suppliers.edit', ['supplier' => $supplier, 'identities' => $identities]);
+        return view('admin.suppliers.edit', ['supplier' => $supplier]);
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin\Edit;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class ProductPrice extends Component
@@ -44,15 +46,28 @@ class ProductPrice extends Component
             'price_sale_a1' => 'nullable|numeric|min:1',
             'price_purchase' => 'nullable|numeric|min:1',
         ]);
-        $product = Product::where('uuid', $this->productuuid)->first();
-        if ($product) {
-            $product->update([
-                'price_sale_regular' => $this->price_sale_regular,
-                'price_sale_a1' => $this->price_sale_a1,
-                'price_purchase' => $this->price_purchase,
+        DB::beginTransaction();
+        try {
+            $product = Product::where('uuid', $this->productuuid)->first();
+            if ($product) {
+                $product->update([
+                    'price_sale_regular' => $this->price_sale_regular,
+                    'price_sale_a1' => $this->price_sale_a1,
+                    'price_purchase' => $this->price_purchase,
+                ]);
+                DB::commit();
+                $this->showModal = false;
+                $this->dispatch('pg:eventRefresh-product-table-itbilq-table'); // refresca tabla PowerGrid
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Log::error('Error al actualizar precio del producto: ' . $exception->getMessage());
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al actualizar el precio del producto.',
             ]);
             $this->showModal = false;
-            $this->dispatch('pg:eventRefresh-product-table-dwonrg-table'); // refresca tabla PowerGrid
         }
     }
 

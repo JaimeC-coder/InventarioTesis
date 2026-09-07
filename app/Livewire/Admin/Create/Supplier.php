@@ -6,6 +6,7 @@ use App\Enum\DocumentEnum;
 use App\Http\Requests\SupplierRequest;
 use App\Models\Supplier as ModelsSupplier;
 use App\Services\DocumentServices;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -80,6 +81,7 @@ class Supplier extends Component
     {
         $supplierRequest = new SupplierRequest();
         $this->validate($supplierRequest->rulesForAction('POST'), $supplierRequest->messages());
+        DB::beginTransaction();
         try {
             ModelsSupplier::create([
                 'document_number' => $this->document_number,
@@ -89,14 +91,17 @@ class Supplier extends Component
                 'phone' => $this->phone,
                 'address' => $this->address,
             ]);
+            DB::commit();
             $this->dispatch('swal', [
                 'title' => 'Exitoso',
                 'text' => 'La creación del proveedor fue exitosa.',
                 'icon' => 'success',
             ]);
+            $this->limpiar();
 
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
+            DB::rollBack();
             Log::error('Error al crear el proveedor - exception: ' . $exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
@@ -106,6 +111,7 @@ class Supplier extends Component
                 'icon' => 'error',
             ]);
         } catch (\Throwable $exception) {
+            DB::rollBack();
             Log::error('Error al crear el proveedor - throwable: ' . $exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
