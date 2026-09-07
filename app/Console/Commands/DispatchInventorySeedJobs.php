@@ -22,6 +22,8 @@ class DispatchInventorySeedJobs extends Command
     protected $description = 'Despacha a la cola inventory-seed, un batch por almacén, los bloques de stock inicial con reintento automático ante cortes de Azure SQL.';
 
     private const CHUNK_SIZE = 120;
+    //viene de numero seguro antes del tope de 161 (2100/13) el 2100 son la cantidad de celdas que sql server te permite  un una instacia de sql server y el 13 es la cantidad de columnas que tiene la tabla kardex, por lo tanto 2100/13 = 161.53, entonces para estar seguros se pone 120 <161 (120 es por el margen por si se agrega otra columna a la tabla en este caso inventario, para que no se rompa el job de seed de inventario)
+    // y como se tiene un total de 16 854  se divide entre 120 y da 140.45, entonces se tendra un total de 141 jobs por cada almacén, y como se tiene 3 almacenes, entonces se tendra un total de 423 jobs en total, y como se tiene un total de 10 reintentos automáticos, entonces se tendra un total de 4230 reintentos automáticos en total, y como se tiene un tiempo de espera de 30 segundos entre cada reintento automático, entonces se tendra un tiempo total de espera de 4230 * 30 = 126900 segundos = 35.25 horas = 1.47 días = 1 día y 11 horas y 15 minutos.
 
     private const STOCK_PER_PRODUCT = 100;
 

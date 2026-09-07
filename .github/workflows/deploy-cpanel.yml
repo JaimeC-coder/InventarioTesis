@@ -1,0 +1,62 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_run:
+    workflows: ["rector"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Pull code and install PHP dependencies
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_KEY }}
+          script: |
+            cd ~/public_html/repositories/InventarioTesis
+            git pull origin main
+            /home/eduardod/composer install --no-dev --optimize-autoloader
+
+      - name: Upload compiled assets
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_KEY }}
+          source: "public/build/*"
+          target: "~/public_html/repositories/InventarioTesis/public/build"
+          strip_components: 2
+
+      - name: Cache Laravel config
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_KEY }}
+          script: |
+            cd ~/public_html/repositories/InventarioTesis
+            /usr/local/bin/php artisan config:cache
+            /usr/local/bin/php artisan route:cache
+            /usr/local/bin/php artisan view:cache
+            /usr/local/bin/php artisan queue:restart
