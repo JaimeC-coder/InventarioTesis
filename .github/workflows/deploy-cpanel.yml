@@ -46,6 +46,7 @@ jobs:
           script: |
             cd ~/public_html/repositories/InventarioTesis
             git pull origin main
+            rm -f bootstrap/cache/*.php
             /home/eduardod/composer install --no-dev --optimize-autoloader
 
       - name: Upload compiled assets
