@@ -192,7 +192,11 @@ class ProductController extends Controller
             }
 
             $barcodes = array_column($allGeneratedProducts, 'barcode');
-            $existingBarcodes = Product::whereIn('barcode', $barcodes)->pluck('barcode')->toArray();
+            //*se implemento de esta forma no tener problemas con sql server y el limite de 2100 parametros en la consulta
+            $existingBarcodes = collect($barcodes)
+                ->chunk(2000)
+                ->flatMap(fn($chunk) => Product::whereIn('barcode', $chunk)->pluck('barcode'))
+                ->toArray();
             $newProducts = array_values(array_filter(
                 $allGeneratedProducts,
                 fn(array $p): bool => !in_array($p['barcode'], $existingBarcodes)
@@ -204,7 +208,7 @@ class ProductController extends Controller
                     'created_at' => $now,
                     'updated_at' => $now,
                 ], $newProducts);
-                foreach (array_chunk($rows, 500) as $chunk) {
+                foreach (array_chunk($rows, 100) as $chunk) {
                     Product::insert($chunk);
                 }
             }

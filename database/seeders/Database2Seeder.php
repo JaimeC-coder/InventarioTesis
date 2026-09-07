@@ -24,7 +24,6 @@ class Database2Seeder extends Seeder
             'fechaNacimiento' => '1990-01-01',
             'user_id' => $user->id,
         ]);
-        $user->assignRole('Administrador');
         \App\Models\Supplier::create([
             'document_number' => '20108832887',
             'identity' => 'RUC',
@@ -33,9 +32,6 @@ class Database2Seeder extends Seeder
             'phone' => '981268897',
             'address' => 'Jr. Jorge Chavez Nro. 351 (Mcdo de Breña)',
         ]);
-        \App\Models\Customer::factory(100)->create();
-        \App\Models\Supplier::factory(100)->create();
-        \App\Models\Employee::factory(100)->create();
         $this->call([
             RolSeeder::class,
             CategorySeeder::class,
@@ -45,5 +41,9 @@ class Database2Seeder extends Seeder
             MeasureSeeder::class,
             // Add other seeders here as needed
         ]);
+        \App\Models\Customer::factory(100)->create();
+        \App\Models\Supplier::factory(100)->create();
+        \App\Models\Employee::factory(100)->create();
+        $user->assignRole('Administrador');
     }
 }

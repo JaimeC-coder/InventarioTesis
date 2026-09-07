@@ -22,7 +22,7 @@ return new class() extends Migration {
             $blueprint->string('observation')->nullable();
             $blueprint->uuid('uuid')->unique();
             // $blueprint->morphs('recordable');
-            $blueprint->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
+            $blueprint->foreignId('inventory_id')->constrained('inventories')->onDelete('no action');
             $blueprint->index(['product_id', 'warehouse_id']);
             $blueprint->unique(['product_id', 'warehouse_id']);
             $blueprint->timestamps();
