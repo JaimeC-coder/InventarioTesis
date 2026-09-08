@@ -39,6 +39,8 @@
                              </div>
                              <x-forms.input label="Nombre del producto" name="name" type="text"
                                  placeholder="Nombre del producto" required wire:model="name" />
+                             <x-forms.input label="Cantidad minima del producto" name="min_stock" type="text"
+                                 placeholder="Cantidad minima del producto" required wire:model="min_stock" />
                          </div>
                          <div class="grid lg:grid-cols-1 gap-4">
                              <div class="grid lg:grid-cols-1 gap-2 border-black p-2 rounded dark:border-white border">

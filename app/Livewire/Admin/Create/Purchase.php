@@ -121,7 +121,7 @@ class Purchase extends Component
         $this->warehouse_uuid = $purchaseOrder->warehouse->uuid;
         $this->warehouse_id = $purchaseOrder->warehouse->id;
         $this->supplier_id = $purchaseOrder->supplier->id;
-        $this->observation = sprintf('Esta compra fue generada a partir de una cotización %s - ', $purchaseOrder->serie) . UtilitisServices::completeCorrelativo($purchaseOrder->correlativo);
+        $this->observation = sprintf('Esta compra fue generada a partir de una orden de compra %s - ', $purchaseOrder->serie) . UtilitisServices::completeCorrelativo($purchaseOrder->correlativo);
         $this->products = $purchaseOrder->products->map(fn($product): array => [
             'id' => $product->id,
             'name' => $product->name,
