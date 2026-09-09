@@ -20,14 +20,6 @@
                 ver ese error que aparece cuando borro el listado de productos
             </li>
 
-
-
-            <li class="text-yellow-300">
-                -Modificar Edit y Crear  units y mermenchuse
-            </li>
-
-
-
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos
             </li>

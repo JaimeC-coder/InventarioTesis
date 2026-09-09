@@ -42,9 +42,11 @@ class UnitController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Unit $unit): void
+    public function edit(Unit $unit): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        //
+        return view('admin.units.edit', [
+            'unit' => $unit,
+        ]);
     }
 
     /**

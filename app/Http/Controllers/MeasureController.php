@@ -42,9 +42,10 @@ class MeasureController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Measure $measure): void
+    public function edit(Measure $measure): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         //
+        return view('admin.measures.edit', ['measure' => $measure]);
     }
 
     /**

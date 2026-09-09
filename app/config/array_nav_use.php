@@ -91,11 +91,11 @@ class array_nav_use
                 'icon' => 'customers',
                 'permission' => $user?->can('view-reports') || $user?->can('view-reports-purchases') || $user?->can('view-reports-sales') || $user?->can('view-reports-inventory'),
             ],
-            ['header' => 'Configuraciones falta'],
+            ['header' => 'Configuraciones'],
             ['name' => 'Users', 'route' => 'admin.users.index', 'active' => request()->routeIs('admin.users.index'), 'icon' => 'users', 'permission' => $user?->can('view-users') ?? false],
             ['name' => 'Roles', 'route' => 'admin.roles.index', 'active' => request()->routeIs('admin.roles.index'), 'icon' => 'users', 'permission' => $user?->can('view-roles') ?? false],
             ['name' => 'Permisos','route' => 'admin.permissions.index','active' => request()->routeIs('admin.permissions.index'),'icon' => 'logout','permission' => $user?->can('view-permissions') ?? false,],
-            ['name' => 'Settings','route' => 'admin.settings','active' => request()->routeIs('admin.settings'),'icon' => 'settings',],
+            // ['name' => 'Settings','route' => 'admin.settings','active' => request()->routeIs('admin.settings'),'icon' => 'settings',],
         ];
     }
 }
