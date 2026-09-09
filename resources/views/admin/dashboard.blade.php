@@ -10,12 +10,8 @@
             <livewire:admin.dashboard.grafica-segunda />
         </div>
 
-
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
-            <li class="text-green-500">
-                mejorar todo lo que tiene que ver con apis para tener seguridad -- por probar
-            </li>
             <li class="text-green-500">
                 ver ese error que aparece cuando borro el listado de productos
             </li>
