@@ -10,23 +10,11 @@
             <livewire:admin.dashboard.grafica-segunda />
         </div>
 
-
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
             <li class="text-green-500">
-                mejorar todo lo que tiene que ver con apis para tener seguridad -- por probar
+                ver si cambiamos como traer los iconos
             </li>
-            <li class="text-green-500">
-                ver ese error que aparece cuando borro el listado de productos
-            </li>
-
-
-
-            <li class="text-yellow-300">
-                -Modificar Edit y Crear  units y mermenchuse
-            </li>
-
-
 
             <li class="text-yellow-300">
                 terminar policyas para manejar perminsos

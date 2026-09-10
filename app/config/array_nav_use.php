@@ -19,7 +19,7 @@ class array_nav_use
                 'header' => 'Principal',
             ],
             [
-                'name' => 'Dashboard',
+                'name' => 'DASHBOARD',
                 'route' => 'admin.dashboard',
                 'active' => request()->routeIs('admin.dashboard'),
                 'icon' => 'dashboard',
@@ -30,6 +30,13 @@ class array_nav_use
                 'route' => 'admin.chatbot',
                 'active' => request()->routeIs('admin.chatbot'),
                 'icon' => 'messages',
+                'permission' => $user?->can('view-Hellper') ?? false,
+            ],
+            [
+                'name' => 'REPORTES',
+                'route' => 'admin.reports',
+                'active' => request()->routeIs('admin.reports'),
+                'icon' => 'reports',
                 'permission' => $user?->can('view-Hellper') ?? false,
             ],
             [
@@ -91,11 +98,11 @@ class array_nav_use
                 'icon' => 'customers',
                 'permission' => $user?->can('view-reports') || $user?->can('view-reports-purchases') || $user?->can('view-reports-sales') || $user?->can('view-reports-inventory'),
             ],
-            ['header' => 'Configuraciones falta'],
+            ['header' => 'Configuraciones'],
             ['name' => 'Users', 'route' => 'admin.users.index', 'active' => request()->routeIs('admin.users.index'), 'icon' => 'users', 'permission' => $user?->can('view-users') ?? false],
             ['name' => 'Roles', 'route' => 'admin.roles.index', 'active' => request()->routeIs('admin.roles.index'), 'icon' => 'users', 'permission' => $user?->can('view-roles') ?? false],
             ['name' => 'Permisos','route' => 'admin.permissions.index','active' => request()->routeIs('admin.permissions.index'),'icon' => 'logout','permission' => $user?->can('view-permissions') ?? false,],
-            ['name' => 'Settings','route' => 'admin.settings','active' => request()->routeIs('admin.settings'),'icon' => 'settings',],
+            // ['name' => 'Settings','route' => 'admin.settings','active' => request()->routeIs('admin.settings'),'icon' => 'settings',],
         ];
     }
 }

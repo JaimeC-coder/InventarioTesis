@@ -47,7 +47,7 @@ jobs:
             cd ~/public_html/repositories/InventarioTesis
             git pull origin main
             rm -f bootstrap/cache/*.php
-            /home/eduardod/composer install --no-dev --optimize-autoloader
+            /home/eduardod/composer install --optimize-autoloader
 
       - name: Upload compiled assets
         uses: appleboy/scp-action@v0.1.7

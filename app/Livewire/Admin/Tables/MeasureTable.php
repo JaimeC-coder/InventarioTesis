@@ -71,7 +71,7 @@ final class MeasureTable extends PowerGridComponent
             Column::make('Creado', 'created_at')
                 ->sortable()
                 ->searchable(),
-            // Column::action('Action'),
+            Column::action('Action'),
         ];
     }
 
@@ -148,5 +148,31 @@ final class MeasureTable extends PowerGridComponent
         $fileName = 'unidades-de-envase_export.pdf';
         // Enviar al componente PDF
         $this->dispatch('openPdfExport', $uuids, $model, $titulo, $columns, $headers, $fileName);
+    }
+
+    #[\Livewire\Attributes\On('edit')]
+    public function edit($rowId): void
+    {
+        $measure = Measure::WhereUuid($rowId)->first();
+        if (!$measure) {
+            $this->dispatch('swal', [
+                'title' => 'Error',
+                'text' => 'No se encontró la unidad de envase.',
+                'icon' => 'error',
+            ]);
+            return;
+        }
+
+        redirect()->route('admin.measures.edit', ['measure' => $measure->uuid]);
+    }
+
+    public function actions(Measure $measure): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('Editar')
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('edit', ['rowId' => $measure->uuid]),
+        ];
     }
 }
