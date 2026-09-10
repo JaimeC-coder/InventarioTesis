@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => '/'], function (): void {
     Route::get('ecommerce', [DashboardController::class, 'ecommerce'])->name('ecommerce');
     Route::get('', [DashboardController::class, 'dashboard1'])->name('dashboard');
+    Route::get('reports', [DashboardController::class, 'reports'])->name('reports');
 });
 
 Route::group(['prefix' => 'reportes', 'as' => 'reportes.'], function (): void {

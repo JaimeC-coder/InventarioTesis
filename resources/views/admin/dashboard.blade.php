@@ -13,7 +13,7 @@
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
             <li class="text-green-500">
-                ver ese error que aparece cuando borro el listado de productos
+                ver si cambiamos como traer los iconos
             </li>
 
             <li class="text-yellow-300">

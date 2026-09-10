@@ -18,4 +18,9 @@ class DashboardController extends Controller
     {
         return view('admin.chatbot');
     }
+
+    public function reports(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        return view('admin.reports');
+    }
 }

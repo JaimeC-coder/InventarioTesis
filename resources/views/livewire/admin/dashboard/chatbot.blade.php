@@ -1,5 +1,3 @@
-{{-- resources/views/livewire/chatbot-page.blade.php --}}
-
 <div class="flex flex-col h-[calc(100vh-4rem)] border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
 
     {{-- Header --}}

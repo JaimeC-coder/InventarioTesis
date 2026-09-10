@@ -19,7 +19,7 @@ class array_nav_use
                 'header' => 'Principal',
             ],
             [
-                'name' => 'Dashboard',
+                'name' => 'DASHBOARD',
                 'route' => 'admin.dashboard',
                 'active' => request()->routeIs('admin.dashboard'),
                 'icon' => 'dashboard',
@@ -30,6 +30,13 @@ class array_nav_use
                 'route' => 'admin.chatbot',
                 'active' => request()->routeIs('admin.chatbot'),
                 'icon' => 'messages',
+                'permission' => $user?->can('view-Hellper') ?? false,
+            ],
+            [
+                'name' => 'REPORTES',
+                'route' => 'admin.reports',
+                'active' => request()->routeIs('admin.reports'),
+                'icon' => 'reports',
                 'permission' => $user?->can('view-Hellper') ?? false,
             ],
             [
