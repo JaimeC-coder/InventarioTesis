@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 class LowStockReportMail extends Mailable
 {
     use Queueable;
+
     use SerializesModels;
 
     /**
