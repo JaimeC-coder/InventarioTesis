@@ -9,7 +9,8 @@
 
 
         </div>
-        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <x-forms.input label="Direccion" name="address" placeholder="Escribir su dirección" wire:model.live="address" />
             <x-forms.phone label="Telefono" name="phone" placeholder="Escribir su teléfono" wire:model.live="phone" />
             <x-forms.datetime-picker wire:model.live="fechaNacimiento" label="Fecha de Nacimiento"
                 placeholder="Fecha de Nacimiento" parse-format="DD-MM-YYYY " />
@@ -26,8 +27,9 @@
 
 
 
-        <x-forms.select label="Rol" placeholder="Escribe el rol" :async-data="['api' => route('admin.list-roles'), 'method' => 'POST']" option-label="name"
-            option-value="id" wire:model="roles_id" />
+        <x-forms.select label="Rol" placeholder="Escribe el rol" :async-data="['api' => route('admin.list-roles'), 'method' => 'POST']"
+            option-label="name" option-value="id"
+             wire:model.live="role_id" />
 
 
 
