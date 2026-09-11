@@ -18,8 +18,6 @@ class User extends Component
 
     public string $password;
 
-    public string $role_id;
-
     public string $document;
 
     public string $phone;
@@ -27,6 +25,19 @@ class User extends Component
     public string $address;
 
     public string $fechaNacimiento;
+
+    public int $role_id;
+
+    public function updated(string $propertyName): void
+    {
+        $userRequest = new UserRequest();
+        $rules = $userRequest->rulesForAction('POST');
+        if (! array_key_exists($propertyName, $rules)) {
+            return;
+        }
+
+        $this->validateOnly($propertyName, $rules, $userRequest->messages(), $userRequest->attributes());
+    }
 
     public function limpiar(): void
     {

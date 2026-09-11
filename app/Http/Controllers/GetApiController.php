@@ -6,6 +6,7 @@ use App\Http\Requests\SearchReasonRequest;
 use App\Http\Requests\SearchSelectRequest;
 use App\Traits\HandlesSearchableSelect;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class GetApiController extends Controller
@@ -243,6 +244,7 @@ class GetApiController extends Controller
 
     public function roles(SearchSelectRequest $searchSelectRequest)
     {
+        Log::info('Roles request: ' . json_encode($searchSelectRequest->all()));
         $roles = Role::select('id', 'name');
         $result = $this->searchableSelect(
             cachePrefix: 'roles',

@@ -8,8 +8,6 @@
 
     <livewire:admin.tables.warehouse-table />
 
-    <livewire:admin.edit.warehouse />
-
     <livewire:export.pdf />
 
 

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 trait HandlesSearchableSelect
 {
@@ -29,7 +30,11 @@ trait HandlesSearchableSelect
 
         return Cache::remember($cacheKey, $ttlSeconds, function () use ($builder, $search, $selected, $searchCallback, $limit) {
             if (!empty($selected)) {
-                $builder->whereIn('uuid', $selected);
+                if (Str::isUuid($selected)) {
+                    $builder->whereIn('uuid', $selected);
+                } else {
+                    $builder->whereIn('id', $selected);
+                }
             } else {
                 if ($search !== '') {
                     $searchCallback($builder, $search);

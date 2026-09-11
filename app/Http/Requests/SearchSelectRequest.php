@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class SearchSelectRequest extends FormRequest
 {
@@ -24,7 +25,14 @@ class SearchSelectRequest extends FormRequest
         return [
             'search' => ['nullable', 'string', 'max:100'],
             'selected' => ['nullable', 'array', 'max:50'],
-            'selected.*' => ['uuid'],
+            'selected.*' => [
+                'required',
+                function ($attribute, $value, $fail): void {
+                    if (!Str::isUuid($value) && !(is_numeric($value) && (int) $value == $value && $value > 0)) {
+                        $fail(sprintf('El valor en %s debe ser un UUID válido o un ID numérico entero.', $attribute));
+                    }
+                },
+            ],
         ];
     }
 
