@@ -91,6 +91,11 @@ class PurchaseOrder extends Component
         $this->date = now()->format('Y-m-d');
     }
 
+    public function updated($property, $value): void
+    {
+        $this->resetErrorBag($property);
+    }
+
     public function addProduct(): void
     {
         $this->validate([

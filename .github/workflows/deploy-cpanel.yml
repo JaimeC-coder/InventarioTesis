@@ -1,21 +1,23 @@
 name: Deploy to cPanel
 
 on:
-  push:
-    branches:
-      - main
   workflow_run:
-    workflows: ["rector"]
+    workflows: ["Tests"]
     types:
       - completed
+    branches:
+      - branchadeploy
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -45,7 +47,8 @@ jobs:
           key: ${{ secrets.CPANEL_KEY }}
           script: |
             cd ~/public_html/repositories/InventarioTesis
-            git pull origin main
+            git checkout branchadeploy
+            git pull origin branchadeploy
             rm -f bootstrap/cache/*.php
             /home/eduardod/composer install --optimize-autoloader
 

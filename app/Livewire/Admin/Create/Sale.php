@@ -105,6 +105,7 @@ class Sale extends Component
 
     public function updated($property, $value): void
     {
+        $this->resetErrorBag($property);
         // cuando cambie la cotización
         if ($property === 'quote_uuid' && !empty($value)) {
             $this->loadFromQuote($value);
