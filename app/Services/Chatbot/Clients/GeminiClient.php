@@ -64,14 +64,20 @@ class GeminiClient implements LlmClient
 
     private function request(array $payload): ?array
     {
-        $response = Http::timeout(30)
-            ->retry(2, 200)
-            ->post(
-                'https://generativelanguage.googleapis.com/v1beta/models/'
-                    . config('services.gemini.model')
-                    . ':generateContent?key=' . config('services.gemini.key'),
-                $payload
-            );
+        try {
+            $response = Http::timeout(30)
+                ->retry(2, 200)
+                ->post(
+                    'https://generativelanguage.googleapis.com/v1beta/models/'
+                        . config('services.gemini.model')
+                        . ':generateContent?key=' . config('services.gemini.key'),
+                    $payload
+                );
+        } catch (\Illuminate\Http\Client\ConnectionException $connectionException) {
+            Log::error('chatbot.llm_connection_error', ['provider' => 'gemini', 'message' => $connectionException->getMessage()]);
+            return null;
+        }
+
         if ($response->failed()) {
             Log::error('chatbot.llm_error', [
                 'provider' => 'gemini',

@@ -15,12 +15,12 @@ class Customer extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->uuid,
-            'name' => $this->name,
-            'phone' => $this->phone,
-            'document_number' => $this->document_number,
-            'type' => $this->type,
-            'identity' => $this->identity?->name,
+            // 'id' =>$this->when(isset($this->uuid), fn () => (string) $this->uuid),
+            'name' => $this->when(isset($this->name), fn(): string => (string) $this->name),
+            'phone' => $this->when(isset($this->phone), fn(): string => (string) $this->phone),
+            'document_number' => $this->when(isset($this->document_number), fn(): string => (string) $this->document_number),
+            'type' => $this->when(isset($this->type), fn(): string => (string) $this->type),
+            'identity' => $this->when(isset($this->identity), fn() => $this->identity?->name),
         ];
     }
 }

@@ -15,8 +15,8 @@ class SaleReportResource extends JsonResource
     {
         return [
             // 'reference' => $this->uuid,
-            'total' => (float) $this->total,
-            'date' => $this->date,
+            'total' => $this->when(isset($this->total), fn(): float => (float) $this->total),
+            'date' => $this->when(isset($this->date), fn() => $this->date),
         ];
     }
 }

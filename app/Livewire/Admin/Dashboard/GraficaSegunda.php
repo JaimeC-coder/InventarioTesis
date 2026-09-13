@@ -27,8 +27,12 @@ class GraficaSegunda extends Component
         $this->cargarGrafica($this->anioSeleccionado);
     }
 
-    public function updatedAnioSeleccionado(string $value): void
+    public function updatedAnioSeleccionado(string|null $value): void
     {
+        if (is_null($value)) {
+            $value = Carbon::now()->year;
+        }
+
         $this->cargarGrafica($value);
     }
 

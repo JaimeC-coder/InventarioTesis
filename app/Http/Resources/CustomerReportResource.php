@@ -15,9 +15,9 @@ class CustomerReportResource extends JsonResource
     {
         return [
             // 'reference' => $this->uuid,
-            'name' => $this->name,
-            'total_revenue' => isset($this->total_revenue) ? (float) $this->total_revenue : null,
-            'purchase_count' => isset($this->purchase_count) ? (int) $this->purchase_count : null,
+            'name' => $this->when(isset($this->name), fn(): string => (string) $this->name),
+            'total_revenue' => $this->when(isset($this->total_revenue), fn(): float => (float) $this->total_revenue),
+            'purchase_count' => $this->when(isset($this->purchase_count), fn(): int => (int) $this->purchase_count),
             // nunca: id, email, phone, document_number
         ];
     }

@@ -15,7 +15,7 @@ class ConversionRepository
         $builder = Quote::query()->whereNull('deleted_at');
         $this->applyDateFilters($builder, $filters, 'date');
         $total = (clone $builder)->count();
-        $converted = (clone $builder)->whereHas('sale')->count();
+        $converted = (clone $builder)->whereHas('sales')->count();
 
         return [
             'total_quotes' => $total,

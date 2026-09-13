@@ -59,7 +59,7 @@
                             @if (!empty($message['content']))
                                 <thead>
                                     <tr class="border-b border-gray-200">
-                                        @foreach (array_keys($message['content'][0]) as $header)
+                                        @foreach (array_keys($message['content'][0] ?? []) as $header)
                                             <th class="py-2 text-xs uppercase tracking-wide text-gray-400 font-medium {{ $loop->last ? 'text-right' : 'text-left' }}">
                                                 {{ ucfirst(str_replace('_', ' ', $header)) }}
                                             </th>

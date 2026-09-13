@@ -6,7 +6,7 @@
         @if (!empty($rows))
             <thead>
                 <tr style="border-bottom: 2px solid #333;">
-                    @foreach (array_keys($rows[0]) as $header)
+                    @foreach (array_keys($rows[0] ?? []) as $header)
                         <th style="padding: 6px 0; text-align: left;">{{ ucfirst(str_replace('_', ' ', $header)) }}</th>
                     @endforeach
                 </tr>

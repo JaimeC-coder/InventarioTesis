@@ -78,11 +78,14 @@ class Chatbot extends Component
         }
 
         if (isset($result['data'])) {
+            // Las métricas de conversión devuelven un único array asociativo (no una lista de filas);
+            // se normaliza a lista para que la tabla siempre pueda leer $content[0] como cabeceras.
+            $data = array_is_list($result['data']) ? $result['data'] : [$result['data']];
             // Se guarda para que un futuro "exportar" tenga de dónde sacar los datos
-            $this->lastReportData = $result['data'];
+            $this->lastReportData = $data;
             $this->lastReportTitle = $result['label'] ?? 'Reporte';
 
-            return ['role' => 'assistant', 'type' => 'table', 'content' => $result['data']];
+            return ['role' => 'assistant', 'type' => 'table', 'content' => $data];
         }
 
         return ['role' => 'assistant', 'type' => 'text', 'content' => $result['reply'] ?? 'No entendí la consulta.'];

@@ -15,11 +15,11 @@ class ProductReportResource extends JsonResource
     {
         return [
             // 'reference' => $this->uuid,
-            'name' => $this->name,
-            'total_sold' => isset($this->total_sold) ? (int) $this->total_sold : null,
-            'total_purchased' => isset($this->total_purchased) ? (int) $this->total_purchased : null,
-            'stock_level' => isset($this->stock_level) ? (int) $this->stock_level : null,
-            'warehouse_name' => $this->warehouse_name ?? null,
+            'name' => $this->when(isset($this->name), fn(): string => (string) $this->name),
+            'total_sold' => $this->when(isset($this->total_sold), fn(): int => (int) $this->total_sold),
+            'total_purchased' => $this->when(isset($this->total_purchased), fn(): int => (int) $this->total_purchased),
+            'stock_level' => $this->when(isset($this->stock_level), fn(): int => (int) $this->stock_level),
+            'warehouse_name' => $this->when(isset($this->warehouse_name), fn(): string => (string) $this->warehouse_name),
         ];
     }
 }
