@@ -67,6 +67,7 @@ class Unit extends Component
                 'text' => 'Ocurrió un error al actualizar la unidad.',
             ]);
         }
+
         return null;
     }
 

@@ -63,6 +63,7 @@ class Rol extends Component
             DB::rollBack();
             session()->flash('error', 'Error al actualizar el rol.');
         }
+
         return null;
     }
 
