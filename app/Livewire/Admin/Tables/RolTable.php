@@ -71,16 +71,26 @@ final class RolTable extends PowerGridComponent
     }
 
     #[\Livewire\Attributes\On('edit')]
-    public function edit(string $rowId): void
+    public function edit(string $rowId)
     {
-        $this->js('alert('.$rowId.')');
+        $role = \Spatie\Permission\Models\Role::find($rowId);
+        if (!$role) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Rol no encontrado.',
+            ]);
+            return null;
+        }
+
+        return redirect()->route('admin.roles.edit', ['role' => $role->id]);
     }
 
     public function actions(role $role): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$role->id)
+                ->slot('Edit: ' . $role->id)
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $role->id]),

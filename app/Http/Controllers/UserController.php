@@ -40,8 +40,9 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user): void
+    public function edit(User $user): \Illuminate\View\View
     {
+        return view('admin.users.edit', ['user' => $user]);
     }
 
     /**
