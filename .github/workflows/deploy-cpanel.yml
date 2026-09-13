@@ -71,6 +71,7 @@ jobs:
           script: |
             cd ~/public_html/repositories/InventarioTesis
             /usr/local/bin/php artisan config:cache
+            /usr/local/bin/php artisan config:clear
             /usr/local/bin/php artisan route:cache
             /usr/local/bin/php artisan view:cache
             /usr/local/bin/php artisan queue:restart
