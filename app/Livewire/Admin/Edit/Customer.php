@@ -76,6 +76,11 @@ class Customer extends Component
         $this->resetValidation();
     }
 
+    public function updated(string $property): void
+    {
+        $this->resetErrorBag($property);
+    }
+
     public function save()
     {
         $this->validate($this->rules(), (new CustomerRequest())->messages());

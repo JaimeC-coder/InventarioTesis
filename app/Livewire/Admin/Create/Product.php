@@ -85,6 +85,7 @@ class Product extends Component
 
     public function updated(string $property, ?string $value): void
     {
+        $this->resetErrorBag($property);
         Log::info('Property updated: ' . $property . ' with value: ' . $value);
         if ($property === 'category_uuid' && ($value !== null && $value !== '' && $value !== '0')) {
             Log::info('Category UUID updated: ' . $value);

@@ -73,6 +73,7 @@ class Movement extends Component
 
     public function updated($property, $value): void
     {
+        $this->resetErrorBag($property);
         if ($property === 'type') {
             $this->reset('reason_uuid');
         }

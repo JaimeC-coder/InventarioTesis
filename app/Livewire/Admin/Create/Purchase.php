@@ -103,6 +103,7 @@ class Purchase extends Component
 
     public function updated($property, $value): void
     {
+        $this->resetErrorBag($property);
         if ($property === 'purchase_order_uuid' && !empty($value)) {
             $this->loadFromPurchaseOrder($value);
         }

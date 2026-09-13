@@ -49,6 +49,11 @@ class Supplier extends Component
         $this->resetValidation();
     }
 
+    public function updated(string $property): void
+    {
+        $this->resetErrorBag($property);
+    }
+
     public function generateDocumentNumber(): void
     {
         if ($this->identity === DocumentEnum::RUC->value) {

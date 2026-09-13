@@ -39,6 +39,11 @@ class ProductPrice extends Component
         }
     }
 
+    public function updated(string $property): void
+    {
+        $this->resetErrorBag($property);
+    }
+
     public function save(): void
     {
         $this->validate([

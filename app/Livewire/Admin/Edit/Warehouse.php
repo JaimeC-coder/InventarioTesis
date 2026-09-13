@@ -32,6 +32,13 @@ class Warehouse extends Component
     {
         $this->name = $this->warehouse->name;
         $this->location = $this->warehouse->location;
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
+    public function updated(string $property): void
+    {
+        $this->resetErrorBag($property);
     }
 
     public function save()

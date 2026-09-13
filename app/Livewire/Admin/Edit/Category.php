@@ -29,6 +29,13 @@ class Category extends Component
         $this->name = $this->category->name;
         $this->description = $this->category->description;
         $this->codigo = $this->category->codigo;
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
+    public function updated(string $property): void
+    {
+        $this->resetErrorBag($property);
     }
 
     public function save(): void

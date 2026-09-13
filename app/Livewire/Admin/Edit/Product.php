@@ -74,6 +74,11 @@ class Product extends Component
         }
     }
 
+    public function updated(string $property): void
+    {
+        $this->resetErrorBag($property);
+    }
+
     public function saveProduct(): void
     {
         $this->validate([

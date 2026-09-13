@@ -87,12 +87,10 @@ class Transfer extends Component
         });
     }
 
-    // public function updated($property, $value): void
-    // {
-    //     if ($property === 'type') {
-    //         $this->reset('reason_uuid');
-    //     }
-    // }
+    public function updated($property, $value): void
+    {
+        $this->resetErrorBag($property);
+    }
 
     public function mount(): void
     {
