@@ -32,9 +32,10 @@ Route::group(['prefix' => 'reportes', 'as' => 'reportes.'], function (): void {
     Route::get('/inventario', [ChatbotController::class, 'inventario'])->name('inventario');
 });
 //'as' => 'chatbot.',
-Route::group(['prefix' => 'chatbot',  'middleware' => ['auth', 'signed']], function (): void {
+Route::group(['prefix' => 'chatbot'], function (): void {
     Route::get('/', [DashboardController::class, 'chatbot'])->name('chatbot');
     Route::get('/reportes/descargar/{filename}', [ChatbotController::class, 'downloadReport'])
+        ->middleware('signed')
         ->name('chatbot.download');
     Route::post('/message', [ChatbotController::class, 'message'])->name('chatbot.message');
     Route::post('/execute-metric', [ChatbotController::class, 'executeMetric'])->name('chatbot.execute-metric');
