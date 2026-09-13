@@ -14,7 +14,7 @@ class ProductReportResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'reference' => $this->uuid,
+            // 'reference' => $this->uuid,
             'name' => $this->name,
             'total_sold' => isset($this->total_sold) ? (int) $this->total_sold : null,
             'total_purchased' => isset($this->total_purchased) ? (int) $this->total_purchased : null,

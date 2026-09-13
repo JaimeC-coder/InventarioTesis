@@ -56,15 +56,28 @@
                 @elseif ($message['type'] === 'table')
                     <div class="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-5 py-4 max-w-[55%]">
                         <table class="w-full text-sm">
-                            @foreach ($message['content'] as $row)
-                                <tr class="border-b border-gray-100 last:border-0">
-                                    @foreach ($row as $label => $value)
-                                        <td class="py-2 {{ $loop->last ? 'text-right font-medium' : 'text-gray-600' }}">
-                                            {{ $value }}
-                                        </td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
+                            @if (!empty($message['content']))
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        @foreach (array_keys($message['content'][0]) as $header)
+                                            <th class="py-2 text-xs uppercase tracking-wide text-gray-400 font-medium {{ $loop->last ? 'text-right' : 'text-left' }}">
+                                                {{ ucfirst(str_replace('_', ' ', $header)) }}
+                                            </th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                            @endif
+                            <tbody>
+                                @foreach ($message['content'] as $row)
+                                    <tr class="border-b border-gray-100 last:border-0">
+                                        @foreach ($row as $label => $value)
+                                            <td class="py-2 {{ $loop->last ? 'text-right font-medium' : 'text-gray-600' }}">
+                                                {{ $value }}
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
                         </table>
 
                         <div class="mt-3 flex gap-3 text-xs">

@@ -14,7 +14,7 @@ class SaleReportResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'reference' => $this->uuid,
+            // 'reference' => $this->uuid,
             'total' => (float) $this->total,
             'date' => $this->date,
         ];

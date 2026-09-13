@@ -19,7 +19,7 @@ class RolSeeder extends Seeder
         $role4 = Role::create(['name' => 'Jefe de abastecimiento']);
         Permission::create(['name' => 'chatbot.query.customer', 'description' => 'Consultar clientes'])->syncRoles([$role1, $role2, $role3, $role4]);
         Permission::create(['name' => 'chatbot.query.product', 'description' => 'Consultar productos'])->syncRoles([$role1, $role2, $role3, $role4]);
-        Permission::create(['name' => 'chatbot.query.sale', 'description' => 'Consultar ventas'])->syncRoles([$role1, $role2, $role3,]);
+        Permission::create(['name' => 'chatbot.query.sale', 'description' => 'Consultar ventas'])->syncRoles([$role1, $role2, $role3]);
         Permission::create(['name' => 'chatbot.query.conversion', 'description' => 'Consultar conversiones'])->syncRoles([$role1, $role2,  $role4]);
         //view-dashboard ,view-Hellper
         Permission::create(['name' => 'view-dashboard', 'description' => 'Ver dashboard'])->syncRoles([$role1, $role2, $role3, $role4]);

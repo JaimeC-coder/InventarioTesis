@@ -14,7 +14,7 @@ class CustomerReportResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'reference' => $this->uuid,
+            // 'reference' => $this->uuid,
             'name' => $this->name,
             'total_revenue' => isset($this->total_revenue) ? (float) $this->total_revenue : null,
             'purchase_count' => isset($this->purchase_count) ? (int) $this->purchase_count : null,
