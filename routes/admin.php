@@ -32,6 +32,29 @@ Route::group(['prefix' => 'reportes', 'as' => 'reportes.'], function (): void {
     Route::get('/inventario', [ChatbotController::class, 'inventario'])->name('inventario');
 });
 //'as' => 'chatbot.',
+// TEMPORAL: diagnostico de esquema/host detectado para debug del 403 de signed routes. Borrar despues.
+Route::get('debug-signed', function () {
+    $testUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        'admin.debug-signed',
+        now()->addMinutes(15)
+    );
+
+    return response()->json([
+        'request_isSecure' => request()->isSecure(),
+        'request_getScheme' => request()->getScheme(),
+        'request_url' => request()->url(),
+        'request_fullUrl' => request()->fullUrl(),
+        'request_root' => request()->root(),
+        'header_x_forwarded_proto' => request()->header('X-Forwarded-Proto'),
+        'header_x_forwarded_host' => request()->header('X-Forwarded-Host'),
+        'server_https' => $_SERVER['HTTPS'] ?? null,
+        'server_port' => $_SERVER['SERVER_PORT'] ?? null,
+        'app_url_config' => config('app.url'),
+        'generated_signed_url' => $testUrl,
+        'has_valid_signature_for_generated_url' => request()->create($testUrl)->hasValidSignature(),
+    ]);
+})->name('debug-signed');
+
 Route::group(['prefix' => 'chatbot'], function (): void {
     Route::get('/', [DashboardController::class, 'chatbot'])->name('chatbot');
     Route::get('/reportes/descargar/{filename}', [ChatbotController::class, 'downloadReport'])
