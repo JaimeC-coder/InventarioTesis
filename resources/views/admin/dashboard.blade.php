@@ -5,18 +5,23 @@
     </x-slot>
 
     <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-        <div class="grid grid-cols-2 gap-4 border-b pb-4 mb-4 border-gray-950">
+        <div class="grid grid-cols-3 gap-4 border-b pb-4 mb-4 border-gray-950">
+            <livewire:admin.dashboard.grafica-cuarta />
             <livewire:admin.dashboard.grafica-principal />
+        </div>
+        <div class="grid grid-cols-2 gap-4 border-b pb-4 mb-4 border-gray-950">
             <livewire:admin.dashboard.grafica-segunda />
+            <livewire:admin.dashboard.grafica-tercera />
         </div>
 
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
-            <li class="text-green-500">
-                ver si cambiamos como traer los iconos
+
+            <li class="text-red-600">
+                hacer funcionar el boton de crear orden de compra de la tabla del dashboard
             </li>
-            <li class="text-green-500">
-                editar usuario y roles
+            <li class="text-red-600">
+                terminar con movimiento y transferencia de productos
             </li>
 
             <li class="text-yellow-300">
@@ -24,17 +29,10 @@
             </li>
 
 
-            <li class="text-red-600">
-                terminar el dashboard de compras y ventas
-                -Lista de productos que ya no tiene stock por almacen
-                -tabla de comparacion de ventas , compras y moviminetos
+            <li class="text-green-500">
+                ver si cambiamos como traer los iconos
             </li>
-            <li class="text-red-600">
-                terminar con movimiento y transferencia de productos
-            </li>
-            <li class="text-red-600">
-               ver el problema de que me muestra un error si no tiene un valor en el imput de datos wire:
-            </li>
+
 
 
         </ul>
