@@ -30,7 +30,11 @@ trait HandlesSearchableSelect
 
         return Cache::remember($cacheKey, $ttlSeconds, function () use ($builder, $search, $selected, $searchCallback, $limit) {
             if (!empty($selected)) {
-                if (Str::isUuid($selected)) {
+                // $selected siempre es un array (uno o varios valores seleccionados),
+                // así que hay que mirar sus elementos, no el array en sí — Str::isUuid()
+                // de un array siempre da false y antes esto terminaba filtrando por
+                // "id" aunque el valor real fuera un uuid.
+                if (Str::isUuid(reset($selected))) {
                     $builder->whereIn('uuid', $selected);
                 } else {
                     $builder->whereIn('id', $selected);
