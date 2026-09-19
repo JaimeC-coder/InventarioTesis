@@ -1,5 +1,5 @@
 @props(['breadcrumbs' => []])
-<div class="p-4 sm:ml-64">
+<div class="p-4 transition-all duration-300" :class="sidebarOpen ? 'sm:ml-64' : 'sm:ml-16'">
     <div class="mt-14">
 
 

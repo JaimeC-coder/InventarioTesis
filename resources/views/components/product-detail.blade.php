@@ -1,4 +1,4 @@
-<div class="p-2">
+<div class="p-2 text-gray-900 dark:text-gray-200">
     <div>Description {{ $row->description }}</div>
     <div>Stock por almacén:
         <ul class="list-disc list-inside">

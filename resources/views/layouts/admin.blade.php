@@ -1,11 +1,20 @@
 @props(['title' => config('app.name', 'Laravel')])
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark:bg-gray-900 dark:text-white">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Aplica el tema antes de pintar la página para evitar el parpadeo de tema incorrecto --}}
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.classList.toggle('dark', theme === 'dark' || (!theme && prefersDark));
+        })();
+    </script>
 
     <title>
         {{ $title }}
@@ -27,7 +36,12 @@
     @livewireStyles
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 dark:text-white"
+    x-data="{ sidebarOpen: true, darkMode: document.documentElement.classList.contains('dark') }"
+    x-init="$watch('darkMode', value => {
+        document.documentElement.classList.toggle('dark', value);
+        localStorage.setItem('theme', value ? 'dark' : 'light');
+    })">
 
 
     <x-banner />

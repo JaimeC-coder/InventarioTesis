@@ -3,7 +3,10 @@
 namespace App\Livewire\Admin\Dashboard;
 
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -55,6 +58,7 @@ final class NotStockTable extends PowerGridComponent
                 'records.id as id',
                 'products.name as product',
                 'records.quantity as quantity',
+                'products.min_stock',
                 'records.warehouse_name as warehouse_name',
                 'records.warehouse_id as warehouse_id'
             )
@@ -69,7 +73,8 @@ final class NotStockTable extends PowerGridComponent
             ->add('warehouse_id')
             ->add('product')
             ->add('quantity')
-            ->add('warehouse_name');
+            ->add('warehouse_name')
+            ->add('min_stock');
     }
 
     public function columns(): array
@@ -78,6 +83,7 @@ final class NotStockTable extends PowerGridComponent
             Column::make('id', 'id'),
             Column::make('producto', 'product'),
             Column::make('cantidad', 'quantity'),
+            Column::make('stock minimo', 'min_stock'),
             Column::make('almacen', 'warehouse_name'),
         ];
     }
@@ -88,19 +94,37 @@ final class NotStockTable extends PowerGridComponent
     }
 
     #[On('bulkDelete.{tableName}')]
-    public function bulkDelete(): never
+    public function bulkDelete(): null|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse //: \Illuminate\Http\RedirectResponse
     {
-        dd($this->checkboxValues);
-        // Product::whereIn('uuid', $this->checkboxValues)->delete();
-        // $this->dispatch('pg:eventRefresh-' . $this->tableName);
-        // $this->resetPage();
-        // $this->dispatch('swal:success', [
-        //     'title' => 'Eliminado',
-        //     'text' => 'Los productos seleccionados se eliminaron correctamente.',
-        //     'icon' => 'success',
-        // ]);
-        // regresamos al inicio de la tabla
-        //
+        if ($this->checkboxValues === []) {
+            // mostrar error / return temprano
+            return null;
+        }
+
+        $warehouseId = DB::table('records')
+            ->join('products', 'records.product_id', '=', 'products.id')
+            ->join('warehouses', 'records.warehouse_id', '=', 'warehouses.id')
+            ->join('suppliers', 'products.supplier_id', '=', 'suppliers.id')
+            ->whereIn('records.id', $this->checkboxValues)
+            ->select('warehouses.uuid as warehouse_uuid', 'suppliers.uuid as supplier_uuid')
+            ->first();
+        $token = (string) Str::uuid();
+        $expiresAt = now()->addHours(48);
+        Cache::put(
+            'low-stock-report:' . $token,
+            [
+                'warehouse_uuid' => $warehouseId->warehouse_uuid,
+                'supplier_uuid' => $warehouseId->supplier_uuid,
+                'product_ids' =>  $this->checkboxValues,
+            ],
+            $expiresAt
+        );
+        $token = URL::temporarySignedRoute(
+            'admin.purchases.from-report',
+            $expiresAt,
+            ['token' => $token]
+        );
+        return redirect($token);
     }
 
     #[On('bulkClear.{tableName}')]
@@ -132,16 +156,4 @@ final class NotStockTable extends PowerGridComponent
                 ->hide(),
         ];
     }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

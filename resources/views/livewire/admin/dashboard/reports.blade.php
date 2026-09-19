@@ -1,9 +1,9 @@
-<div class="flex flex-col h-[calc(100vh-4rem)] border border-gray-200 rounded-xl overflow-hidden bg-white-50">
+<div class="flex flex-col h-[calc(100vh-4rem)] border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900">
     <div class="grid grid-cols-2 gap-4 mb-4">
         <div class="col-span-1">
-            <div class=" gap-4 bg-neutral-primary-soft  max-w-full p-6 border border-default rounded-xl shadow-xs">
-                <h5 class="mb-3 text-2xl font-semibold tracking-tight text-heading leading-8">Generar Reporte</h5>
-                <p class="text-body mb-6">Seleccione el tipo de reporte que desea generar y las fechas de inicio y fin.
+            <div class="gap-4 bg-white dark:bg-gray-800 max-w-full p-6 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xs">
+                <h5 class="mb-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white leading-8">Generar Reporte</h5>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">Seleccione el tipo de reporte que desea generar y las fechas de inicio y fin.
                 </p>
                 <x-forms.select name="report_type" :options="$reports"
                     label="Seleccione el tipo de reporte que desea generar" wire:model="reportType" option-label="name" option-value="id" />
@@ -21,30 +21,30 @@
             </div>
         </div>
         <div class="col-span-1">
-            <div class="bg-neutral-primary-soft block max-w-full p-6 border border-default rounded-xl shadow-xs">
-                <h5 class="mb-3 text-2xl font-semibold tracking-tight text-heading leading-8">Lista de Reportes
+            <div class="bg-white dark:bg-gray-800 block max-w-full p-6 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xs">
+                <h5 class="mb-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white leading-8">Lista de Reportes
                     realizados</h5>
-                <p class="text-body mb-6">Ultimos Reportes generados.</p>
-                <div class="w-full max-w-full p-4 bg-neutral-primary-soft border border-default rounded-xl shadow-xs">
+                <p class="text-gray-600 dark:text-gray-400 mb-6">Ultimos Reportes generados.</p>
+                <div class="w-full max-w-full p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xs">
 
                     <div class="flow-root">
-                        <ul role="list" class="divide-y divide-default ">
+                        <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
 
                             @foreach ($listreports as $listreport)
                                 <li class="py-4 sm:py-4">
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 min-w-0 ms-2">
-                                            <p class="font-medium text-heading truncate">
+                                            <p class="font-medium text-gray-900 dark:text-white truncate">
                                                 {{ $listreport['name'] }}
                                             </p>
-                                            <p class="text-sm text-body truncate">
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
                                                 {{ $listreport['description'] }}
                                             </p>
                                         </div>
-                                        <div class="inline-flex items-center font-medium text-heading">
+                                        <div class="inline-flex items-center font-medium text-gray-900 dark:text-white">
 
                                                 <button type="button" wire:click="exportReport('{{ $listreport['download_link'] }}')"
-                                                    class="flex items-center text-sm text-white bg-black hover:bg-brand-strong border rounded-md px-3 py-2.5 "><svg
+                                                    class="flex items-center text-sm text-white bg-black hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-700 dark:border-gray-600 rounded-md px-3 py-2.5 "><svg
                                                         class="w-6 h-6" aria-hidden="true"
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         fill="currentColor" viewBox="0 0 24 24">
