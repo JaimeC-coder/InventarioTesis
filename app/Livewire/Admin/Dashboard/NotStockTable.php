@@ -49,7 +49,7 @@ final class NotStockTable extends PowerGridComponent
 
     public function datasource(): ?Builder
     {
-        return DB::table('Records')
+        return DB::table('records')
             ->select('records.id as id', 'products.name as product', 'records.quantity as quantity', 'records.warehouse_name as warehouse_name', 'records.warehouse_id as warehouse_id')
             ->join('products', 'records.product_id', '=', 'products.id')
             ->where('records.quantity', '<=', 'products.min_stock')
