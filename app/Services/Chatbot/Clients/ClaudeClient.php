@@ -64,16 +64,22 @@ class ClaudeClient implements LlmClient
 
     private function request(array $payload): ?array
     {
-        $response = Http::withHeaders([
-            'x-api-key' => config('services.anthropic.key'),
-            'anthropic-version' => '2023-06-01',
-        ])
-            ->timeout(30)
-            ->retry(2, 200)
-            ->post('https://api.anthropic.com/v1/messages', array_merge([
-                'model' => config('services.anthropic.model'),
-                'max_tokens' => 1024,
-            ], $payload));
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => config('services.anthropic.key'),
+                'anthropic-version' => '2023-06-01',
+            ])
+                ->timeout(30)
+                ->retry(2, 200)
+                ->post('https://api.anthropic.com/v1/messages', array_merge([
+                    'model' => config('services.anthropic.model'),
+                    'max_tokens' => 1024,
+                ], $payload));
+        } catch (\Illuminate\Http\Client\ConnectionException $connectionException) {
+            Log::error('chatbot.llm_connection_error', ['provider' => 'claude', 'message' => $connectionException->getMessage()]);
+            return null;
+        }
+
         if ($response->failed()) {
             Log::error('chatbot.llm_error', [
                 'provider' => 'claude',

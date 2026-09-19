@@ -87,21 +87,30 @@ final class UserTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
     public function edit(string $rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $user = User::where('id', $rowId)->first();
+        if (!$user) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Usuario no encontrado.',
+            ]);
+            return;
+        }
+
+        redirect()->route('admin.users.edit', $user->id);
     }
 
     public function actions(User $user): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$user->id)
+                ->slot('Edit: ' . $user->id)
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $user->id]),

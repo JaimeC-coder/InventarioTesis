@@ -12,7 +12,7 @@
                             :class="!sidebarOpen && 'sm:hidden'">
                             {{ $link['header'] }}
                         </li>
-                    @else
+                    @elseif ($link['permission'] ?? false)
                         @if (isset($link['submenu']))
                             <li x-data="{ tooltipVisible: false, tooltipStyle: '' }" @scroll.window="tooltipVisible = false">
                                 <button type="button" @click="if (!sidebarOpen) sidebarOpen = true"
@@ -47,6 +47,7 @@
 
                                 <ul id="dropdown-{{ Str::slug($link['name']) }}" class="hidden py-2 space-y-2">
                                     @foreach ($link['submenu'] as $sub)
+                                        @continue(!($sub['permission'] ?? false))
                                         <li>
                                             <a href="{{ route($sub['route']) }}"
                                                 class="flex items-center w-full p-2 pl-11 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 {{ $sub['active'] ?? false ? 'bg-gray-100 font-semibold dark:bg-gray-700' : '' }}"

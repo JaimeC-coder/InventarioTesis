@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Dashboard;
 
 use App\Enum\MountEnum;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class GraficaPrincipal extends Component
@@ -39,8 +40,14 @@ class GraficaPrincipal extends Component
         );
     }
 
-    public function updatedMesSeleccionado(int $value): void
+    public function updatedMesSeleccionado(int|null $value): void
     {
+        if (is_null($value)) {
+            Log::info('Mes seleccionado es nulo, se asigna el mes actual');
+            $value = Carbon::now()->month;
+            $this->cargarResumenMes($value);
+        }
+
         $this->cargarResumenMes($value);
     }
 

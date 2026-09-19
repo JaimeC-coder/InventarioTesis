@@ -39,7 +39,7 @@ class Unit extends Component
         $this->resetErrorBag($property);
     }
 
-    public function save(): void
+    public function save()
     {
         $this->validate([
             'name' => 'required|string|max:255',
@@ -57,6 +57,7 @@ class Unit extends Component
             session()->flash('message', 'Unidad actualizada exitosamente.');
             // Reset the form fields
             $this->limpiar();
+            return redirect()->route('admin.units.index');
         } catch (\Exception $exception) {
             DB::rollBack();
             \Illuminate\Support\Facades\Log::error('Error al crear unidad: ' . $exception->getMessage());
@@ -66,6 +67,8 @@ class Unit extends Component
                 'text' => 'Ocurrió un error al actualizar la unidad.',
             ]);
         }
+
+        return null;
     }
 
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

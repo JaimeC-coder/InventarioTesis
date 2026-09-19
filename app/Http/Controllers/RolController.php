@@ -45,8 +45,9 @@ class RolController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Role $role): void
+    public function edit(Role $role): \Illuminate\View\View
     {
+        return view('admin.roles.edit', ['role' => $role]);
     }
 
     /**
