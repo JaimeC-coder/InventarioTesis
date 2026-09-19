@@ -1,12 +1,14 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import colors from 'tailwindcss/colors';
 import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: 'class',
     presets: [
-        require('./vendor/wireui/wireui/tailwind.config.js')
+        require('./vendor/wireui/wireui/tailwind.config.js'),
+        require("./vendor/power-components/livewire-powergrid/tailwind.config.js"),
     ],
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
@@ -18,6 +20,7 @@ export default {
         './vendor/wireui/wireui/src/WireUi/**/*.php',
         './vendor/wireui/wireui/src/Components/**/*.php',
         './app/Livewire/**/*Table.php',
+        './app/Themes/**/*.php',
         './vendor/power-components/livewire-powergrid/resources/views/**/*.php',
         './vendor/power-components/livewire-powergrid/src/Themes/Tailwind.php'
     ],
@@ -26,6 +29,9 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                "pg-primary": colors.gray
             },
         },
     },
