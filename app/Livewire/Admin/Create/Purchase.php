@@ -11,6 +11,7 @@ use App\Services\ProductDetailServices;
 use App\Services\UtilitisServices;
 use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -50,6 +51,8 @@ class Purchase extends Component
     public string $payment_method = 'EFECTIVO';
 
     public string $payment_type = 'CONTADO';
+
+    public ?string $token = null;
 
     public array $products = [];
 
@@ -95,10 +98,14 @@ class Purchase extends Component
         $this->resetValidation();
     }
 
-    public function mount(): void
+    public function mount(?string $token = null): void
     {
         $this->correlativo = ModelsPurchase::max('correlativo') + 1;
         $this->date = now()->format('Y-m-d');
+        if ($token) {
+            $this->token = $token;
+            $this->prefillFromReportToken($token);
+        }
     }
 
     public function updated($property, $value): void
@@ -107,6 +114,32 @@ class Purchase extends Component
         if ($property === 'purchase_order_uuid' && !empty($value)) {
             $this->loadFromPurchaseOrder($value);
         }
+    }
+
+    private function prefillFromReportToken(string $token): void
+    {
+        $payload = Cache::get('low-stock-report:' . $token);
+        if (!$payload) {
+            return;
+        }
+
+        Log::info('Payload from token: ' . json_encode($payload));
+        $this->supplier_uuid = $payload['supplier_uuid'];
+        $this->resolveSupplierId();
+        $this->warehouse_uuid = $payload['warehouse_uuid'];
+        $this->resolveWarehouseId();
+        $this->products = Product::whereIn('id', $payload['product_ids'])
+            ->get()
+            ->map(fn(Product $product): array => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'quantity' => 1,
+                'price' => $product->price_purchase,
+                'price_type' => 'COMPRA',
+                'subtotal' => $product->price_purchase,
+            ])
+            ->all();
+        $this->recalcularTotalDesdeProductos();
     }
 
     private function loadFromPurchaseOrder(string $uuid): void
@@ -168,6 +201,15 @@ class Purchase extends Component
         $this->resolvePurchaseOrderId();
         $this->resolveWarehouseId();
         $this->recalcularTotalDesdeProductos();
+        if ($this->token && !Cache::has('low-stock-report:' . $this->token)) {
+            $this->warningSwal(
+                'Otro administrador ya hizo el pedido mediante correo.',
+                'Pedido ya realizado',
+                'session'
+            );
+            return redirect()->route('admin.dashboard');
+        }
+
         $purchaseRequest = new PurchaseRequest();
         $this->validate($purchaseRequest->rulesForAction('POST'), $purchaseRequest->messages(), $purchaseRequest->attributes());
         DB::beginTransaction();
@@ -193,6 +235,10 @@ class Purchase extends Component
             ProductDetailServices::createDetailproductableOrdenCompra($Purchase, $this->products);
             UtilitisServices::generateAndAttachPdf(ModelsPurchase::class, $Purchase);
             DB::commit();
+            if ($this->token) {
+                Cache::forget('low-stock-report:' . $this->token);
+            }
+
             $this->successSwal('La compra se ha creado exitosamente.', type: 'session');
             $this->limpiar();
             return redirect()->route('admin.purchases.index');

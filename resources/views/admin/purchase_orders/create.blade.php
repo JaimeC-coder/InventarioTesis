@@ -6,6 +6,6 @@
 
 
 
-    @livewire('admin.create.purchase-order')
+    @livewire('admin.create.purchase-order', ['token' => $token ?? null])
 
 </x-admin-layout>

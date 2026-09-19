@@ -3,23 +3,25 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
-class LowStockReportMail extends Mailable
+class LowStockReportMail extends Mailable implements ShouldQueue
 {
     use Queueable;
 
     use SerializesModels;
 
     /**
-     * Create a new message instance.
+     * @param Collection $sections Cada item: ['warehouse_name' => string, 'supplier' => \App\Models\Supplier, 'items' => Collection<\App\Models\Record>, 'purchase_url' => string]
      */
-    public function __construct()
-    {
-        //
+    public function __construct(
+        public readonly Collection $sections,
+    ) {
     }
 
     /**
@@ -28,7 +30,7 @@ class LowStockReportMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Low Stock Report Mail',
+            subject: 'Reporte de productos con stock bajo',
         );
     }
 
@@ -38,7 +40,7 @@ class LowStockReportMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            markdown: 'emails.low-stock-report',
         );
     }
 

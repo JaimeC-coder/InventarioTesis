@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Purchase;
+use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PurchaseController extends Controller
 {
+    use HandlesSwalMessagesTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -28,6 +32,20 @@ class PurchaseController extends Controller
      */
     public function store(Request $request): void
     {
+    }
+
+    public function createFromReport(string $token): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        if (!Cache::has('low-stock-report:' . $token)) {
+            $this->warningSwal(
+                'Otro administrador ya hizo el pedido mediante correo.',
+                'Pedido ya realizado',
+                'session'
+            );
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('admin.purchases.create', ['token' => $token]);
     }
 
     /**

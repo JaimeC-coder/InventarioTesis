@@ -17,21 +17,15 @@ class GraficaCuarta extends Component
 
     public function notTopProducts(): void
     {
-        $products = Record::query()
-            ->select('products.name', 'records.quantity', 'records.warehouse_name')
-            ->join('products', 'records.product_id', '=', 'products.id')
-            ->where('records.quantity', '<=', 99)
-            ->groupBy('records.warehouse_id', 'records.product_id')
-            ->orderBy('records.warehouse_id', 'asc')
-            ->get();
-        ;
-        Log::info('Productos con stock bajo o sin stock: ' . $products);
-        // $this->dispatch(
-        //     'updateChart4',
-        //     labels: $labels,
-        //     data: $data,
-        //     text: 'Productos con stock bajo o sin stock'
-        // );
+        // $products = Record::query()
+        //     ->select('products.name', 'records.quantity', 'records.warehouse_name')
+        //     ->join('products', 'records.product_id', '=', 'products.id')
+        //     ->where('records.quantity', '<=', 'products.min_stock')
+        //     // ->where('records.quantity', '<=', 99)
+        //     ->groupBy('records.warehouse_id', 'records.product_id')
+        //     ->orderBy('records.warehouse_id', 'asc')
+        //     ->get();
+        // Log::info('Productos con stock bajo o sin stock: ' . $products);
     }
 
     // - promedio de ventas por mes en el año  por almacen

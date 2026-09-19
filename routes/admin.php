@@ -55,6 +55,9 @@ Route::resource('units', UnitController::class)->except(['show']);
 Route::resource('suppliers', SupplierController::class)->except(['show']);
 Route::resource('purchases-orders', PurchaseOrderController::class)->only(['index', 'create', 'store']);
 Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store']);
+Route::get('purchases/desde-reporte/{token}', [PurchaseController::class, 'createFromReport'])
+    ->name('purchases.from-report')
+    ->middleware('signed');
 //Movimientos
 Route::resource('movements', MovementController::class)->only(['index', 'create', 'store']);
 Route::resource('transfers', TransferController::class)->only(['index', 'create', 'store']);

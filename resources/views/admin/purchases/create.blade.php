@@ -4,8 +4,6 @@
     ['name' => 'Crear'],
 ]" :title="'Compra'">
 
-
-
-    @livewire('admin.create.purchase')
+    <livewire:admin.create.purchase :token="$token ?? null" />
 
 </x-admin-layout>

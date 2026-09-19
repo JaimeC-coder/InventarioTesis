@@ -35,7 +35,7 @@
 
 
         <div class="lg:flex lg:gap-4">
-            <x-forms.select label="Producto" placeholder="Buscar productos..." :async-data="['api' => route('admin.products'), 'method' => 'POST']" option-label="name"
+            <x-forms.select label="Producto" placeholder="Buscar productos..." :async-data="['api' => route('admin.baseProducts'), 'method' => 'POST']" option-label="name"
                 option-value="uuid" wire:model="product_uuid" />
             <div class="">
                 <x-forms.button type="button" class="w-full mt-4 lg:mt-7" spinner="addProduct"

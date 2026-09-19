@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Product;
 use App\Models\Record;
+use Illuminate\Support\Collection;
 
 class ProductRepository
 {
@@ -47,6 +48,17 @@ class ProductRepository
             ->orderBy('stock_level', 'asc')
             ->limit($limit)
             ->get();
+    }
+
+    public function groupedByWarehouseAndSupplier(): Collection
+    {
+        return Record::query()
+            ->with(['product.supplier', 'warehouse'])
+            ->whereHas('product', fn($query) => $query->where('is_active_product', 1))
+            ->get()
+            ->filter(fn(Record $record): bool => $record->product && $record->quantity <= $record->product->min_stock)
+            ->groupBy('warehouse_id')
+            ->map(fn(Collection $byWarehouse) => $byWarehouse->groupBy('product.supplier_id'));
     }
 
     private function applyDateFilters($query, array $filters, string $column): void
