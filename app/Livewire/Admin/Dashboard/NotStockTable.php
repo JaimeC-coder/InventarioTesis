@@ -53,7 +53,7 @@ final class NotStockTable extends PowerGridComponent
             ->select('records.id as id', 'products.name as product', 'records.quantity as quantity', 'records.warehouse_name as warehouse_name', 'records.warehouse_id as warehouse_id')
             ->join('products', 'records.product_id', '=', 'products.id')
             ->where('records.quantity', '<=', 'products.min_stock')
-            ->groupBy('records.warehouse_id', 'records.product_id')
+            ->groupBy('records.id', 'records.warehouse_id', 'records.product_id')
             ->orderBy('records.warehouse_id', 'asc');
         // ->where('records.quantity', '<=', 99)
     }
