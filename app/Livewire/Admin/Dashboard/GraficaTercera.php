@@ -47,7 +47,7 @@ class GraficaTercera extends Component
         $sales = Sale::select(DB::raw('SUM(sales.total) as total'), 'sales.warehouse_id', 'warehouses.name')
             ->join('warehouses', 'sales.warehouse_id', '=', 'warehouses.id')
             ->whereMonth('date', $mount)
-            ->groupBy('warehouse_id')
+            ->groupBy('warehouse_id', 'warehouses.name')
             ->get();
         $this->dispatch(
             'updateChart3',
