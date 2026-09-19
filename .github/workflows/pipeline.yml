@@ -1,0 +1,183 @@
+name: Pipeline
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  rector:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # necesario para auto-commit en push
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # permite hacer commit de vuelta a la rama
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # ------------------
+      # PHP-CS-FIXER
+      # ------------------
+      - name: Run PHP-CS-Fixer (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff
+
+      - name: Run PHP-CS-Fixer (push)
+        if: ${{ github.event_name == 'push' }}
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php
+
+      # ------------------
+      # RECTOR
+      # ------------------
+
+      # En PR: solo revisión (no cambia archivos)
+      - name: Rector dry-run (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: vendor/bin/rector process --config rector.php --dry-run --output-format=github > rector.log || true
+
+      - name: Run Rector (push)
+        if: ${{ github.event_name == 'push' }}
+        run: vendor/bin/rector process --config rector.php | tee rector.log
+
+        # Guardar el log como artefacto
+      - name: Upload Rector log
+        if: always() # siempre sube el log, pase o falle
+        uses: actions/upload-artifact@v4
+        with:
+          name: rector-log
+          path: rector.log
+      # ------------------
+      # AUTO-COMMIT SOLO EN PUSH
+      # ------------------
+      # Auto-commit de cambios producidos por Rector solo en push
+      - name: Commit & push Rector changes
+        if: ${{ github.event_name == 'push' }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: aplicar fixes de cs-fixer y rector [skip ci]"
+          branch: ${{ github.ref_name }}
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
+
+  ci:
+    needs: rector
+    runs-on: ubuntu-latest
+    environment: Testing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm i
+
+      - name: Add Flux Credentials Loaded From ENV
+        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copy Environment File
+        run: cp .env.example .env
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Run Tests
+        run: ./vendor/bin/phpunit
+
+  deploy:
+    needs: ci
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/branchadeploy' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+          coverage: none
+
+      - name: Install PHP dependencies (for asset build)
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Pull code and install PHP dependencies
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_KEY }}
+          script: |
+            cd ~/public_html/repositories/InventarioTesis
+            git checkout branchadeploy
+            git pull origin branchadeploy
+            rm -f bootstrap/cache/*.php
+            /home/eduardod/composer install --optimize-autoloader
+
+      - name: Upload compiled assets
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_KEY }}
+          source: "public/build/*"
+          target: "~/public_html/repositories/InventarioTesis/public/build"
+          strip_components: 2
+
+      - name: Cache Laravel config
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_KEY }}
+          script: |
+            cd ~/public_html/repositories/InventarioTesis
+            /usr/local/bin/php artisan config:cache
+            /usr/local/bin/php artisan config:clear
+            /usr/local/bin/php artisan route:cache
+            /usr/local/bin/php artisan view:cache
+            /usr/local/bin/php artisan queue:restart
