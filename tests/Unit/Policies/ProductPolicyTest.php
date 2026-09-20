@@ -33,8 +33,8 @@ class ProductPolicyTest extends TestCase
         $user->assignRole('Gerente');
         $this->assertTrue($this->productPolicy->viewAny($user));
         $this->assertTrue($this->productPolicy->create($user));
-        $this->assertTrue($this->productPolicy->update($user, new Product()));
-        $this->assertTrue($this->productPolicy->delete($user, new Product()));
+        $this->assertTrue($this->productPolicy->update($user));
+        $this->assertTrue($this->productPolicy->delete($user));
     }
 
     public function test_role_without_products_permissions_is_denied(): void
@@ -44,7 +44,7 @@ class ProductPolicyTest extends TestCase
         $user = User::factory()->create();
         $this->assertFalse($this->productPolicy->viewAny($user));
         $this->assertFalse($this->productPolicy->create($user));
-        $this->assertFalse($this->productPolicy->update($user, new Product()));
-        $this->assertFalse($this->productPolicy->delete($user, new Product()));
+        $this->assertFalse($this->productPolicy->update($user));
+        $this->assertFalse($this->productPolicy->delete($user));
     }
 }

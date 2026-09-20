@@ -32,8 +32,8 @@ class UserPolicyTest extends TestCase
         $user->assignRole('Administrador');
         $this->assertTrue($this->userPolicy->viewAny($user));
         $this->assertTrue($this->userPolicy->create($user));
-        $this->assertTrue($this->userPolicy->update($user, User::factory()->create()));
-        $this->assertTrue($this->userPolicy->delete($user, User::factory()->create()));
+        $this->assertTrue($this->userPolicy->update($user));
+        $this->assertTrue($this->userPolicy->delete($user));
     }
 
     public function test_jefe_de_almacen_cannot_manage_users(): void
@@ -42,8 +42,8 @@ class UserPolicyTest extends TestCase
         $user->assignRole('Jefe de Almacen');
         $this->assertFalse($this->userPolicy->viewAny($user));
         $this->assertFalse($this->userPolicy->create($user));
-        $this->assertFalse($this->userPolicy->update($user, User::factory()->create()));
-        $this->assertFalse($this->userPolicy->delete($user, User::factory()->create()));
+        $this->assertFalse($this->userPolicy->update($user));
+        $this->assertFalse($this->userPolicy->delete($user));
     }
 
     public function test_jefe_de_abastecimiento_cannot_manage_users(): void
