@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Measure;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class MeasureController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
+        $this->authorize('viewAny', Measure::class);
+
         return view('admin.measures.index');
     }
 
@@ -20,6 +25,8 @@ class MeasureController extends Controller
      */
     public function create(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
+        $this->authorize('create', Measure::class);
+
         return view('admin.measures.create');
     }
 
@@ -28,6 +35,7 @@ class MeasureController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Measure::class);
         //
     }
 
@@ -44,7 +52,8 @@ class MeasureController extends Controller
      */
     public function edit(Measure $measure): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
-        //
+        $this->authorize('update', $measure);
+
         return view('admin.measures.edit', ['measure' => $measure]);
     }
 
@@ -53,6 +62,7 @@ class MeasureController extends Controller
      */
     public function update(Request $request, Measure $measure): void
     {
+        $this->authorize('update', $measure);
         //
     }
 
@@ -61,6 +71,7 @@ class MeasureController extends Controller
      */
     public function destroy(Measure $measure): void
     {
+        $this->authorize('delete', $measure);
         //
     }
 }

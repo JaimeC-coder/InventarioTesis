@@ -36,6 +36,7 @@ class User extends Component
 
     public function mount(ModelsUser $modelsUser): void
     {
+        $this->authorize('update', $modelsUser);
         $this->user = $modelsUser;
         $this->employee = $modelsUser->employee ?? new Employee();
         $this->email = $modelsUser->email;
@@ -70,10 +71,11 @@ class User extends Component
 
     public function save()
     {
+        $this->authorize('update', $this->user);
         $this->validate([
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $this->user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$this->user->id,
             'password' => 'required|string|min:8',
             'document' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
@@ -84,11 +86,11 @@ class User extends Component
         DB::beginTransaction();
         try {
             $this->user->update([
-                'name' => $this->name . ' ' . $this->lastname,
+                'name' => $this->name.' '.$this->lastname,
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
             ]);
-            //REMOVEMOS LOS ROLES ANTERIORES Y ASIGNAMOS EL NUEVO ROL
+            // REMOVEMOS LOS ROLES ANTERIORES Y ASIGNAMOS EL NUEVO ROL
             $this->user->roles()->detach();
             $this->user->syncRoles([$this->role_id]);
             $this->user->employee()->updateOrCreate(
@@ -106,7 +108,7 @@ class User extends Component
             return redirect()->route('admin.users.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear unidad: ' . $exception->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear unidad: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

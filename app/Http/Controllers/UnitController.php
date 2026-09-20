@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Unit;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class UnitController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
+        $this->authorize('viewAny', Unit::class);
+
         return view('admin.units.index');
     }
 
@@ -20,6 +25,8 @@ class UnitController extends Controller
      */
     public function create(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
+        $this->authorize('create', Unit::class);
+
         return view('admin.units.create');
     }
 
@@ -28,6 +35,7 @@ class UnitController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Unit::class);
         //
     }
 
@@ -44,6 +52,8 @@ class UnitController extends Controller
      */
     public function edit(Unit $unit): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
+        $this->authorize('update', $unit);
+
         return view('admin.units.edit', [
             'unit' => $unit,
         ]);
@@ -54,6 +64,7 @@ class UnitController extends Controller
      */
     public function update(Request $request, Unit $unit): void
     {
+        $this->authorize('update', $unit);
         //
     }
 
@@ -62,6 +73,7 @@ class UnitController extends Controller
      */
     public function destroy(Unit $unit): void
     {
+        $this->authorize('delete', $unit);
         //
     }
 }

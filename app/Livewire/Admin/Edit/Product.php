@@ -53,6 +53,7 @@ class Product extends Component
         $product = \App\Models\Product::where('uuid', $productuuid)->first();
         // dd($product);
         if ($product) {
+            $this->authorize('update', $product);
             $this->productuuid = $product->uuid;
             $this->name = $product->name;
             $this->code = $product->code;
@@ -97,44 +98,45 @@ class Product extends Component
             'min_stock' => 'required|integer|min:0',
         ]);
         $product = \App\Models\Product::where('uuid', $this->productuuid)->firstOrFail();
+        $this->authorize('update', $product);
         $category = \App\Models\Category::where('uuid', $this->category_uuid)->first();
         // Datos base (siempre se actualizan)
         $baseData = [
-            'name'              => $this->name,
-            'description'       => $this->description,
-            'price_sale_regular'        => $this->price_sale_regular,
-            'price_sale_a1'        => $this->price_sale_a1,
-            'price_purchase'    => $this->price_purchase,
-            'min_stock'         => $this->min_stock,
-            'category_id'       => $category->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'price_sale_regular' => $this->price_sale_regular,
+            'price_sale_a1' => $this->price_sale_a1,
+            'price_purchase' => $this->price_purchase,
+            'min_stock' => $this->min_stock,
+            'category_id' => $category->id,
         ];
         // Verificar si cambian los datos que afectan el barcode o relaciones
         $hasChanges = (
-            $product->code          !== $this->code ||
+            $product->code !== $this->code ||
             $product->category_code !== $this->category_code ||
-            $product->unit->uuid    !== $this->unit_uuid ||
+            $product->unit->uuid !== $this->unit_uuid ||
             $product->measure->uuid !== $this->measure_uuid
         );
         if ($hasChanges) {
             // Obtener IDs reales
-            $unit_id =  \App\Models\Unit::where('uuid', $this->unit_uuid)->value('id');
+            $unit_id = \App\Models\Unit::where('uuid', $this->unit_uuid)->value('id');
             $unit_code = \App\Models\Unit::where('uuid', $this->unit_uuid)->value('code');
             $unit_name = \App\Models\Unit::where('uuid', $this->unit_uuid)->value('name');
             $measure_id = \App\Models\Measure::where('uuid', $this->measure_uuid)->value('id');
             $measure_code = \App\Models\Measure::where('uuid', $this->measure_uuid)->value('code');
             $measure_name = \App\Models\Measure::where('uuid', $this->measure_uuid)->value('name');
-            $productBase_name  = \App\Models\Product::where('uuid', $this->productBase_uuid)->value('name');
-            $productBase_code  = \App\Models\Product::where('uuid', $this->productBase_uuid)->value('code');
+            $productBase_name = \App\Models\Product::where('uuid', $this->productBase_uuid)->value('name');
+            $productBase_code = \App\Models\Product::where('uuid', $this->productBase_uuid)->value('code');
             // Generar nuevo barcode
-            $barcode = $this->code . $this->category_code . $unit_code . $measure_code;
-            $name =  sprintf('%s por %s de %s', $this->clearName($productBase_name, $productBase_code), $unit_name, $measure_name);
+            $barcode = $this->code.$this->category_code.$unit_code.$measure_code;
+            $name = sprintf('%s por %s de %s', $this->clearName($productBase_name, $productBase_code), $unit_name, $measure_name);
             $extraData = [
-                'name'              => strtoupper($name),
-                'code'          => $this->code,
+                'name' => strtoupper($name),
+                'code' => $this->code,
                 'category_code' => $this->category_code,
-                'barcode'       => $barcode,
-                'unit_id'       => $unit_id,
-                'measure_id'    => $measure_id,
+                'barcode' => $barcode,
+                'unit_id' => $unit_id,
+                'measure_id' => $measure_id,
             ];
         } else {
             $extraData = [];
@@ -146,12 +148,13 @@ class Product extends Component
         $this->dispatch('pg:eventRefresh-product-table-dwonrg-table'); // refresca tabla PowerGrid
     }
 
-    protected function clearName(string $name, String $codigo): string
+    protected function clearName(string $name, string $codigo): string
     {
         // busca y elimina el valor de $codigo en $name
         $name = str_ireplace($codigo, '', $name);
         // elimina espacios en blanco al inicio y al final
         $name = trim($name);
+
         return $name;
     }
 

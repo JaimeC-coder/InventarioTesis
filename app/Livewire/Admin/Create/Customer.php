@@ -32,7 +32,7 @@ class Customer extends Component
 
     public $types = [];
 
-    //CustomerRequest
+    // CustomerRequest
     public function mount(): void
     {
         $this->identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
@@ -54,7 +54,7 @@ class Customer extends Component
     public function generateDocumentNumber(): void
     {
         if ($this->identity === DocumentEnum::DNI->value) {
-            $identity  = DocumentServices::getDataFromDNI($this->document_number);
+            $identity = DocumentServices::getDataFromDNI($this->document_number);
             if ($identity['success'] === false) {
                 $this->dispatch('swal', [
                     'icon' => 'error',
@@ -63,12 +63,13 @@ class Customer extends Component
                 ]);
                 $this->active = false;
                 $this->name = '';
+
                 return;
             }
 
-            $this->name = $identity['nombres'] . ' ' . $identity['apellidoPaterno'] . ' ' . $identity['apellidoMaterno'];
+            $this->name = $identity['nombres'].' '.$identity['apellidoPaterno'].' '.$identity['apellidoMaterno'];
         } elseif ($this->identity === DocumentEnum::RUC->value) {
-            $identity  = DocumentServices::getDataFromRUC($this->document_number);
+            $identity = DocumentServices::getDataFromRUC($this->document_number);
             if (isset($identity['success']) && $identity['success'] === false) {
                 $this->dispatch('swal', [
                     'icon' => 'error',
@@ -77,6 +78,7 @@ class Customer extends Component
                 ]);
                 $this->active = false;
                 $this->name = '';
+
                 return;
             }
 
@@ -89,6 +91,7 @@ class Customer extends Component
             ]);
             $this->active = false;
             $this->name = '';
+
             return;
         }
     }
@@ -107,6 +110,7 @@ class Customer extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsCustomer::class);
         $customerRequest = new CustomerRequest();
         $this->validate($customerRequest->rulesForAction('POST'), $customerRequest->messages());
         DB::beginTransaction();
@@ -131,7 +135,7 @@ class Customer extends Component
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+            Log::error('Error al crear el cliente: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
@@ -141,7 +145,7 @@ class Customer extends Component
             ]);
         } catch (\Throwable $exception) {
             DB::rollBack();
-            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+            Log::error('Error al crear el cliente: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [

@@ -2,21 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
 class RolController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Role::class);
+
         return view('admin.roles.index');
     }
 
     public function permissionsIndex(): \Illuminate\View\View
     {
+        $this->authorize('admin.permissions.index');
+
         return view('admin.roles.indexPermissions');
     }
 
@@ -25,6 +32,8 @@ class RolController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Role::class);
+
         return view('admin.roles.create');
     }
 
@@ -33,6 +42,7 @@ class RolController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Role::class);
     }
 
     /**
@@ -47,6 +57,8 @@ class RolController extends Controller
      */
     public function edit(Role $role): \Illuminate\View\View
     {
+        $this->authorize('update', $role);
+
         return view('admin.roles.edit', ['role' => $role]);
     }
 
@@ -55,6 +67,7 @@ class RolController extends Controller
      */
     public function update(Request $request, Role $role): void
     {
+        $this->authorize('update', $role);
     }
 
     /**
@@ -62,5 +75,6 @@ class RolController extends Controller
      */
     public function destroy(Role $role): void
     {
+        $this->authorize('delete', $role);
     }
 }

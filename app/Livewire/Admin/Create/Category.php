@@ -10,7 +10,7 @@ use Livewire\Component;
 
 class Category extends Component
 {
-    public string $name ;
+    public string $name;
 
     public string $description;
 
@@ -30,6 +30,7 @@ class Category extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsCategory::class);
         $categoryRequest = new CategoryRequest();
         $this->validate($categoryRequest->rulesForAction('POST'), $categoryRequest->messages());
         DB::beginTransaction();
@@ -50,7 +51,7 @@ class Category extends Component
             return redirect()->route('admin.categories.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear la categoría: ' . $exception->getMessage(), [
+            Log::error('Error al crear la categoría: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
@@ -60,7 +61,7 @@ class Category extends Component
             ]);
         } catch (\Throwable $exception) {
             DB::rollBack();
-            Log::error('Error al crear la categoría: ' . $exception->getMessage(), [
+            Log::error('Error al crear la categoría: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [

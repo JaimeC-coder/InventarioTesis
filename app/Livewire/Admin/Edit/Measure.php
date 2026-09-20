@@ -23,6 +23,7 @@ class Measure extends Component
 
     public function mount(ModelsMeasure $modelsMeasure): void
     {
+        $this->authorize('update', $modelsMeasure);
         $this->measure = $modelsMeasure;
         $this->name = $modelsMeasure->name;
         $this->abbreviation = $modelsMeasure->abbreviation;
@@ -50,6 +51,7 @@ class Measure extends Component
 
     public function save(): void
     {
+        $this->authorize('update', $this->measure);
         $this->validate([
             'name' => 'required|string|max:255',
             'abbreviation' => 'required|string|max:10',
@@ -72,7 +74,7 @@ class Measure extends Component
             $this->limpiar();
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al actualizar medida: ' . $exception->getMessage());
+            Log::error('Error al actualizar medida: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

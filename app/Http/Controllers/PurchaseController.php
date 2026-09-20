@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Purchase;
 use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class PurchaseController extends Controller
 {
+    use AuthorizesRequests;
+
     use HandlesSwalMessagesTrait;
 
     /**
@@ -16,6 +19,8 @@ class PurchaseController extends Controller
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Purchase::class);
+
         return view('admin.purchases.index');
     }
 
@@ -24,6 +29,8 @@ class PurchaseController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Purchase::class);
+
         return view('admin.purchases.create');
     }
 
@@ -32,16 +39,19 @@ class PurchaseController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Purchase::class);
     }
 
     public function createFromReport(string $token): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
     {
-        if (!Cache::has('low-stock-report:' . $token)) {
+        $this->authorize('create', Purchase::class);
+        if (! Cache::has('low-stock-report:'.$token)) {
             $this->warningSwal(
                 'Otro administrador ya hizo el pedido mediante correo.',
                 'Pedido ya realizado',
                 'session'
             );
+
             return redirect()->route('admin.dashboard');
         }
 

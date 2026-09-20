@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', PurchaseOrder::class);
+
         return view('admin.purchase_orders.index');
     }
 
@@ -20,6 +25,8 @@ class PurchaseOrderController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', PurchaseOrder::class);
+
         return view('admin.purchase_orders.create');
     }
 
@@ -28,6 +35,7 @@ class PurchaseOrderController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', PurchaseOrder::class);
     }
 
     /**

@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sale;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Sale::class);
+
         return view('admin.sales.index');
     }
 
@@ -20,6 +25,8 @@ class SaleController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Sale::class);
+
         return view('admin.sales.create');
     }
 
@@ -28,6 +35,7 @@ class SaleController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Sale::class);
     }
 
     /**

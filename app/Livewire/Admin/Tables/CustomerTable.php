@@ -41,17 +41,17 @@ final class CustomerTable extends PowerGridComponent
     {
         return [
             Button::add('bulk-delete')
-                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('bulkDelete.' . $this->tableName, []),
+                ->dispatch('bulkDelete.'.$this->tableName, []),
             Button::add('pdf-export')
-                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportPdf.' . $this->tableName, []),
+                ->dispatch('exportPdf.'.$this->tableName, []),
             Button::add('excel-export')
-                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportExcel.' . $this->tableName, []),
+                ->dispatch('exportExcel.'.$this->tableName, []),
         ];
     }
 
@@ -77,7 +77,6 @@ final class CustomerTable extends PowerGridComponent
             ->add('phone')
             ->add('address')
             ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
-        ;
     }
 
     public function columns(): array
@@ -120,12 +119,13 @@ final class CustomerTable extends PowerGridComponent
     public function edit($rowId): void
     {
         $customer = Customer::where('uuid', $rowId)->first();
-        if (!$customer) {
+        if (! $customer) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Cliente no encontrado.',
             ]);
+
             return;
         }
 
@@ -137,12 +137,13 @@ final class CustomerTable extends PowerGridComponent
     public function delete($rowId): void
     {
         $uuids = Customer::where('uuid', $rowId)->pluck('uuid')->toArray();
-        if (!$uuids) {
+        if (! $uuids) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Cliente no encontrado.',
             ]);
+
             return;
         }
 
@@ -153,13 +154,14 @@ final class CustomerTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete(array $rowIds): void
     {
+        $this->authorize('delete', Customer::class);
         $customers = Customer::whereIn('uuid', $rowIds)->get();
         if ($customers->isEmpty()) {
             $this->dispatch('swal', [
@@ -167,19 +169,20 @@ final class CustomerTable extends PowerGridComponent
                 'title' => 'Error',
                 'text' => 'Cliente no encontrado.',
             ]);
+
             return;
         }
 
         try {
             $customers->each->delete();
-            $this->dispatch('pg:eventRefresh-' . $this->tableName); // 👈 nuevo
+            $this->dispatch('pg:eventRefresh-'.$this->tableName); // 👈 nuevo
             $this->dispatch('swal', [
                 'icon' => 'success',
                 'title' => 'Eliminado',
                 'text' => 'Cliente eliminado correctamente.',
             ]);
         } catch (\Exception $exception) {
-            Log::error('Error al eliminar cliente: ' . $exception->getMessage());
+            Log::error('Error al eliminar cliente: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -192,7 +195,7 @@ final class CustomerTable extends PowerGridComponent
     public function bulkDelete(): void
     {
         $uuids = Customer::whereIn('uuid', $this->checkboxValues)->pluck('uuid')->toArray();
-        Log::info('Bulk delete requested for UUIDs: ' . implode(', ', $uuids));
+        Log::info('Bulk delete requested for UUIDs: '.implode(', ', $uuids));
         $this->dispatch('swal', [
             'icon' => 'warning',
             'title' => '¿Estás seguro de eliminar los clientes?',
@@ -200,11 +203,11 @@ final class CustomerTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
-    //EXPORT
+    // EXPORT
     #[On('exportExcel.{tableName}')]
     public function exportExcel()
     {
@@ -214,6 +217,7 @@ final class CustomerTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return null;
         }
 
@@ -249,6 +253,7 @@ final class CustomerTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return;
         }
 

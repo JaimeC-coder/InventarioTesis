@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transfer;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class TransferController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Transfer::class);
+
         return view('admin.transfers.index');
     }
 
@@ -20,6 +25,8 @@ class TransferController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Transfer::class);
+
         return view('admin.transfers.create');
     }
 
@@ -28,6 +35,7 @@ class TransferController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Transfer::class);
     }
 
     /**

@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\WarehouseRequest;
 use App\Models\Warehouse;
 use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 
 class WarehouseController extends Controller
 {
+    use AuthorizesRequests;
+
     use HandlesSwalMessagesTrait;
 
     /**
@@ -16,6 +19,8 @@ class WarehouseController extends Controller
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Warehouse::class);
+
         return view('admin.warehouses.index');
     }
 
@@ -24,6 +29,8 @@ class WarehouseController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Warehouse::class);
+
         return view('admin.warehouses.create');
     }
 
@@ -32,6 +39,7 @@ class WarehouseController extends Controller
      */
     public function store(WarehouseRequest $warehouseRequest): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('create', Warehouse::class);
         try {
             $validated = $warehouseRequest->validated();
             Warehouse::create($validated);
@@ -39,7 +47,7 @@ class WarehouseController extends Controller
 
             return redirect()->route('admin.warehouses.index');
         } catch (\Exception $exception) {
-            Log::info('Error al crear almacén: ' . $exception->getMessage());
+            Log::info('Error al crear almacén: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al crear el almacén.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
@@ -58,6 +66,7 @@ class WarehouseController extends Controller
      */
     public function edit(Warehouse $warehouse): \Illuminate\View\View
     {
+        $this->authorize('update', $warehouse);
 
         return view('admin.warehouses.edit', ['warehouse' => $warehouse]);
     }
@@ -67,6 +76,7 @@ class WarehouseController extends Controller
      */
     public function update(WarehouseRequest $warehouseRequest, Warehouse $warehouse): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('update', $warehouse);
         try {
             $validated = $warehouseRequest->validated();
             $warehouse->update($validated);
@@ -74,7 +84,7 @@ class WarehouseController extends Controller
 
             return redirect()->route('admin.warehouses.index');
         } catch (\Exception $exception) {
-            Log::info('Error al actualizar almacén: ' . $exception->getMessage());
+            Log::info('Error al actualizar almacén: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al actualizar el almacén.', type: 'session');
 
             return redirect()->route('admin.warehouses.index');
@@ -86,6 +96,7 @@ class WarehouseController extends Controller
      */
     public function destroy(Warehouse $warehouse): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('delete', $warehouse);
         if ($warehouse->inventories()->count() > 0) {
             $this->warningSwal('No se puede eliminar el almacén porque tiene productos asociados.', type: 'session');
 

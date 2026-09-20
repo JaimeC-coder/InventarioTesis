@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movement;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class MovementController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Movement::class);
+
         return view('admin.movements.index');
     }
 
@@ -20,6 +25,8 @@ class MovementController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Movement::class);
+
         return view('admin.movements.create');
     }
 
@@ -28,6 +35,7 @@ class MovementController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Movement::class);
     }
 
     /**

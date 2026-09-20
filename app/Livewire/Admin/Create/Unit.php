@@ -31,6 +31,7 @@ class Unit extends Component
 
     public function save(): void
     {
+        $this->authorize('create', \App\Models\Unit::class);
         $this->validate([
             'name' => 'required|string|max:255',
             'abbreviation' => 'required|string|max:10',
@@ -49,7 +50,7 @@ class Unit extends Component
             $this->limpiar();
         } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear unidad: ' . $exception->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear unidad: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

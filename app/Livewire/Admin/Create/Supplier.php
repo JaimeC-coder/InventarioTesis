@@ -57,7 +57,7 @@ class Supplier extends Component
     public function generateDocumentNumber(): void
     {
         if ($this->identity === DocumentEnum::RUC->value) {
-            $identity  = DocumentServices::getDataFromRUC($this->document_number);
+            $identity = DocumentServices::getDataFromRUC($this->document_number);
             if (isset($identity['success']) && $identity['success'] === false) {
                 $this->dispatch('swal', [
                     'icon' => 'error',
@@ -66,6 +66,7 @@ class Supplier extends Component
                 ]);
                 $this->active = false;
                 $this->name = '';
+
                 return;
             }
 
@@ -78,12 +79,14 @@ class Supplier extends Component
             ]);
             $this->active = false;
             $this->name = '';
+
             return;
         }
     }
 
     public function save()
     {
+        $this->authorize('create', ModelsSupplier::class);
         $supplierRequest = new SupplierRequest();
         $this->validate($supplierRequest->rulesForAction('POST'), $supplierRequest->messages());
         DB::beginTransaction();
@@ -107,7 +110,7 @@ class Supplier extends Component
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear el proveedor - exception: ' . $exception->getMessage(), [
+            Log::error('Error al crear el proveedor - exception: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
@@ -117,7 +120,7 @@ class Supplier extends Component
             ]);
         } catch (\Throwable $exception) {
             DB::rollBack();
-            Log::error('Error al crear el proveedor - throwable: ' . $exception->getMessage(), [
+            Log::error('Error al crear el proveedor - throwable: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [

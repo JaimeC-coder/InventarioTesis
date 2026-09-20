@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quote;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class QuoteController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Quote::class);
+
         return view('admin.quotes.index');
     }
 
@@ -20,6 +25,8 @@ class QuoteController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Quote::class);
+
         return view('admin.quotes.create');
     }
 
@@ -28,6 +35,7 @@ class QuoteController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', Quote::class);
     }
 
     /**

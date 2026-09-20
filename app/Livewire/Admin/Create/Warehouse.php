@@ -29,6 +29,7 @@ class Warehouse extends Component
 
     public function save(): void
     {
+        $this->authorize('create', ModelsWarehouse::class);
         $this->validate([
             'name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
@@ -44,7 +45,7 @@ class Warehouse extends Component
             $this->limpiar();
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear almacén: ' . $throwable->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear almacén: '.$throwable->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

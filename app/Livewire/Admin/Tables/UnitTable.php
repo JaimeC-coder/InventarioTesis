@@ -38,13 +38,13 @@ final class UnitTable extends PowerGridComponent
     {
         return [
             Button::add('pdf-export')
-                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportPdf.' . $this->tableName, []),
+                ->dispatch('exportPdf.'.$this->tableName, []),
             Button::add('excel-export')
-                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportExcel.' . $this->tableName, []),
+                ->dispatch('exportExcel.'.$this->tableName, []),
         ];
     }
 
@@ -102,6 +102,7 @@ final class UnitTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return null;
         }
 
@@ -134,6 +135,7 @@ final class UnitTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return;
         }
 
@@ -151,12 +153,13 @@ final class UnitTable extends PowerGridComponent
     public function edit($rowId): void
     {
         $unit = Unit::WhereUuid($rowId)->first();
-        if (!$unit) {
+        if (! $unit) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Unidad no encontrada.',
             ]);
+
             return;
         }
 

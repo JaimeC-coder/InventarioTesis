@@ -40,17 +40,17 @@ final class WarehouseTable extends PowerGridComponent
     {
         return [
             Button::add('bulk-delete')
-                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('bulkDelete.' . $this->tableName, []),
+                ->dispatch('bulkDelete.'.$this->tableName, []),
             Button::add('pdf-export')
-                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportPdf.' . $this->tableName, []),
+                ->dispatch('exportPdf.'.$this->tableName, []),
             Button::add('excel-export')
-                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportExcel.' . $this->tableName, []),
+                ->dispatch('exportExcel.'.$this->tableName, []),
         ];
     }
 
@@ -104,12 +104,13 @@ final class WarehouseTable extends PowerGridComponent
     public function delete($rowId): void
     {
         $uuids = Warehouse::where('uuid', $rowId)->pluck('uuid')->toArray();
-        if (!$uuids) {
+        if (! $uuids) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Almacén no encontrado.',
             ]);
+
             return;
         }
 
@@ -120,13 +121,14 @@ final class WarehouseTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete(array $rowIds): void
     {
+        $this->authorize('delete', Warehouse::class);
         $customers = Warehouse::whereIn('uuid', $rowIds)->get();
         if ($customers->isEmpty()) {
             $this->dispatch('swal', [
@@ -134,6 +136,7 @@ final class WarehouseTable extends PowerGridComponent
                 'title' => 'Error',
                 'text' => 'Almacén no encontrado.',
             ]);
+
             return;
         }
 
@@ -145,7 +148,7 @@ final class WarehouseTable extends PowerGridComponent
                 'text' => 'Almacén eliminado correctamente.',
             ]);
         } catch (\Exception $exception) {
-            Log::error('Error al eliminar almacén: ' . $exception->getMessage());
+            Log::error('Error al eliminar almacén: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -165,7 +168,7 @@ final class WarehouseTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
@@ -178,6 +181,7 @@ final class WarehouseTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return null;
         }
 
@@ -209,6 +213,7 @@ final class WarehouseTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return;
         }
 
@@ -226,12 +231,13 @@ final class WarehouseTable extends PowerGridComponent
     public function edit($rowId): void
     {
         $customer = Warehouse::where('uuid', $rowId)->first();
-        if (!$customer) {
+        if (! $customer) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Cliente no encontrado.',
             ]);
+
             return;
         }
 

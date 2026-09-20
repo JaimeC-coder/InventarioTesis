@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Image;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -56,7 +59,8 @@ class ImageController extends Controller
      */
     public function destroy(Image $image): void
     {
-        Log::info('Eliminando imagen:'. $image);
+        $this->authorize('admin.products.edit');
+        Log::info('Eliminando imagen:'.$image);
         Storage::delete($image->path);
         $image->delete();
     }

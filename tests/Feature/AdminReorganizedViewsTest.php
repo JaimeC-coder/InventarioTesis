@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Employee;
 use App\Models\User;
+use Database\Seeders\RolSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -20,8 +21,8 @@ class AdminReorganizedViewsTest extends TestCase
 
     private function actingAsEmployee(): User
     {
+        $this->seed(RolSeeder::class);
         $user = User::factory()->create();
-
         Employee::create([
             'user_id' => $user->id,
             'document' => '00000000',
@@ -29,7 +30,7 @@ class AdminReorganizedViewsTest extends TestCase
             'address' => 'test',
             'fechaNacimiento' => '1990-01-01',
         ]);
-
+        $user->assignRole('Administrador');
         $this->actingAs($user);
 
         return $user;
@@ -52,9 +53,7 @@ class AdminReorganizedViewsTest extends TestCase
     public function test_create_page_renders_its_livewire_component(string $routeName): void
     {
         $this->actingAsEmployee();
-
         $testResponse = $this->get(route($routeName));
-
         $testResponse->assertOk();
     }
 
@@ -72,9 +71,7 @@ class AdminReorganizedViewsTest extends TestCase
     public function test_index_page_renders_its_edit_livewire_component(string $routeName): void
     {
         $this->actingAsEmployee();
-
         $testResponse = $this->get(route($routeName));
-
         $testResponse->assertOk();
     }
 }

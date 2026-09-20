@@ -18,9 +18,9 @@ use Livewire\Component;
 
 class Sale extends Component
 {
-    use ResolvesUuidsToIds;
-
     use HandlesSwalMessagesTrait;
+
+    use ResolvesUuidsToIds;
 
     public $voucher_type = 2;
 
@@ -107,12 +107,12 @@ class Sale extends Component
     {
         $this->resetErrorBag($property);
         // cuando cambie la cotización
-        if ($property === 'quote_uuid' && !empty($value)) {
+        if ($property === 'quote_uuid' && ! empty($value)) {
             $this->loadFromQuote($value);
         }
 
         // cuando cambie cliente: solo actualizar customer_id
-        if ($property === 'customer_uuid' && !empty($value)) {
+        if ($property === 'customer_uuid' && ! empty($value)) {
             $this->customer_id = Customer::where('uuid', $value)->value('id');
         }
     }
@@ -120,7 +120,7 @@ class Sale extends Component
     public function loadFromQuote(string $uuid): void
     {
         $quote = Quote::where('uuid', $uuid)->first();
-        if (!$quote) {
+        if (! $quote) {
             return;
         }
 
@@ -130,7 +130,7 @@ class Sale extends Component
         $this->customer_id = $quote->customer->id;
         $this->warehouse_uuid = $quote->warehouse->uuid;
         $this->warehouse_id = $quote->warehouse->id;
-        $this->observation = sprintf('Esta compra fue generada a partir de una cotización %s - ', $quote->serie) . UtilitisServices::completeCorrelativo($quote->correlativo);
+        $this->observation = sprintf('Esta compra fue generada a partir de una cotización %s - ', $quote->serie).UtilitisServices::completeCorrelativo($quote->correlativo);
         $this->products = $quote->products->map(function ($product): array {
             return [
                 'id' => $product->id,
@@ -153,13 +153,14 @@ class Sale extends Component
             'product_uuid' => 'required|exists:products,uuid',
         ]);
         $productModel = Product::where('uuid', $this->product_uuid)->first();
-        if (!$productModel) {
+        if (! $productModel) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Producto no encontrado.',
             ]);
             $this->reset('product_uuid');
+
             return;
         }
 
@@ -172,6 +173,7 @@ class Sale extends Component
                 'text' => 'El producto ya ha sido agregado a la lista.',
             ]);
             $this->reset('product_uuid');
+
             return;
         }
 
@@ -181,7 +183,7 @@ class Sale extends Component
         // Determinar tipo de cliente (si existe) y asignar precio por defecto
         $priceType = 'GENERAL';
         $price = $priceA;
-        if (!empty($this->customer_uuid)) {
+        if (! empty($this->customer_uuid)) {
             $customer = Customer::where('uuid', $this->customer_uuid)->first();
             if ($customer && isset($customer->type) && strtoupper($customer->type) === 'A1') {
                 $priceType = 'A1';
@@ -206,6 +208,7 @@ class Sale extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsSale::class);
         $this->resolveCustomerId();
         $this->resolveWarehouseId();
         $this->resolveQuoteId();
@@ -232,19 +235,20 @@ class Sale extends Component
                 'payment_type' => $this->payment_type,
                 'user_id' => Auth::id(),
             ]);
-            ProductDetailServices::createDetailproductableExit($Sale, $this->products, $this->warehouse_id, 'Venta ID: ' . $Sale->id);
+            ProductDetailServices::createDetailproductableExit($Sale, $this->products, $this->warehouse_id, 'Venta ID: '.$Sale->id);
             UtilitisServices::generateAndAttachPdf(ModelsSale::class, $Sale);
             DB::commit();
             $this->successSwal('La venta se ha creado exitosamente.', type: 'session');
             $this->limpiar();
+
             return redirect()->route('admin.sales.index');
         } catch (\Exception $throwable) {
             DB::rollBack();
-            Log::error('Error al crear la venta - Exception: ' . $throwable->getMessage());
+            Log::error('Error al crear la venta - Exception: '.$throwable->getMessage());
             $this->errorSwal('Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.');
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error al crear la venta - Throwable: ' . $throwable->getMessage());
+            Log::error('Error al crear la venta - Throwable: '.$throwable->getMessage());
             $this->errorSwal('Ha ocurrido un error inesperado al crear la venta. Por favor, inténtelo de nuevo.');
         }
 

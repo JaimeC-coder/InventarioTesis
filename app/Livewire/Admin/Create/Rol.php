@@ -36,6 +36,7 @@ class Rol extends Component
 
     public function save(): void
     {
+        $this->authorize('create', \Spatie\Permission\Models\Role::class);
         $this->validate([
             'name' => 'required|string|max:255|unique:roles,name',
             'selectedPermissions' => 'array',
@@ -50,7 +51,7 @@ class Rol extends Component
             $this->limpiar();
         } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear rol: ' . $exception->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear rol: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Unit;
 use App\Traits\HandlesSwalMessagesTrait;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    use AuthorizesRequests;
+
     use HandlesSwalMessagesTrait;
 
     /**
@@ -24,6 +27,7 @@ class ProductController extends Controller
      */
     public function index(): View
     {
+        $this->authorize('viewAny', Product::class);
         // This method can be used to return a view with the product table
         // For example, you can return a Livewire component that displays the products
         return view('admin.products.index'); // Assuming you have a view for listing products
@@ -34,6 +38,7 @@ class ProductController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Product::class);
         // This method can be used to return a view with a form for creating a new product
         $categories = \App\Models\Category::select('name', 'uuid')->get(); // Fetch all categories if needed
 
@@ -45,13 +50,15 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $productRequest): RedirectResponse
     {
+        $this->authorize('create', Product::class);
         try {
             // Validate and create the product
             Product::create($productRequest->validated());
             $this->successSwal('El producto se ha creado correctamente.', type: 'session');
+
             return redirect()->route('admin.products.index');
         } catch (\Exception $exception) {
-            Log::info('Error al crear producto: ' . $exception->getMessage());
+            Log::info('Error al crear producto: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al crear el producto.', type: 'session');
 
             return redirect()->route('admin.products.index');
@@ -70,7 +77,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product): View
     {
+        $this->authorize('update', $product);
         $categories = \App\Models\Category::select('name', 'uuid')->get(); // Fetch all categories if needed
+
         return view('admin.products.edit', ['product' => $product, 'categories' => $categories]);
     }
 
@@ -79,14 +88,17 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $productRequest, Product $product): RedirectResponse
     {
+        $this->authorize('update', $product);
         try {
             // Validate and update the product
             $product->update($productRequest->validated());
             $this->successSwal('El producto se ha actualizado correctamente.', type: 'session');
+
             return redirect()->route('admin.products.index');
         } catch (\Exception $exception) {
-            Log::info('Error al actualizar producto: ' . $exception->getMessage());
+            Log::info('Error al actualizar producto: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al actualizar el producto.', type: 'session');
+
             return redirect()->back();
         }
     }
@@ -96,14 +108,17 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
+        $this->authorize('delete', $product);
         try {
             if ($product->inventories()->exists()) {
                 $this->warningSwal('No se puede eliminar el producto porque está asociado a una orden.', type: 'session');
+
                 return redirect()->route('admin.products.index');
             }
 
             if ($product->purchases()->exists() || $product->quotes()->exists()) {
                 $this->warningSwal('No se puede eliminar el producto porque está asociado a una compra o cotización.', type: 'session');
+
                 return redirect()->route('admin.products.index');
             }
 
@@ -113,24 +128,25 @@ class ProductController extends Controller
 
             return redirect()->route('admin.products.index');
         } catch (\Exception $exception) {
-            Log::info('Error al eliminar producto: ' . $exception->getMessage());
+            Log::info('Error al eliminar producto: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al eliminar el producto.', type: 'session');
         }
 
         return redirect()->route('admin.products.index');
     }
 
-    public function uploadImages(Request $request, Product $product): \Symfony\Component\HttpFoundation\Response //: RedirectResponse
+    public function uploadImages(Request $request, Product $product): \Symfony\Component\HttpFoundation\Response // : RedirectResponse
     {
+        $this->authorize('update', $product);
         $tempPath = Storage::put('images/products', $request->file('file'));
         $extension = $request->file('file')->getClientOriginalExtension();
         $imagenProduct = $product->images()->create([
             'path' => $tempPath,
             'size' => $request->file('file')->getSize(),
-            'alt_text' => $product->uuid . '.' . $extension,
+            'alt_text' => $product->uuid.'.'.$extension,
         ]);
-        $newFileName = $product->uuid . '_' . time() . '.' . $extension;
-        $newPath = 'images/products/' . $newFileName;
+        $newFileName = $product->uuid.'_'.time().'.'.$extension;
+        $newPath = 'images/products/'.$newFileName;
         // MOVEMOS FÍSICAMENTE el archivo del nombre temporal al nuevo nombre
         Storage::move($tempPath, $newPath);
         // Actualizamos la BD con el nuevo path
@@ -148,11 +164,11 @@ class ProductController extends Controller
     public function massiveProducts(Request $request)
     {
         $validated = $request->validate([
-            'categoria'              => ['required', 'integer'],
-            'medidas'                => ['required', 'string'],
-            'productos'               => ['required', 'array'],
-            'productos.*.PRODUCTO'    => ['required', 'string'],
-            'productos.*.CODIGO'      => ['required', 'string'],
+            'categoria' => ['required', 'integer'],
+            'medidas' => ['required', 'string'],
+            'productos' => ['required', 'array'],
+            'productos.*.PRODUCTO' => ['required', 'string'],
+            'productos.*.CODIGO' => ['required', 'string'],
         ], [
             'categoria.required' => 'El campo categoría es obligatorio.',
             'categoria.integer' => 'El campo categoría debe ser un número entero.',
@@ -172,10 +188,10 @@ class ProductController extends Controller
         DB::transaction(function () use ($validated, $categorie, $measures, $units, &$allGeneratedProducts): void {
             foreach ($validated['productos'] as $productData) {
                 $productBase = Product::create([
-                    'name'          => strtoupper($productData['PRODUCTO']),
-                    'code'          => $productData['CODIGO'],
+                    'name' => strtoupper($productData['PRODUCTO']),
+                    'code' => $productData['CODIGO'],
                     'category_code' => $categorie['codigo'],
-                    'description' => 'Producto base para ' . $productData['PRODUCTO'],
+                    'description' => 'Producto base para '.$productData['PRODUCTO'],
                     'price_sale_a1' => 0,
                     'supplier_id' => 1,
                     'price_sale_regular' => 0,
@@ -192,14 +208,14 @@ class ProductController extends Controller
             }
 
             $barcodes = array_column($allGeneratedProducts, 'barcode');
-            //*se implemento de esta forma no tener problemas con sql server y el limite de 2100 parametros en la consulta
+            // *se implemento de esta forma no tener problemas con sql server y el limite de 2100 parametros en la consulta
             $existingBarcodes = collect($barcodes)
                 ->chunk(2000)
                 ->flatMap(fn($chunk) => Product::whereIn('barcode', $chunk)->pluck('barcode'))
                 ->toArray();
             $newProducts = array_values(array_filter(
                 $allGeneratedProducts,
-                fn(array $p): bool => !in_array($p['barcode'], $existingBarcodes)
+                fn(array $p): bool => ! in_array($p['barcode'], $existingBarcodes)
             ));
             if ($newProducts !== []) {
                 $now = now();
@@ -213,6 +229,7 @@ class ProductController extends Controller
                 }
             }
         });
+
         return response()->json(['products' => $allGeneratedProducts], 200);
     }
 
@@ -228,11 +245,11 @@ class ProductController extends Controller
                 $codigoConcatenado = sprintf('%s%s%s%s', $category->codigo, $productData['CODIGO'], $measure['code'], $unit['code']);
                 $nombreFinal = sprintf('%s %s', $this->clearName($productData['PRODUCTO'], $productData['CODIGO']), $measure['description_for_product']);
                 $products[] = [
-                    'name'          => strtoupper($nombreFinal),
+                    'name' => strtoupper($nombreFinal),
                     'code' => $productData['CODIGO'],
                     'category_code' => $category->codigo,
-                    'barcode'        => $codigoConcatenado,
-                    'description' => $nombreFinal . ' por ' . $unit['abbreviation'],
+                    'barcode' => $codigoConcatenado,
+                    'description' => $nombreFinal.' por '.$unit['abbreviation'],
                     'price_sale_regular' => $price_sale_regular,
                     'price_sale_a1' => $price_sale,
                     'price_purchase' => $price_purchase,
@@ -252,12 +269,13 @@ class ProductController extends Controller
         return $products;
     }
 
-    protected function clearName(string $name, String $codigo): string
+    protected function clearName(string $name, string $codigo): string
     {
         // busca y elimina el valor de $codigo en $name
         $name = str_ireplace($codigo, '', $name);
         // elimina espacios en blanco al inicio y al final
         $name = trim($name);
+
         return $name;
     }
 }

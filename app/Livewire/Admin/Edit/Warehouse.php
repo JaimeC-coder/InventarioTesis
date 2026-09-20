@@ -21,6 +21,7 @@ class Warehouse extends Component
 
     public function mount(ModelsWarehouse $modelsWarehouse): void
     {
+        $this->authorize('update', $modelsWarehouse);
         $this->warehouse = $modelsWarehouse;
         $this->warehouseId = $modelsWarehouse->id;
         $this->name = $modelsWarehouse->name;
@@ -43,6 +44,7 @@ class Warehouse extends Component
 
     public function save()
     {
+        $this->authorize('update', $this->warehouse);
         $this->validate([
             'name' => 'required|string|max:255',
             'location' => 'nullable|string',
@@ -61,10 +63,11 @@ class Warehouse extends Component
                 'text' => 'La actualización del almacén fue exitosa.',
                 'icon' => 'success',
             ]);
+
             return redirect()->route('admin.warehouses.index');
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error al actualizar el almacén: ' . $throwable->getMessage(), [
+            Log::error('Error al actualizar el almacén: '.$throwable->getMessage(), [
                 'stack' => $throwable->getTraceAsString(),
             ]);
             $this->dispatch('swal', [

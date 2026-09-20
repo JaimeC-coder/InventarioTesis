@@ -6,10 +6,13 @@ use App\Enum\DocumentEnum;
 use App\Http\Requests\SupplierRequest;
 use App\Models\Supplier;
 use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 
 class SupplierController extends Controller
 {
+    use AuthorizesRequests;
+
     use HandlesSwalMessagesTrait;
 
     /**
@@ -17,6 +20,8 @@ class SupplierController extends Controller
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Supplier::class);
+
         return view('admin.suppliers.index');
     }
 
@@ -25,6 +30,7 @@ class SupplierController extends Controller
      */
     public function create(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
+        $this->authorize('create', Supplier::class);
         $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
             'id' => $mes->label(),
             'name' => $mes->label(),
@@ -38,13 +44,16 @@ class SupplierController extends Controller
      */
     public function store(SupplierRequest $supplierRequest): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('create', Supplier::class);
         try {
             Supplier::create($supplierRequest->validated());
             $this->successSwal('La creación del proveedor fue exitosa.', type: 'session');
+
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            Log::info('Error al crear proveedor: ' . $exception->getMessage());
+            Log::info('Error al crear proveedor: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al crear el proveedor.', type: 'session');
+
             return redirect()->back();
         }
 
@@ -62,6 +71,8 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier): \Illuminate\View\View
     {
+        $this->authorize('update', $supplier);
+
         return view('admin.suppliers.edit', ['supplier' => $supplier]);
     }
 
@@ -70,13 +81,16 @@ class SupplierController extends Controller
      */
     public function update(SupplierRequest $supplierRequest, Supplier $supplier): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('update', $supplier);
         try {
             $supplier->update($supplierRequest->validated());
             $this->successSwal('La actualización del proveedor fue exitosa.', type: 'session');
+
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            Log::info('Error al actualizar proveedor: ' . $exception->getMessage());
+            Log::info('Error al actualizar proveedor: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al actualizar el proveedor.', type: 'session');
+
             return redirect()->back();
         }
 
@@ -87,9 +101,11 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('delete', $supplier);
         try {
             if ($supplier->sales()->exists() || $supplier->quotes()->exists()) {
                 $this->warningSwal('No se puede eliminar el proveedor porque tiene ventas o cotizaciones asociadas.', type: 'session');
+
                 return redirect()->route('admin.suppliers.index');
             }
 
@@ -98,8 +114,9 @@ class SupplierController extends Controller
 
             return redirect()->route('admin.suppliers.index');
         } catch (\Exception $exception) {
-            Log::info('Error al eliminar proveedor: ' . $exception->getMessage());
+            Log::info('Error al eliminar proveedor: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al eliminar el proveedor.', type: 'session');
+
             return redirect()->route('admin.suppliers.index');
         }
     }

@@ -6,10 +6,13 @@ use App\Enum\DocumentEnum;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
 use App\Traits\HandlesSwalMessagesTrait;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
+    use AuthorizesRequests;
+
     use HandlesSwalMessagesTrait;
 
     /**
@@ -17,6 +20,8 @@ class CustomerController extends Controller
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', Customer::class);
+
         return view('admin.customers.index');
     }
 
@@ -25,10 +30,12 @@ class CustomerController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Customer::class);
         $identities = collect(DocumentEnum::cases())->map(fn($mes): array => [
             'id' => $mes->value,
             'name' => $mes->label(),
         ])->toArray();
+
         return view('admin.customers.create', ['identities' => $identities]);
     }
 
@@ -37,13 +44,16 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $customerRequest): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('create', Customer::class);
         try {
             Customer::create($customerRequest->validated());
             $this->successSwal('La creación del cliente fue exitosa.', type: 'session');
+
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
-            Log::info('Error al crear cliente: ' . $exception->getMessage());
+            Log::info('Error al crear cliente: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al crear el cliente.', type: 'session');
+
             return redirect()->back();
         }
 
@@ -61,6 +71,8 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer): \Illuminate\View\View
     {
+        $this->authorize('update', $customer);
+
         return view('admin.customers.edit', ['customer' => $customer]);
     }
 
@@ -69,13 +81,16 @@ class CustomerController extends Controller
      */
     public function update(CustomerRequest $customerRequest, Customer $customer)
     {
+        $this->authorize('update', $customer);
         try {
             $customer->update($customerRequest->validated());
             $this->successSwal('La actualización del cliente fue exitosa.', type: 'session');
+
             return redirect()->route('admin.customers.index');
         } catch (\Exception $exception) {
-            Log::info('Error al actualizar cliente: ' . $exception->getMessage());
+            Log::info('Error al actualizar cliente: '.$exception->getMessage());
             $this->errorSwal('Hubo un problema al actualizar el cliente.', type: 'session');
+
             return redirect()->back();
         }
     }
@@ -85,8 +100,10 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('delete', $customer);
         if ($customer->sales()->exists() || $customer->quotes()->exists()) {
             $this->warningSwal('No se puede eliminar el cliente porque tiene ventas o cotizaciones asociadas.', type: 'session');
+
             return redirect()->route('admin.customers.index');
         }
 

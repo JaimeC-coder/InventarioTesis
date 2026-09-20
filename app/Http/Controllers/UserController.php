@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorize('viewAny', User::class);
+
         return view('admin.users.index');
     }
 
@@ -20,6 +25,8 @@ class UserController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', User::class);
+
         return view('admin.users.create');
     }
 
@@ -28,6 +35,7 @@ class UserController extends Controller
      */
     public function store(Request $request): void
     {
+        $this->authorize('create', User::class);
     }
 
     /**
@@ -42,6 +50,8 @@ class UserController extends Controller
      */
     public function edit(User $user): \Illuminate\View\View
     {
+        $this->authorize('update', $user);
+
         return view('admin.users.edit', ['user' => $user]);
     }
 
@@ -50,6 +60,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): void
     {
+        $this->authorize('update', $user);
     }
 
     /**
@@ -57,5 +68,6 @@ class UserController extends Controller
      */
     public function destroy(User $user): void
     {
+        $this->authorize('delete', $user);
     }
 }

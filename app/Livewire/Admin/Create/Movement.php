@@ -105,6 +105,7 @@ class Movement extends Component
                 'text' => 'El producto ya ha sido agregado a la lista.',
             ]);
             $this->reset('product_id');
+
             return;
         }
 
@@ -120,11 +121,12 @@ class Movement extends Component
 
     public function save()
     {
-        if (!empty($this->warehouse_uuid)) {
+        $this->authorize('create', ModelsMovement::class);
+        if (! empty($this->warehouse_uuid)) {
             $this->warehouse_id = Warehouse::where('uuid', $this->warehouse_uuid)->value('id');
         }
 
-        if (!empty($this->reason_uuid)) {
+        if (! empty($this->reason_uuid)) {
             $this->reason_id = Reason::where('uuid', $this->reason_uuid)->value('id');
         }
 
@@ -154,7 +156,7 @@ class Movement extends Component
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
         ]);
-        //quiero que esto se tenga en una transacción
+        // quiero que esto se tenga en una transacción
         $Movement = ModelsMovement::create([
             'type' => $this->type,
             'serie' => $this->serie,
@@ -187,7 +189,7 @@ class Movement extends Component
                 $newTotal = $lastTotal + ($product['quantity'] * $product['price']);
                 $costBalance = $newTotal / $newQuantity;
                 $Movement->inventories()->create([
-                    'detail' => 'Movimiento de ' . ($this->type == 1 ? 'entrada' : 'salida'),
+                    'detail' => 'Movimiento de '.($this->type == 1 ? 'entrada' : 'salida'),
                     'quantity_in' => $product['quantity'],
                     'cost_in' => $product['price'],
                     'total_in' => $product['quantity'] * $product['price'],
@@ -202,7 +204,7 @@ class Movement extends Component
                 $newTotal = $lastTotal - ($product['quantity'] * $product['price']);
                 $costBalance = $newTotal / ($newQuantity ?: 1);
                 $Movement->inventories()->create([
-                    'detail' => 'Movimiento de ' . ($this->type == 1 ? 'entrada' : 'salida'),
+                    'detail' => 'Movimiento de '.($this->type == 1 ? 'entrada' : 'salida'),
                     'quantity_out' => $product['quantity'],
                     'cost_out' => $product['price'],
                     'total_out' => $product['quantity'] * $product['price'],
@@ -231,7 +233,7 @@ class Movement extends Component
         $decimales = str_pad(round(($monto - $entero) * 100), 2, '0', STR_PAD_LEFT);
 
         return mb_strtoupper(
-            $numberFormatter->format($entero) . sprintf(' %s CON %s/100', $moneda, $decimales)
+            $numberFormatter->format($entero).sprintf(' %s CON %s/100', $moneda, $decimales)
         );
     }
 

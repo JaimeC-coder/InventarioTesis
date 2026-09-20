@@ -17,9 +17,9 @@ use Livewire\Component;
 
 class Quote extends Component
 {
-    use ResolvesUuidsToIds;
-
     use HandlesSwalMessagesTrait;
+
+    use ResolvesUuidsToIds;
 
     public $voucher_type = 1;
 
@@ -102,8 +102,8 @@ class Quote extends Component
     {
         $sum = 0;
         foreach ($this->products as $product) {
-            $qty = isset($product['quantity']) ? (int)$product['quantity'] : 0;
-            $price = isset($product['price']) ? (float)$product['price'] : 0.0;
+            $qty = isset($product['quantity']) ? (int) $product['quantity'] : 0;
+            $price = isset($product['price']) ? (float) $product['price'] : 0.0;
             $sum += $qty * $price;
         }
 
@@ -117,9 +117,10 @@ class Quote extends Component
             'product_uuid' => 'required|exists:products,uuid',
         ]);
         $product = Product::where('uuid', $this->product_uuid)->first();
-        if (!$product) {
+        if (! $product) {
             $this->errorSwal('Producto no encontrado.');
             $this->reset('product_uuid');
+
             return;
         }
 
@@ -127,6 +128,7 @@ class Quote extends Component
         if ($exists) {
             $this->warningSwal('El producto ya ha sido agregado a la lista.');
             $this->reset('product_id');
+
             return;
         }
 
@@ -134,7 +136,7 @@ class Quote extends Component
         $priceB = (float) $product->price_sale_a1;
         $priceType = 'GENERAL';
         $price = $priceA;
-        if (!empty($this->customer_uuid)) {
+        if (! empty($this->customer_uuid)) {
             $customer = Customer::where('uuid', $this->customer_uuid)->first();
             if ($customer && isset($customer->type) && strtoupper($customer->type) === 'A1') {
                 $priceType = 'A1';
@@ -158,6 +160,7 @@ class Quote extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsQuote::class);
         $this->resolveCustomerId();
         $this->resolveWarehouseId();
         // recalcular total en backend por seguridad
@@ -167,7 +170,7 @@ class Quote extends Component
         DB::beginTransaction();
         try {
             $correlativo = UtilitisServices::NextCorrelative(ModelsQuote::class);
-            //quiero que esto se tenga en una transacción
+            // quiero que esto se tenga en una transacción
             $Quote = ModelsQuote::create([
                 'voucher_type' => $this->voucher_type,
                 'serie' => $this->serie,
@@ -196,11 +199,11 @@ class Quote extends Component
         } catch (\Exception $throwable) {
             DB::rollBack();
             $this->errorSwal('Ocurrió un error al crear la cotización.');
-            Log::error('Error al crear la cotización - Exception: ' . $throwable->getMessage());
+            Log::error('Error al crear la cotización - Exception: '.$throwable->getMessage());
         } catch (\Throwable $throwable) {
             DB::rollBack();
             $this->errorSwal('Ocurrió un error al crear la cotización.');
-            Log::error('Error al crear la cotización - Throwable: ' . $throwable->getMessage());
+            Log::error('Error al crear la cotización - Throwable: '.$throwable->getMessage());
         }
 
         return null;

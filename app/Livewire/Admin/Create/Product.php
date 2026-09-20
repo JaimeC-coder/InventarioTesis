@@ -14,9 +14,9 @@ use Livewire\Component;
 
 class Product extends Component
 {
-    use ResolvesUuidsToIds;
-
     use HandlesSwalMessagesTrait;
+
+    use ResolvesUuidsToIds;
 
     public $measures_uuid = [];
 
@@ -86,9 +86,9 @@ class Product extends Component
     public function updated(string $property, ?string $value): void
     {
         $this->resetErrorBag($property);
-        Log::info('Property updated: ' . $property . ' with value: ' . $value);
+        Log::info('Property updated: '.$property.' with value: '.$value);
         if ($property === 'category_uuid' && ($value !== null && $value !== '' && $value !== '0')) {
-            Log::info('Category UUID updated: ' . $value);
+            Log::info('Category UUID updated: '.$value);
             $this->category_code = \App\Models\Category::where('uuid', $value)->value('codigo');
             $this->codedisabled = true;
         }
@@ -119,16 +119,16 @@ class Product extends Component
                 // Concatenado: códigoUsuario-códigoUnidad-códigoMedida
                 $codigoConcatenado = sprintf('%s%s%s%s', $this->category_code, $this->code, $unit->code, $measure->code);
                 // Nombre: base + unidad + medida
-                $nameespecificPart = $this->name_specific ? ' ' . $this->name_specific : '';
+                $nameespecificPart = $this->name_specific ? ' '.$this->name_specific : '';
                 $nombreFinal = sprintf('%s%s por %s de %s', $this->name, $nameespecificPart, $unit->name, $measure->name);
-                $this->productBaseName = $this->name . $nameespecificPart;
+                $this->productBaseName = $this->name.$nameespecificPart;
                 $this->products[] = [
                     'id' => $id++,
-                    'codigo'        => $codigoConcatenado,
-                    'name'          => $nombreFinal,
-                    'price_sale'        => 0, // Inicialmente en 0, se puede editar en la tabla
-                    'price_purchase'    => 0,
-                    'unituuid'    => $unit->uuid, // Concatenado para identificar
+                    'codigo' => $codigoConcatenado,
+                    'name' => $nombreFinal,
+                    'price_sale' => 0, // Inicialmente en 0, se puede editar en la tabla
+                    'price_purchase' => 0,
+                    'unituuid' => $unit->uuid, // Concatenado para identificar
                     'measureuuid' => $measure->uuid,
                     'unit' => $unit->name,
                     'measure' => $measure->name,
@@ -138,7 +138,7 @@ class Product extends Component
 
         $this->locked = true;
         $this->reset(['name', 'name_specific', 'units_uuid', 'measures_uuid']);
-        Log::info('products después de addProduct: ' . json_encode($this->products));
+        Log::info('products después de addProduct: '.json_encode($this->products));
     }
 
     public function removeProduct($id): void
@@ -150,9 +150,10 @@ class Product extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsProduct::class);
         $this->resolveSupplierId();
         $this->resolveCategoryId();
-        Log::info('products:' . count($this->products));
+        Log::info('products:'.count($this->products));
         $productRequest = new ProductRequest();
         $this->validate($productRequest->rulesForAction('POST'), $productRequest->messages(), $productRequest->attributes());
         DB::beginTransaction();
@@ -168,7 +169,7 @@ class Product extends Component
                 'stock' => 0,
                 'min_stock' => $this->stock_min,
                 'is_active_product' => false,
-                'category_id' =>  $this->category_id,
+                'category_id' => $this->category_id,
             ]);
             // luego vamos a crear los productos dependientes
             foreach ($this->products as $product) {
@@ -185,7 +186,7 @@ class Product extends Component
                     'min_stock' => $this->stock_min,
                     'is_active_product' => true,
                     'product_base_id' => $productBaseid->id,
-                    'category_id' =>  $this->category_id,
+                    'category_id' => $this->category_id,
                     'unit_id' => \App\Models\Unit::where('uuid', $product['unituuid'])->value('id'),
                     'measure_id' => \App\Models\Measure::where('uuid', $product['measureuuid'])->value('id'),
                 ]);
@@ -202,7 +203,7 @@ class Product extends Component
             return redirect()->route('admin.products.index');
         } catch (\Illuminate\Validation\ValidationException  $throwable) {
             DB::rollBack();
-            Log::error('Error al guardar productos - ValidationException: ' . $throwable->getMessage(), [
+            Log::error('Error al guardar productos - ValidationException: '.$throwable->getMessage(), [
                 'errors' => $throwable->errors(),
             ]);
             $this->dispatch('swal:success', [
@@ -210,24 +211,27 @@ class Product extends Component
                 'text' => 'Ocurrió un error al guardar los productos. Por favor, inténtelo de nuevo.',
                 'icon' => 'error',
             ]);
+
             return redirect()->back();
         } catch (\Exception $throwable) {
             DB::rollBack();
-            Log::error('Error al guardar productos - Exception: ' . $throwable->getMessage());
+            Log::error('Error al guardar productos - Exception: '.$throwable->getMessage());
             $this->dispatch('swal:success', [
                 'title' => 'Error al guardar productos',
                 'text' => 'Ocurrió un error al guardar los productos. Por favor, inténtelo de nuevo.',
                 'icon' => 'error',
             ]);
+
             return redirect()->back();
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error al guardar productos - Throwable: ' . $throwable->getMessage());
+            Log::error('Error al guardar productos - Throwable: '.$throwable->getMessage());
             $this->dispatch('swal:success', [
                 'title' => 'Error al guardar productos',
                 'text' => 'Ocurrió un error al guardar los productos. Por favor, inténtelo de nuevo.',
                 'icon' => 'error',
             ]);
+
             return redirect()->back();
         }
     }

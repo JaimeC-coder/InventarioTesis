@@ -69,7 +69,7 @@ class Transfer extends Component
                 }
 
                 $html .= '</ul>';
-                Log::error('Validation errors: ' . $html);
+                Log::error('Validation errors: '.$html);
                 $this->dispatch('swal', [
                     'icon' => 'error',
                     'title' => 'Error',
@@ -110,6 +110,7 @@ class Transfer extends Component
         if ($exists) {
             $this->warningSwal('El producto ya ha sido agregado a la lista.');
             $this->reset('product_id');
+
             return;
         }
 
@@ -126,11 +127,12 @@ class Transfer extends Component
 
     public function save()
     {
-        if (!empty($this->origin_warehouse_uuid)) {
+        $this->authorize('create', ModelsTransfer::class);
+        if (! empty($this->origin_warehouse_uuid)) {
             $this->origin_warehouse_id = Warehouse::where('uuid', $this->origin_warehouse_uuid)->value('id');
         }
 
-        if (!empty($this->destination_warehouse_uuid)) {
+        if (! empty($this->destination_warehouse_uuid)) {
             $this->destination_warehouse_id = Warehouse::where('uuid', $this->destination_warehouse_uuid)->value('id');
         }
 
@@ -160,7 +162,7 @@ class Transfer extends Component
             'products.*.quantity' => 'Cantidad del producto',
             'products.*.price' => 'Precio del producto',
         ]);
-        //quiero que esto se tenga en una transacción
+        // quiero que esto se tenga en una transacción
         $Movement = ModelsTransfer::create([
             'type' => $this->type,
             'serie' => $this->serie,
@@ -190,6 +192,7 @@ class Transfer extends Component
 
         $this->successSwal('El movimiento se ha creado exitosamente.', type: 'session');
         $this->limpiar();
+
         return redirect()->route('admin.transfers.index');
     }
 

@@ -58,11 +58,12 @@ class User extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsUser::class);
         $userRequest = new UserRequest();
         $this->validate($userRequest->rulesForAction('POST'), $userRequest->messages());
         DB::beginTransaction();
         try {
-            $nameComplete = $this->name . ' ' . $this->lastname;
+            $nameComplete = $this->name.' '.$this->lastname;
             $user = ModelsUser::create([
                 'name' => $nameComplete,
                 'email' => $this->email,
@@ -82,10 +83,11 @@ class User extends Component
                 'icon' => 'success',
             ]);
             $this->limpiar();
+
             return redirect()->route('admin.users.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+            Log::error('Error al crear el cliente: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
@@ -95,7 +97,7 @@ class User extends Component
             ]);
         } catch (\Throwable $exception) {
             DB::rollBack();
-            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+            Log::error('Error al crear el cliente: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->dispatch('swal', [

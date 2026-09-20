@@ -18,9 +18,9 @@ use Livewire\Component;
 
 class Purchase extends Component
 {
-    use ResolvesUuidsToIds;
-
     use HandlesSwalMessagesTrait;
+
+    use ResolvesUuidsToIds;
 
     public int $voucher_type = 2;
 
@@ -111,19 +111,19 @@ class Purchase extends Component
     public function updated($property, $value): void
     {
         $this->resetErrorBag($property);
-        if ($property === 'purchase_order_uuid' && !empty($value)) {
+        if ($property === 'purchase_order_uuid' && ! empty($value)) {
             $this->loadFromPurchaseOrder($value);
         }
     }
 
     private function prefillFromReportToken(string $token): void
     {
-        $payload = Cache::get('low-stock-report:' . $token);
-        if (!$payload) {
+        $payload = Cache::get('low-stock-report:'.$token);
+        if (! $payload) {
             return;
         }
 
-        Log::info('Payload from token: ' . json_encode($payload));
+        Log::info('Payload from token: '.json_encode($payload));
         $this->supplier_uuid = $payload['supplier_uuid'];
         $this->resolveSupplierId();
         $this->warehouse_uuid = $payload['warehouse_uuid'];
@@ -145,7 +145,7 @@ class Purchase extends Component
     private function loadFromPurchaseOrder(string $uuid): void
     {
         $purchaseOrder = PurchaseOrder::where('uuid', $uuid)->first();
-        if (!$purchaseOrder) {
+        if (! $purchaseOrder) {
             return;
         }
 
@@ -155,7 +155,7 @@ class Purchase extends Component
         $this->warehouse_uuid = $purchaseOrder->warehouse->uuid;
         $this->warehouse_id = $purchaseOrder->warehouse->id;
         $this->supplier_id = $purchaseOrder->supplier->id;
-        $this->observation = sprintf('Esta compra fue generada a partir de una orden de compra %s - ', $purchaseOrder->serie) . UtilitisServices::completeCorrelativo($purchaseOrder->correlativo);
+        $this->observation = sprintf('Esta compra fue generada a partir de una orden de compra %s - ', $purchaseOrder->serie).UtilitisServices::completeCorrelativo($purchaseOrder->correlativo);
         $this->products = $purchaseOrder->products->map(fn($product): array => [
             'id' => $product->id,
             'name' => $product->name,
@@ -197,16 +197,18 @@ class Purchase extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsPurchase::class);
         $this->resolveSupplierId();
         $this->resolvePurchaseOrderId();
         $this->resolveWarehouseId();
         $this->recalcularTotalDesdeProductos();
-        if ($this->token && !Cache::has('low-stock-report:' . $this->token)) {
+        if ($this->token && ! Cache::has('low-stock-report:'.$this->token)) {
             $this->warningSwal(
                 'Otro administrador ya hizo el pedido mediante correo.',
                 'Pedido ya realizado',
                 'session'
             );
+
             return redirect()->route('admin.dashboard');
         }
 
@@ -236,21 +238,22 @@ class Purchase extends Component
             UtilitisServices::generateAndAttachPdf(ModelsPurchase::class, $Purchase);
             DB::commit();
             if ($this->token) {
-                Cache::forget('low-stock-report:' . $this->token);
+                Cache::forget('low-stock-report:'.$this->token);
             }
 
             $this->successSwal('La compra se ha creado exitosamente.', type: 'session');
             $this->limpiar();
+
             return redirect()->route('admin.purchases.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+            Log::error('Error al crear el cliente: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->errorSwal('Ocurrió un error al crear la compra.');
         } catch (\Throwable $exception) {
             DB::rollBack();
-            Log::error('Error al crear el cliente: ' . $exception->getMessage(), [
+            Log::error('Error al crear el cliente: '.$exception->getMessage(), [
                 'stack' => $exception->getTraceAsString(),
             ]);
             $this->errorSwal('Ocurrió un error al crear la compra.');

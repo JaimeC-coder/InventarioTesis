@@ -32,6 +32,7 @@ class Measure extends Component
 
     public function save(): void
     {
+        $this->authorize('create', \App\Models\Measure::class);
         $this->validate([
             'name' => 'required|string|max:255',
             'abbreviation' => 'required|string|max:10',
@@ -54,7 +55,7 @@ class Measure extends Component
             $this->limpiar();
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al crear medida: ' . $exception->getMessage());
+            Log::error('Error al crear medida: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

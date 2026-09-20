@@ -16,9 +16,9 @@ use Livewire\Component;
 
 class PurchaseOrder extends Component
 {
-    use ResolvesUuidsToIds;
-
     use HandlesSwalMessagesTrait;
+
+    use ResolvesUuidsToIds;
 
     public $voucher_type = 1;
 
@@ -110,6 +110,7 @@ class PurchaseOrder extends Component
                 'text' => 'El producto ya ha sido agregado a la lista.',
             ]);
             $this->reset('product_uuid');
+
             return;
         }
 
@@ -135,6 +136,7 @@ class PurchaseOrder extends Component
 
     public function save()
     {
+        $this->authorize('create', ModelsPurchaseOrder::class);
         $this->resolveSupplierId();
         $this->resolveWarehouseId();
         $PurchaseOrder = new PurchaseOrderRequest();
@@ -161,16 +163,19 @@ class PurchaseOrder extends Component
             DB::commit();
             $this->successSwal('La orden de compra se ha creado exitosamente.', type: 'session');
             $this->limpiar();
+
             return redirect()->route('admin.purchases-orders.index');
         } catch (\Exception $throwable) {
             DB::rollBack();
-            Log::error('Error al crear la orden de compra - Exception: ' . $throwable->getMessage());
+            Log::error('Error al crear la orden de compra - Exception: '.$throwable->getMessage());
             $this->errorSwal('Ocurrió un error al crear la orden de compra.');
+
             return redirect()->back();
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error al crear la orden de compra - Throwable: ' . $throwable->getMessage());
+            Log::error('Error al crear la orden de compra - Throwable: '.$throwable->getMessage());
             $this->errorSwal('Ocurrió un error al crear la orden de compra.');
+
             return redirect()->back();
         }
     }

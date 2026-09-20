@@ -30,6 +30,7 @@ class ProductPrice extends Component
     {
         $product = Product::where('uuid', $productuuid)->first();
         if ($product) {
+            $this->authorize('update', $product);
             $this->productuuid = $product->uuid;
             $this->name = $product->name;
             $this->price_sale_regular = $product->price_sale_regular;
@@ -55,6 +56,7 @@ class ProductPrice extends Component
         try {
             $product = Product::where('uuid', $this->productuuid)->first();
             if ($product) {
+                $this->authorize('update', $product);
                 $product->update([
                     'price_sale_regular' => $this->price_sale_regular,
                     'price_sale_a1' => $this->price_sale_a1,
@@ -66,7 +68,7 @@ class ProductPrice extends Component
             }
         } catch (\Exception $exception) {
             DB::rollBack();
-            Log::error('Error al actualizar precio del producto: ' . $exception->getMessage());
+            Log::error('Error al actualizar precio del producto: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -79,7 +81,7 @@ class ProductPrice extends Component
     public function editPrice(): void
     {
         // 1.18;
-        //si corrijo el numero osea borro el numero quiero que se cambie a 0
+        // si corrijo el numero osea borro el numero quiero que se cambie a 0
         if (empty($this->price_sale_a1_final)) {
             $this->price_sale_a1_final = 0;
         }

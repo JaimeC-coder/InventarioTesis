@@ -41,17 +41,17 @@ final class SupplierTable extends PowerGridComponent
     {
         return [
             Button::add('bulk-delete')
-                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('bulkDelete.' . $this->tableName, []),
+                ->dispatch('bulkDelete.'.$this->tableName, []),
             Button::add('pdf-export')
-                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportPdf.' . $this->tableName, []),
+                ->dispatch('exportPdf.'.$this->tableName, []),
             Button::add('excel-export')
-                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportExcel.' . $this->tableName, []),
+                ->dispatch('exportExcel.'.$this->tableName, []),
         ];
     }
 
@@ -77,7 +77,6 @@ final class SupplierTable extends PowerGridComponent
             ->add('address')
             ->add('uuid')
             ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
-        ;
     }
 
     public function columns(): array
@@ -121,12 +120,13 @@ final class SupplierTable extends PowerGridComponent
     public function edit($supplierId): void
     {
         $supplier = Supplier::where('uuid', $supplierId)->first();
-        if (!$supplier) {
+        if (! $supplier) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Proveedor no encontrado.',
             ]);
+
             return;
         }
 
@@ -138,12 +138,13 @@ final class SupplierTable extends PowerGridComponent
     public function delete($rowId): void
     {
         $uuids = Supplier::where('uuid', $rowId)->pluck('uuid')->toArray();
-        if (!$uuids) {
+        if (! $uuids) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Proveedor no encontrado.',
             ]);
+
             return;
         }
 
@@ -154,13 +155,14 @@ final class SupplierTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete(array $rowIds): void
     {
+        $this->authorize('delete', Supplier::class);
         $customers = Supplier::whereIn('uuid', $rowIds)->get();
         if ($customers->isEmpty()) {
             $this->dispatch('swal', [
@@ -168,6 +170,7 @@ final class SupplierTable extends PowerGridComponent
                 'title' => 'Error',
                 'text' => 'Proveedor no encontrado.',
             ]);
+
             return;
         }
 
@@ -178,9 +181,9 @@ final class SupplierTable extends PowerGridComponent
                 'title' => 'Eliminado',
                 'text' => 'Proveedor eliminado correctamente.',
             ]);
-            $this->dispatch('pg:eventRefresh-' . $this->tableName); // 👈 nuevo
+            $this->dispatch('pg:eventRefresh-'.$this->tableName); // 👈 nuevo
         } catch (\Exception $exception) {
-            Log::error('Error al eliminar proveedor: ' . $exception->getMessage());
+            Log::error('Error al eliminar proveedor: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -200,7 +203,7 @@ final class SupplierTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
@@ -213,6 +216,7 @@ final class SupplierTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return null;
         }
 
@@ -248,6 +252,7 @@ final class SupplierTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return;
         }
 

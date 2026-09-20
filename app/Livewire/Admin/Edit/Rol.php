@@ -23,6 +23,7 @@ class Rol extends Component
 
     public function mount(Role $modelsRole): void
     {
+        $this->authorize('update', $modelsRole);
         $this->role = $modelsRole;
         $this->name = $modelsRole->name;
         $this->selectedPermissions = $modelsRole->permissions->pluck('id')->toArray();
@@ -43,8 +44,9 @@ class Rol extends Component
 
     public function save()
     {
+        $this->authorize('update', $this->role);
         $this->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $this->role->id,
+            'name' => 'required|string|max:255|unique:roles,name,'.$this->role->id,
             'selectedPermissions' => 'array',
             'selectedPermissions.*' => 'exists:permissions,id',
         ]);
@@ -57,9 +59,10 @@ class Rol extends Component
             $this->role->syncPermissions($permissions);
             DB::commit();
             session()->flash('message', 'Rol actualizado exitosamente.');
+
             return redirect()->route('admin.roles.index');
         } catch (\Exception $exception) {
-            Log::error('Error al actualizar rol: ' . $exception->getMessage());
+            Log::error('Error al actualizar rol: '.$exception->getMessage());
             DB::rollBack();
             session()->flash('error', 'Error al actualizar el rol.');
         }

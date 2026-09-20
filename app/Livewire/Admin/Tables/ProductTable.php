@@ -49,17 +49,17 @@ final class ProductTable extends PowerGridComponent
     {
         return [
             Button::add('bulk-delete')
-                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('bulkDelete.' . $this->tableName, []),
+                ->dispatch('bulkDelete.'.$this->tableName, []),
             Button::add('pdf-export')
-                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportPdf.' . $this->tableName, []),
+                ->dispatch('exportPdf.'.$this->tableName, []),
             Button::add('excel-export')
-                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportExcel.' . $this->tableName, []),
+                ->dispatch('exportExcel.'.$this->tableName, []),
         ];
     }
 
@@ -82,6 +82,7 @@ final class ProductTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         $barcodeGeneratorPNG = new \Picqer\Barcode\BarcodeGeneratorPNG();
+
         return PowerGrid::fields()
             ->add('codigo')
             ->add('name')
@@ -105,7 +106,6 @@ final class ProductTable extends PowerGridComponent
             ->add('stock')
             ->add('min_stock')
             ->add('created_at')->add('created_at_formatted', fn($user): string => Carbon::parse($user->created_at)->format('d/m/Y H:i:s'));
-        ;
     }
 
     public function columns(): array
@@ -216,8 +216,9 @@ final class ProductTable extends PowerGridComponent
     {
         $product = Product::where('uuid', $productId)->first();
         if ($product) {
+            $this->authorize('delete', $product);
             $product->delete();
-            $this->dispatch('pg:eventRefresh-' . $this->tableName);
+            $this->dispatch('pg:eventRefresh-'.$this->tableName);
             $this->resetPage();
             $this->dispatch('swal:success', [
                 'title' => 'Eliminado',
@@ -230,8 +231,9 @@ final class ProductTable extends PowerGridComponent
     #[On('bulkDelete.{tableName}')]
     public function bulkDelete(): void
     {
+        $this->authorize('delete', Product::class);
         Product::whereIn('uuid', $this->checkboxValues)->delete();
-        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+        $this->dispatch('pg:eventRefresh-'.$this->tableName);
         $this->resetPage();
         $this->dispatch('swal:success', [
             'title' => 'Eliminado',

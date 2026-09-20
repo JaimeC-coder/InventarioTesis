@@ -40,17 +40,17 @@ final class CategoryTable extends PowerGridComponent
     {
         return [
             Button::add('bulk-delete')
-                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Eliminación masiva (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('bulkDelete.' . $this->tableName, []),
+                ->dispatch('bulkDelete.'.$this->tableName, []),
             Button::add('pdf-export')
-                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar PDF (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportPdf.' . $this->tableName, []),
+                ->dispatch('exportPdf.'.$this->tableName, []),
             Button::add('excel-export')
-                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+                ->slot('Exportar Excel (<span x-text="window.pgBulkActions.count(\''.$this->tableName.'\')"></span>)')
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('exportExcel.' . $this->tableName, []),
+                ->dispatch('exportExcel.'.$this->tableName, []),
         ];
     }
 
@@ -69,7 +69,7 @@ final class CategoryTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('name')
             ->add('description', function ($dish): string {
-                return '<div title="' . e($dish->description) . '" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' . e($dish->description) . '</div>';
+                return '<div title="'.e($dish->description).'" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">'.e($dish->description).'</div>';
             })
             ->add('uuid')
             ->add('codigo')
@@ -110,12 +110,13 @@ final class CategoryTable extends PowerGridComponent
     public function delete($rowId): void
     {
         $uuids = Category::where('uuid', $rowId)->pluck('uuid')->toArray();
-        if (!$uuids) {
+        if (! $uuids) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Categoría no encontrada.',
             ]);
+
             return;
         }
 
@@ -126,13 +127,14 @@ final class CategoryTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete(array $rowIds): void
     {
+        $this->authorize('delete', Category::class);
         $customers = Category::whereIn('uuid', $rowIds)->get();
         if ($customers->isEmpty()) {
             $this->dispatch('swal', [
@@ -140,6 +142,7 @@ final class CategoryTable extends PowerGridComponent
                 'title' => 'Error',
                 'text' => 'Categoría no encontrada.',
             ]);
+
             return;
         }
 
@@ -151,7 +154,7 @@ final class CategoryTable extends PowerGridComponent
                 'text' => 'Categoría eliminada correctamente.',
             ]);
         } catch (\Exception $exception) {
-            Log::error('Error al eliminar categoría: ' . $exception->getMessage());
+            Log::error('Error al eliminar categoría: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
@@ -171,7 +174,7 @@ final class CategoryTable extends PowerGridComponent
             'showCancelButton' => true,
             'confirmButtonText' => 'Sí, eliminar',
             'cancelButtonText' => 'Cancelar',
-            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: " . json_encode($uuids) . ' })',
+            'onConfirm' => "Livewire.dispatch('confirmDelete', { rowIds: ".json_encode($uuids).' })',
         ]);
     }
 
@@ -184,6 +187,7 @@ final class CategoryTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return null;
         }
 
@@ -216,6 +220,7 @@ final class CategoryTable extends PowerGridComponent
                 'text' => 'No se han seleccionado registros para exportar.',
                 'icon' => 'warning',
             ]);
+
             return;
         }
 
@@ -233,12 +238,13 @@ final class CategoryTable extends PowerGridComponent
     public function edit($rowId): void
     {
         $category = Category::where('uuid', $rowId)->first();
-        if (!$category) {
+        if (! $category) {
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
                 'text' => 'Categoría no encontrada.',
             ]);
+
             return;
         }
 

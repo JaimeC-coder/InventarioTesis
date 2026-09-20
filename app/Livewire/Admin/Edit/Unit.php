@@ -18,6 +18,7 @@ class Unit extends Component
 
     public function mount(ModelsUnit $modelsUnit): void
     {
+        $this->authorize('update', $modelsUnit);
         $this->unit = $modelsUnit;
         $this->name = $modelsUnit->name;
         $this->abbreviation = $modelsUnit->abbreviation;
@@ -41,6 +42,7 @@ class Unit extends Component
 
     public function save()
     {
+        $this->authorize('update', $this->unit);
         $this->validate([
             'name' => 'required|string|max:255',
             'abbreviation' => 'required|string|max:10',
@@ -57,10 +59,11 @@ class Unit extends Component
             session()->flash('message', 'Unidad actualizada exitosamente.');
             // Reset the form fields
             $this->limpiar();
+
             return redirect()->route('admin.units.index');
         } catch (\Exception $exception) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Error al crear unidad: ' . $exception->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error al crear unidad: '.$exception->getMessage());
             $this->dispatch('swal', [
                 'icon' => 'error',
                 'title' => 'Error',

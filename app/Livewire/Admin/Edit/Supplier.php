@@ -30,6 +30,7 @@ class Supplier extends Component
 
     public function mount(ModelsSupplier $modelsSupplier): void
     {
+        $this->authorize('update', $modelsSupplier);
         $this->supplier = $modelsSupplier;
         $this->document_number = $modelsSupplier->document_number;
         $this->identity = $modelsSupplier->identity;
@@ -72,6 +73,7 @@ class Supplier extends Component
 
     public function save()
     {
+        $this->authorize('update', $this->supplier);
         $this->validate($this->rules(), (new SupplierRequest())->messages());
         DB::beginTransaction();
         try {
@@ -92,7 +94,7 @@ class Supplier extends Component
             return redirect()->route('admin.suppliers.index');
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error al actualizar el proveedor: ' . $throwable->getMessage(), [
+            Log::error('Error al actualizar el proveedor: '.$throwable->getMessage(), [
                 'stack' => $throwable->getTraceAsString(),
             ]);
             $this->dispatch('swal', [

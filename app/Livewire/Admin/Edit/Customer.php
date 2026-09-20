@@ -34,6 +34,7 @@ class Customer extends Component
 
     public function mount(ModelsCustomer $modelsCustomer): void
     {
+        $this->authorize('update', $modelsCustomer);
         $this->customer = $modelsCustomer;
         $this->document_number = $modelsCustomer->document_number;
         $this->identity = $modelsCustomer->identity;
@@ -83,6 +84,7 @@ class Customer extends Component
 
     public function save()
     {
+        $this->authorize('update', $this->customer);
         $this->validate($this->rules(), (new CustomerRequest())->messages());
         DB::beginTransaction();
         try {
@@ -100,10 +102,11 @@ class Customer extends Component
                 'text' => 'La actualización del cliente fue exitosa.',
                 'icon' => 'success',
             ]);
+
             return redirect()->route('admin.customers.index');
         } catch (\Throwable $throwable) {
             DB::rollBack();
-            Log::error('Error al actualizar el cliente: ' . $throwable->getMessage(), [
+            Log::error('Error al actualizar el cliente: '.$throwable->getMessage(), [
                 'stack' => $throwable->getTraceAsString(),
             ]);
             $this->dispatch('swal', [
