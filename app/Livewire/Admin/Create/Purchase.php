@@ -133,7 +133,7 @@ class Purchase extends Component
             ->map(fn(Product $product): array => [
                 'id' => $product->id,
                 'name' => $product->name,
-                'quantity' => 1,
+                'quantity' => $product->stock_min + 10,
                 'price' => $product->price_purchase,
                 'price_type' => 'COMPRA',
                 'subtotal' => $product->price_purchase,

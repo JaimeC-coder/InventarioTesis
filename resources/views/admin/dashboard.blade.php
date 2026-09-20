@@ -16,18 +16,9 @@
 
         <ul class="list-disc list-inside space-y-2 text-gray-700">
 
-
-            <li class="text-red-600">
-                hacer funcionar el boton de crear orden de compra de la tabla del dashboard
-            </li>
             <li class="text-red-600">
                 terminar con movimiento y transferencia de productos
             </li>
-
-            <li class="text-yellow-300">
-                terminar policyas para manejar perminsos
-            </li>
-
 
             <li class="text-green-500">
                 ver si cambiamos como traer los iconos
