@@ -52,7 +52,7 @@ final class NotStockTable extends PowerGridComponent
 
     public function datasource(): ?Builder
     {
-        return DB::table('records')
+        $builder = DB::table('records')
             ->join('products', 'records.product_id', '=', 'products.id')
             ->select(
                 'records.id as id',
@@ -62,8 +62,12 @@ final class NotStockTable extends PowerGridComponent
                 'records.warehouse_name as warehouse_name',
                 'records.warehouse_id as warehouse_id'
             )
-            ->whereColumn('records.quantity', '<=', 'products.min_stock')
-            ->orderBy('records.warehouse_id', 'asc');
+            ->where('products.is_active_product', 1)
+            ->whereNull('products.deleted_at')
+            ->whereColumn('records.quantity', '<=', 'products.min_stock');
+        app(\App\Repositories\ProductRepository::class)->excludeProductsWithOpenRecentPurchase($builder);
+
+        return $builder->orderBy('records.warehouse_id', 'asc');
     }
 
     public function fields(): PowerGridFields
