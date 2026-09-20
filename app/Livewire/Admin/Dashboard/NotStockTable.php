@@ -108,6 +108,10 @@ final class NotStockTable extends PowerGridComponent
             ->whereIn('records.id', $this->checkboxValues)
             ->select('warehouses.uuid as warehouse_uuid', 'suppliers.uuid as supplier_uuid')
             ->first();
+        $productIds = DB::table('records')
+            ->whereIn('id', $this->checkboxValues)
+            ->pluck('product_id')
+            ->all();
         $token = (string) Str::uuid();
         $expiresAt = now()->addHours(48);
         Cache::put(
@@ -115,7 +119,7 @@ final class NotStockTable extends PowerGridComponent
             [
                 'warehouse_uuid' => $warehouseId->warehouse_uuid,
                 'supplier_uuid' => $warehouseId->supplier_uuid,
-                'product_ids' =>  $this->checkboxValues,
+                'product_ids' =>  $productIds,
             ],
             $expiresAt
         );

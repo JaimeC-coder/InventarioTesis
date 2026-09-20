@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Record;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class ProductRepository
 {
@@ -52,12 +53,17 @@ class ProductRepository
             ->get();
     }
 
+    private const OPEN_PURCHASE_MAX_AGE_DAYS = 10;
+
     /**
      * Productos con stock (por almacén) en o por debajo de su mínimo, excluyendo
-     * los que ya tienen una compra generada para ese mismo almacén (cualquier
-     * estado salvo ANULADO cuenta como "ya se generó", incluido PENDIENTE, para
-     * no duplicar el pedido). Filtra y limita en la base de datos en vez de traer
-     * toda la tabla records a memoria.
+     * los que ya tienen una compra ABIERTA (PENDIENTE/REGISTRADO/PEDIDO) reciente
+     * para ese mismo almacén — "reciente" = con fecha dentro de los últimos
+     * OPEN_PURCHASE_MAX_AGE_DAYS días. RECIBIDO y ANULADO son estados terminales
+     * y nunca bloquean. Una compra abierta más vieja que ese umbral se considera
+     * estancada/abandonada y deja de bloquear, para no ocultar el producto para
+     * siempre. Filtra y limita en la base de datos en vez de traer toda la tabla
+     * records a memoria.
      */
     public function groupedByWarehouseAndSupplier(int $limit = 30): Collection
     {
@@ -75,13 +81,18 @@ class ProductRepository
                     })
                     ->whereColumn('productables.product_id', 'records.product_id')
                     ->whereColumn('purchases.warehouse_id', 'records.warehouse_id')
-                    ->where('purchases.status', '!=', PurchasesStatusEnum::ANULADO->value)
+                    ->whereIn('purchases.status', [
+                        PurchasesStatusEnum::PENDIENTE->value,
+                        PurchasesStatusEnum::REGISTRADO->value,
+                        PurchasesStatusEnum::PEDIDO->value,
+                    ])
+                    ->where('purchases.date', '>=', now()->subDays(self::OPEN_PURCHASE_MAX_AGE_DAYS)->toDateString())
                     ->whereNull('purchases.deleted_at');
             })
             ->orderBy('records.id')
             ->limit($limit)
             ->pluck('records.id');
-
+        Log::info('Record IDs for low stock report: ', $recordIds->toArray());
         return Record::query()
             ->with(['product.supplier', 'warehouse'])
             ->whereIn('id', $recordIds)
